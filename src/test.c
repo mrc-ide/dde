@@ -39,9 +39,9 @@ SEXP run_lorenz(SEXP r_times) {
   double pars[3] = {10.0, 28.0, 8.0 / 3.0};
   double y[3] = {10.0, 1.0, 1.0};
   SEXP ret = PROTECT(allocVector(VECSXP, 2));
-  SEXP ret_y = PROTECT(allocVector(REALSXP, (n_times - 1) * 3));
+  SEXP ret_y = PROTECT(allocMatrix(REALSXP, 3, n_times - 1));
   double *y_out = REAL(ret_y);
-  dopri5_data* obj = dopri5_data_alloc(&lorenz, 3, (void*) pars);
+  dopri5_data* obj = dopri5_data_alloc(&lorenz, 3, (void*) pars, 100);
   obj->rtol = 1e-7;
   obj->atol = 1e-7;
   dopri5_integrate(obj, y, times, n_times, y_out);
@@ -50,8 +50,7 @@ SEXP run_lorenz(SEXP r_times) {
           obj->code, obj->error);
 
   size_t n_history = ring_buffer_used(obj->history, 0);
-  Rprintf("n_history: %d\n", n_history);
-  SEXP history = PROTECT(allocVector(REALSXP, n_history * obj->history_len));
+  SEXP history = PROTECT(allocMatrix(REALSXP, obj->history_len, n_history));
   ring_buffer_memcpy_from(REAL(history), obj->history, n_history);
   SET_VECTOR_ELT(ret, 0, ret_y);
   SET_VECTOR_ELT(ret, 1, history);

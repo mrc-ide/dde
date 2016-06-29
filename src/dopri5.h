@@ -103,7 +103,8 @@ typedef struct {
   size_t n_reject;
 } dopri5_data;
 
-dopri5_data* dopri5_data_alloc(deriv_func* target, size_t n, void *data);
+dopri5_data* dopri5_data_alloc(deriv_func* target, size_t n, void *data,
+                               size_t n_history);
 void dopri5_data_reset(dopri5_data *obj, double *y,
                        double *times, size_t n_times);
 void dopri5_data_free(dopri5_data *obj);

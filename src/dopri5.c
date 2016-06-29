@@ -3,7 +3,8 @@
 #include "util.h"
 #include <R.h>
 
-dopri5_data* dopri5_data_alloc(deriv_func* target, size_t n, void *data) {
+dopri5_data* dopri5_data_alloc(deriv_func* target, size_t n, void *data,
+                               size_t n_history) {
   dopri5_data *ret = (dopri5_data*) R_Calloc(1, dopri5_data);
   ret->target = target;
   ret->data = data;
@@ -27,7 +28,6 @@ dopri5_data* dopri5_data_alloc(deriv_func* target, size_t n, void *data) {
   ret->ysti = R_Calloc(n, double);
 
   ret->history_len = 2 + 5 * n;
-  size_t n_history = 100;
   ret->history =
     ring_buffer_create(n_history, ret->history_len * sizeof(double));
 

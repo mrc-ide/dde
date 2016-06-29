@@ -1,6 +1,6 @@
 run_lorenz <- function(times) {
   ret <- .Call("run_lorenz", times, PACKAGE="dde")
-  ret[[1L]] <- matrix(ret[[1L]], ncol=3, byrow=TRUE)
+  ret[[1L]] <- t(ret[[1L]])
   ret
 }
 
