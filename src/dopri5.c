@@ -173,14 +173,16 @@ void dopri5_integrate(dopri5_data *obj, double *y,
         obj->times_idx++;
         y_out += obj->n;
       }
+
+      // Advance the ring buffer; we'll write to the next place after
+      // this.
+      ring_buffer_head_advance(obj->history);
+
       if (last) {
         // TODO: we could save h back into obj here?
         obj->code = OK_COMPLETE;
         return;
       }
-      // Advance the ring buffer; we'll write to the next place after
-      // this.
-      ring_buffer_head_advance(obj->history);
       // TODO: To understand this bit I think I will need to get the
       // book and actually look at the dopri integration bit.
       if (fabs(h_new) >= obj->step_size_max) {
