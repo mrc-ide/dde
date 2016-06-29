@@ -33,7 +33,8 @@ void lorenz(int n, double t, double *y, double *dydt, void *data) {
   dydt[2] = -b * y[2] + y[0] * y[1];
 }
 
-SEXP run_lorenz(SEXP r_times) {
+SEXP run_lorenz(SEXP r_times, SEXP r_n_history) {
+  size_t n_history = INTEGER(r_n_history)[0];
   size_t n_times = length(r_times);
   double *times = REAL(r_times);
   double pars[3] = {10.0, 28.0, 8.0 / 3.0};
@@ -41,7 +42,7 @@ SEXP run_lorenz(SEXP r_times) {
   SEXP ret = PROTECT(allocVector(VECSXP, 2));
   SEXP ret_y = PROTECT(allocMatrix(REALSXP, 3, n_times - 1));
   double *y_out = REAL(ret_y);
-  dopri5_data* obj = dopri5_data_alloc(&lorenz, 3, (void*) pars, 100);
+  dopri5_data* obj = dopri5_data_alloc(&lorenz, 3, (void*) pars, n_history);
   obj->rtol = 1e-7;
   obj->atol = 1e-7;
   dopri5_integrate(obj, y, times, n_times, y_out);
@@ -49,9 +50,9 @@ SEXP run_lorenz(SEXP r_times) {
   Rprintf("Integration complete with code: %d (err? %d)\n",
           obj->code, obj->error);
 
-  size_t n_history = ring_buffer_used(obj->history, 0);
-  SEXP history = PROTECT(allocMatrix(REALSXP, obj->history_len, n_history));
-  ring_buffer_memcpy_from(REAL(history), obj->history, n_history);
+  size_t nh = ring_buffer_used(obj->history, 0);
+  SEXP history = PROTECT(allocMatrix(REALSXP, obj->history_len, nh));
+  ring_buffer_memcpy_from(REAL(history), obj->history, nh);
   SET_VECTOR_ELT(ret, 0, ret_y);
   SET_VECTOR_ELT(ret, 1, history);
 

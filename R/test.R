@@ -1,5 +1,5 @@
-run_lorenz <- function(times) {
-  ret <- .Call("run_lorenz", times, PACKAGE="dde")
+run_lorenz <- function(times, n_history = 100L) {
+  ret <- .Call("run_lorenz", times, as.integer(n_history), PACKAGE="dde")
   ret[[1L]] <- t(ret[[1L]])
   ret
 }
