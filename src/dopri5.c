@@ -30,6 +30,7 @@ dopri5_data* dopri5_data_alloc(deriv_func* target, size_t n, void *data,
   ret->history_len = 2 + 5 * n;
   ret->history =
     ring_buffer_create(n_history, ret->history_len * sizeof(double));
+  ret->history_time_idx = 5 * n;
 
   // Defaults!
   ret->atol = 1e-6;
@@ -157,8 +158,8 @@ void dopri5_integrate(dopri5_data *obj, double *y,
         history[2 * obj->n + i] = bspl;
         history[3 * obj->n + i] = -h * obj->k2[i] + ydiff - bspl;
       }
-      history[5 * obj->n    ] = obj->t;
-      history[5 * obj->n + 1] = h;
+      history[obj->history_time_idx    ] = obj->t;
+      history[obj->history_time_idx + 1] = h;
 
       // Always do these bits (TODO, it's quite possible that we can
       // do this with a swap rather than a memcpy which would be
@@ -169,7 +170,9 @@ void dopri5_integrate(dopri5_data *obj, double *y,
 
       while (obj->times_idx < obj->n_times &&
              obj->times[obj->times_idx] <= obj->t) {
-        dopri5_interpolate(obj, obj->times[obj->times_idx], y_out);
+        dopri5_interpolate_all((double *) obj->history->head, obj->n,
+                               obj->times[obj->times_idx],
+                               y_out);
         obj->times_idx++;
         y_out += obj->n;
       }
@@ -329,12 +332,10 @@ double dopri5_h_init(dopri5_data *obj) {
   return copysign(h, obj->sign);
 }
 
-// There are two interpolation functions here; one (interpolate1())
+// There are two interpolation functions here; one (interpolate_1())
 // interpolates a single variable while the other (interpolate())
 // interpolates the entire y vector.
-double dopri5_interpolate1(dopri5_data *obj, double t, size_t i) {
-  double *history = (double*) obj->history->head;
-  const size_t n = obj->n;
+double dopri5_interpolate_1(double *history, size_t n, double t, size_t i) {
   const double t_old = history[5 * n], h = history[5 * n + 1];
   const double theta = (t - t_old) / h;
   const double theta1 = 1 - theta;
@@ -346,18 +347,33 @@ double dopri5_interpolate1(dopri5_data *obj, double t, size_t i) {
        history[4 * n + i])));
 }
 
-void dopri5_interpolate(dopri5_data *obj, double t, double *y) {
-  double *history = (double*) obj->history->head;
-  const size_t n = obj->n;
+void dopri5_interpolate_all(double *history, size_t n, double t, double *y) {
   const double t_old = history[5 * n], h = history[5 * n + 1];
   const double theta = (t - t_old) / h;
   const double theta1 = 1 - theta;
 
-  for (size_t i = 0; i < obj->n; ++i) {
+  for (size_t i = 0; i < n; ++i) {
     y[i] = history[i] + theta *
       (history[n + i] + theta1 *
        (history[2 * n + i] + theta *
         (history[3 * n + i] + theta1 *
          history[4 * n + i])));
+  }
+}
+
+void dopri5_interpolate_idx(double *history, size_t n, double t,
+                            size_t * idx, size_t nidx,
+                            double *y) {
+  const double t_old = history[5 * n], h = history[5 * n + 1];
+  const double theta = (t - t_old) / h;
+  const double theta1 = 1 - theta;
+
+  for (size_t i = 0; i < nidx; ++i) {
+    size_t j = idx[i];
+    y[i] = history[j] + theta *
+      (history[n + j] + theta1 *
+       (history[2 * n + j] + theta *
+        (history[3 * n + j] + theta1 *
+         history[4 * n + j])));
   }
 }

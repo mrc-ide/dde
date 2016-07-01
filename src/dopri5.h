@@ -78,6 +78,7 @@ typedef struct {
   // very clever) so I'm going to have do pointer arithmetic here.
   size_t history_len;
   ring_buffer *history;
+  size_t history_time_idx;
 
   double sign;
 
@@ -115,5 +116,9 @@ void dopri5_step(dopri5_data *obj, double h);
 double dopri5_error(dopri5_data *obj);
 double dopri5_h_new(dopri5_data *obj, double fac_old, double h, double err);
 double dopri5_h_init(dopri5_data *obj);
-double dopri5_interpolate1(dopri5_data *obj, double t, size_t i);
-void dopri5_interpolate(dopri5_data *obj, double t, double *y);
+
+double dopri5_interpolate_1(double *history, size_t n, double t, size_t i);
+void dopri5_interpolate_all(double *history, size_t n, double t, double *y);
+void dopri5_interpolate_idx(double *history, size_t n, double t,
+                            size_t * idx, size_t nidx,
+                            double *y);
