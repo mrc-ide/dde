@@ -91,6 +91,16 @@ void dopri5_data_free(dopri5_data *obj) {
   R_Free(obj);
 }
 
+// This is super ugly, but needs to be done so that the lag functions
+// can access the previous history easily.  I don't see an obvious way
+// around this unfortunately, given that the lag functions need to be
+// callable in user code (so without forcing some weird and blind
+// passing of a void object around, which will break compatibility
+// with deSolve even more and make the interface for the dde and
+// non-dde equations quite different) this seems like a reasonable way
+// of achiving this.  Might change later though.
+static dopri5_data *dde_global_obj;
+
 // Integration is going to be over a set of times 't', of which there
 // are 'n_t'.
 void dopri5_integrate(dopri5_data *obj, double *y,
@@ -113,6 +123,10 @@ void dopri5_integrate(dopri5_data *obj, double *y,
 
   // Work out the initial step size:
   double h = dopri5_h_init(obj);
+
+  // Possibly only set this if the number of history variables is
+  // nonzero?
+  dde_global_obj = obj;
 
   while (true) {
     if (obj->n_step > obj->step_max_n) {
@@ -184,7 +198,7 @@ void dopri5_integrate(dopri5_data *obj, double *y,
       if (last) {
         // TODO: we could save h back into obj here?
         obj->code = OK_COMPLETE;
-        return;
+        break;
       }
       // TODO: To understand this bit I think I will need to get the
       // book and actually look at the dopri integration bit.
@@ -212,6 +226,9 @@ void dopri5_integrate(dopri5_data *obj, double *y,
     }
     h = h_new;
   }
+
+  // Reset the global state
+  dde_global_obj = NULL;
 }
 
 void dopri5_step(dopri5_data *obj, double h) {
