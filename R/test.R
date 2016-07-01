@@ -1,7 +1,7 @@
-run_lorenz <- function(times, n_history = 100L) {
-  ret <- .Call("run_lorenz", times, as.integer(n_history), PACKAGE="dde")
-  ret[[1L]] <- t(ret[[1L]])
-  ret
+run_lorenz_dde <- function(times, n_history = 100L) {
+  p <- c(10, 28, 8 / 3)
+  y <- c(10, 1, 1)
+  dopri5(y, tt, "lorenz", p, atol=1e-7, rtol=1e-7, n_history=n_history)
 }
 
 run_lorenz_deSolve <- function(times) {

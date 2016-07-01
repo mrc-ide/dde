@@ -184,11 +184,14 @@ void dopri5_integrate(dopri5_data *obj, double *y,
 
       while (obj->times_idx < obj->n_times &&
              obj->times[obj->times_idx] <= obj->t) {
+        // Here, it might be nice to allow transposed output or not;
+        // that would be an argument to interpolate_all.  That's a bit
+        // of a faff.
         dopri5_interpolate_all((double *) obj->history->head, obj->n,
                                obj->times[obj->times_idx],
-                               y_out);
+                               y_out, obj->n_times - 1);
         obj->times_idx++;
-        y_out += obj->n;
+        y_out++;
       }
 
       // Advance the ring buffer; we'll write to the next place after
@@ -364,13 +367,14 @@ double dopri5_interpolate_1(double *history, size_t n, double t, size_t i) {
        history[4 * n + i])));
 }
 
-void dopri5_interpolate_all(double *history, size_t n, double t, double *y) {
+void dopri5_interpolate_all(double *history, size_t n, double t,
+                            double *y, size_t y_stride) {
   const double t_old = history[5 * n], h = history[5 * n + 1];
   const double theta = (t - t_old) / h;
   const double theta1 = 1 - theta;
 
-  for (size_t i = 0; i < n; ++i) {
-    y[i] = history[i] + theta *
+  for (size_t i = 0, j = 0; i < n; ++i, j += y_stride) {
+    y[j] = history[i] + theta *
       (history[n + i] + theta1 *
        (history[2 * n + i] + theta *
         (history[3 * n + i] + theta1 *
@@ -456,7 +460,7 @@ double ylag1(double t, size_t i) {
 
 void ylag_all(double t, double *y) {
   double * h = dopri5_find_time(dde_global_obj, t);
-  dopri5_interpolate_all(h, dde_global_obj->n, t, y);
+  dopri5_interpolate_all(h, dde_global_obj->n, t, y, 1);
 }
 
 void ylag_vec(double t, size_t *idx, size_t nidx, double *y) {
