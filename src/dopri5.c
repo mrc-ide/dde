@@ -394,3 +394,72 @@ void dopri5_interpolate_idx(double *history, size_t n, double t,
          history[4 * n + j])));
   }
 }
+
+// history searching:
+//
+// The big challenge here is that the history object will need to be
+// found.  deSolve deals with this generally by stashing a copy of the
+// objects as a global, This is nice because then the target function
+// does not need to know about the struct; if you require that the
+// struct is present then the whole thing falls apart a little bit
+// because the target function is in the main struct, but needs to
+// *call* the main struct to get the history.  So, this is a bit
+// tricky to get right.
+
+// The global/lock solver approach of deSolve is reasonable, and while
+// inelegant should serve us reasonably well.  The other approach
+// would be to somehow do a more C++ approach where things know more
+// about the solution but that seems shit.
+
+// So I'll need to get this right.  On integration we'll have a
+// `global_state` variable that is (possibly static) initialised when
+// the integration starts, and which holds a pointer to the
+// integration data.  Then when the integration runs any call to ylag*
+// will end up triggering that.  On exit of the itegrator we'll set
+// that to NULL and hope that there are no longjup style exists
+// anywhere so we can use `==NULL` safely.
+
+// TODO: There's an issue here where if the chosen time is the last
+// time (a tail offset of n-1) then we might actually need to
+// interpolate off of the head which is not actually returned.  This
+// is a bit of a shit, and might be worth treating separately in the
+// search, or in the code below.
+
+// These bits are all nice and don't use any globals
+struct dopri5_find_time_pred_data {
+  size_t idx;
+  double time;
+};
+
+bool dopri5_find_time_pred(void *x, void *data) {
+  const struct dopri5_find_time_pred_data *d =
+    (struct dopri5_find_time_pred_data *) data;
+  return ((double*) x)[d->idx] <= d->time;
+}
+
+double* dopri5_find_time(dopri5_data *obj, double t) {
+  struct dopri5_find_time_pred_data data = {obj->history_time_idx, t};
+  return (double*) ring_buffer_search_linear(obj->history,
+                                             &dopri5_find_time_pred,
+                                             &data);
+}
+
+// But these all use the global state object (otherwise these all pick
+// up a `void *data` argument which will be cast to `dopri5_data*`,
+// but then the derivative function needs the same thing, which is
+// going to seem weird and also means that the same function can't be
+// easily used for dde and non dde use).
+double ylag1(double t, size_t i) {
+  double * h = dopri5_find_time(dde_global_obj, t);
+  return dopri5_interpolate_1(h, dde_global_obj->n, t, i);
+}
+
+void ylag_all(double t, double *y) {
+  double * h = dopri5_find_time(dde_global_obj, t);
+  dopri5_interpolate_all(h, dde_global_obj->n, t, y);
+}
+
+void ylag_vec(double t, size_t *idx, size_t nidx, double *y) {
+  double * h = dopri5_find_time(dde_global_obj, t);
+  dopri5_interpolate_idx(h, dde_global_obj->n, t, idx, nidx, y);
+}
