@@ -1,3 +1,32 @@
+dopri5 <- function(y, times, func, parms, ...,
+                   rtol = 1e-6, atol = 1e-6,
+                   n_history = 0, keep_history = n_history > 0, dllname = "",
+                   parms_are_real = TRUE) {
+  ## TODO: will need to support R functions here at some point, for
+  ## completeness sake.
+  if (is.character(func)) {
+    func <- getNativeSymbolInfo(func, dllname)$address
+  } else if (inherits(func, "NativeSymbolInfo")) {
+    func <- func$address
+  } else if (!inherits(func, "externalptr")) {
+    stop("Invalid input for 'func'")
+  }
+  if (length(times) < 2L) {
+    stop("Expected at least two times (start and end point)")
+  }
+
+  assert_scalar(rtol)
+  assert_scalar(atol)
+  assert_size(n_history)
+  assert_scalar_logical(keep_history)
+  assert_scalar_logical(parms_are_real)
+
+  .Call("r_run_dopri5", y, times, func, parms,
+        rtol, atol, parms_are_real,
+        as.integer(n_history), keep_history,
+        PACKAGE="dde")
+}
+
 dopri5_interpolate <- function(h, t) {
   nh <- ncol(h)
   nd <- (nrow(h) - 2) / 5
