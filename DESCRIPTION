@@ -3,11 +3,14 @@ Title: Solve Delay Differential Equations
 Version: 0.0.1
 Author: Rich FitzJohn
 Maintainer: Rich FitzJohn <rich.fitzjohn@gmail.com>
-Description: Solves delay differential equations, where objective functions
-  are written in compiled code.  The interface is designed to mimic deSolve's
-  interface fairly closely.  The approach is based off of a similar integrator
-  due to Hairer.
+Description: Solves delay differential equations, where objective
+    functions are written in compiled code.  The approach is based off
+    of a similar integrator due to Hairer, and uses the Dormand-Prince
+    dense output stepper.
 License: MIT + file LICENSE
-LinkingTo: ring
 URL: https://github.com/richfitz/dde
 BugReports: https://github.com/richfitz/dde/issues
+LinkingTo: ring
+Suggests:
+    deSolve,
+    testthat
