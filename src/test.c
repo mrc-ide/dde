@@ -61,8 +61,8 @@ void seir(int n, double t, double *y, double *dydt, void *data) {
     I_lag = I0;
   } else {
     const double tau = t - lat_hum;
-    S_lag = ylag1(tau, 0);
-    I_lag = ylag1(tau, 2);
+    S_lag = ylag_1(tau, 0);
+    I_lag = ylag_1(tau, 2);
   }
 
   const double S = y[0], E = y[1], I = y[2], R = y[3];

@@ -1,3 +1,4 @@
+#include <dde/dde.h>
 #include <R.h> // dragging in a big include, strip down later
 #include <stdbool.h>
 #include <ring/ring.h>
@@ -123,9 +124,3 @@ void dopri5_interpolate_all(double *history, size_t n, double t,
 void dopri5_interpolate_idx(double *history, size_t n, double t,
                             size_t * idx, size_t nidx,
                             double *y);
-
-// These will move into their own file in inst shortly so we can
-// arrange for them to be callable from external programs.
-double ylag1(double t, size_t i);
-void ylag_all(double t, double *y);
-void ylag_vec(double t, size_t *idx, size_t nidx, double *y);

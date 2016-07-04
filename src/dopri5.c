@@ -457,7 +457,7 @@ double* dopri5_find_time(dopri5_data *obj, double t) {
 // but then the derivative function needs the same thing, which is
 // going to seem weird and also means that the same function can't be
 // easily used for dde and non dde use).
-double ylag1(double t, size_t i) {
+double ylag_1(double t, size_t i) {
   double * h = dopri5_find_time(dde_global_obj, t);
   return dopri5_interpolate_1(h, dde_global_obj->n, t, i);
 }
