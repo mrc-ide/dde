@@ -1,2 +1,2 @@
 # -*-makefile-*-
-PKG_CFLAGS = -I${DDE_INCLUDE}
+PKG_CFLAGS = -I${DDE_INCLUDE} -g

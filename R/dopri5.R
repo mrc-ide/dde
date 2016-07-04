@@ -26,7 +26,11 @@ dopri5 <- function(y, times, func, parms, ...,
   assert_scalar_logical(keep_history)
   assert_scalar_logical(parms_are_real)
 
+  n_out <- 0L
+  output <- NULL
+
   .Call("r_dopri5", y, times, func, parms,
+        n_out, output,
         rtol, atol, parms_are_real,
         as.integer(n_history), keep_history,
         PACKAGE="dde")

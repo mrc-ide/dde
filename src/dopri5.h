@@ -1,6 +1,7 @@
 #include <dde/dde.h>
 #include <R.h> // dragging in a big include, strip down later
 #include <stdbool.h>
+#include <stddef.h>
 #include <ring/ring.h>
 
 // The big thing that is missing for testing this is the ability to
@@ -28,14 +29,16 @@ typedef enum return_code {
   OK_INTERRUPTED = 2
 } return_code;
 
-typedef void deriv_func(int n_eq, double t, double *y, double *dydt,
-                        void *data);
+typedef void deriv_func(size_t n_eq, double t, const double *y, double *dydt,
+                        const void *data);
+typedef void output_func(size_t n_eq, double t, const double *y,
+                         size_t n_out, double *out, const void *data);
 
 typedef struct {
   deriv_func* target;
   void* data;
 
-  size_t n;  // number of equations
+  size_t n;     // number of equations
   bool initialised;
 
   double t0; // initial time (needed?)
@@ -47,6 +50,10 @@ typedef struct {
   double * y0; // initial state (needed?)
   double * y;  // current state
   double * y1; // next state
+
+  size_t n_out; // number of output variables (possibly zero)
+  output_func* output; // optional output function
+  double * out; // any additional output variables
 
   // TODO: If I generalise this over orders, then this becomes a **
   // and the length is stored here -- not too bad.
@@ -105,14 +112,15 @@ typedef struct {
   size_t n_reject;
 } dopri5_data;
 
-dopri5_data* dopri5_data_alloc(deriv_func* target, size_t n, void *data,
-                               size_t n_history);
+dopri5_data* dopri5_data_alloc(deriv_func* target, size_t n,
+                               output_func* output, size_t n_out,
+                               void *data, size_t n_history);
 void dopri5_data_reset(dopri5_data *obj, double *y,
                        double *times, size_t n_times);
 void dopri5_data_free(dopri5_data *obj);
 void dopri5_integrate(dopri5_data *obj, double *y,
                       double *times, size_t n_times,
-                      double *y_out);
+                      double *y_out, double *out);
 void dopri5_step(dopri5_data *obj, double h);
 double dopri5_error(dopri5_data *obj);
 double dopri5_h_new(dopri5_data *obj, double fac_old, double h, double err);

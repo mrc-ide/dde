@@ -1,7 +1,8 @@
 #include <dde/dde.h>
+#include <stddef.h>
 #include <math.h>
 
-void seir(int n, double t, double *y, double *dydt, void *data) {
+void seir(size_t n, double t, double *y, double *dydt, void *data) {
   // Needs to agree with the initial conditions too; this is amazingly
   // shit (See below).  This is what we get for mimicking the deSolve
   // API though; it might be better to come up with something more

@@ -1,4 +1,5 @@
-void lorenz(int n, double t, double *y, double *dydt, void *data) {
+#include <stddef.h>
+void lorenz(size_t n, double t, double *y, double *dydt, void *data) {
   double *pars = (double*) data;
   double sigma = pars[0];
   double R = pars[1];

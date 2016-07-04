@@ -3,14 +3,18 @@
 #include "util.h"
 #include <R.h>
 
-dopri5_data* dopri5_data_alloc(deriv_func* target, size_t n, void *data,
-                               size_t n_history) {
+// used below.
+double * copy_output(dopri5_data *obj, double *out);
+
+dopri5_data* dopri5_data_alloc(deriv_func* target, size_t n,
+                               output_func* output, size_t n_out,
+                               void *data, size_t n_history) {
   dopri5_data *ret = (dopri5_data*) R_Calloc(1, dopri5_data);
   ret->target = target;
   ret->data = data;
-
   ret->n = n;
-  ret->initialised = false;
+
+  ret->initialised = false; // this might be droppable.
 
   ret->n_times = 0;
   ret->times = NULL;
@@ -18,6 +22,10 @@ dopri5_data* dopri5_data_alloc(deriv_func* target, size_t n, void *data,
   ret->y0 = R_Calloc(n, double);
   ret->y  = R_Calloc(n, double);
   ret->y1 = R_Calloc(n, double);
+
+  ret->output = output;
+  ret->n_out = n_out;
+  ret->out = R_Calloc(n_out, double);
 
   ret->k1 = R_Calloc(n, double);
   ret->k2 = R_Calloc(n, double);
@@ -79,13 +87,15 @@ void dopri5_data_free(dopri5_data *obj) {
     R_Free(obj->y0);
     R_Free(obj->y);
     R_Free(obj->y1);
+    R_Free(obj->out);
+    R_Free(obj->k1);
     R_Free(obj->k2);
     R_Free(obj->k3);
     R_Free(obj->k4);
     R_Free(obj->k5);
     R_Free(obj->k6);
     R_Free(obj->ysti);
-    ring_buffer_destroy(obj->history);
+     ring_buffer_destroy(obj->history);
   }
   R_Free(obj->times);
   R_Free(obj);
@@ -105,7 +115,7 @@ static dopri5_data *dde_global_obj;
 // are 'n_t'.
 void dopri5_integrate(dopri5_data *obj, double *y,
                       double *times, size_t n_times,
-                      double *y_out) {
+                      double *y_out, double *out) {
   obj->error = false;
   obj->code = NOT_SET;
 
@@ -190,6 +200,11 @@ void dopri5_integrate(dopri5_data *obj, double *y,
         dopri5_interpolate_all((double *) obj->history->head, obj->n,
                                obj->times[obj->times_idx],
                                y_out, obj->n_times - 1);
+        if (false && obj->n_out > 0) {
+          obj->output(obj->n, obj->times[obj->times_idx], y_out,
+                      obj->n_out, obj->out, obj->data);
+          out = copy_output(obj, out);
+        }
         obj->times_idx++;
         y_out++;
       }
@@ -344,7 +359,7 @@ double dopri5_h_init(dopri5_data *obj) {
 
   // Step size is computed such that
   //   h^iord * fmax(norm(f0), norm(der2)) = 0.01
-  int iord = 5;
+  size_t iord = 5;
   double der12 = fmax(fabs(der2), sqrt(norm_f));
   double h1 = (der12 <= 1e-15) ?
     fmax(1e-6, fabs(h) * 1e-3) : pow(0.01 / der12, 1.0 / iord);
@@ -464,6 +479,13 @@ double* dopri5_find_time(dopri5_data *obj, double t) {
     Rf_error("Cannot find time within buffer");
   }
   return (double*) h;
+}
+
+double * copy_output(dopri5_data *obj, double *out) {
+  for (size_t i = 0, j = 0; i < obj->n_out; ++i, j += obj->n_times) {
+    out[j] = obj->out[i];
+  }
+  return ++out;
 }
 
 // But these all use the global state object (otherwise these all pick
