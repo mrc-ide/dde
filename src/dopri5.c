@@ -443,9 +443,13 @@ bool dopri5_find_time_pred(void *x, void *data) {
 
 double* dopri5_find_time(dopri5_data *obj, double t) {
   struct dopri5_find_time_pred_data data = {obj->history_time_idx, t};
-  return (double*) ring_buffer_search_linear(obj->history,
-                                             &dopri5_find_time_pred,
-                                             &data);
+  void *h = ring_buffer_search_linear(obj->history,
+                                      &dopri5_find_time_pred,
+                                      &data);
+  if (h == NULL) {
+    Rf_error("Cannot find time within buffer");
+  }
+  return (double*) h;
 }
 
 // But these all use the global state object (otherwise these all pick
