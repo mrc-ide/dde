@@ -39,7 +39,7 @@ SEXP r_dopri5(SEXP r_y, SEXP r_times, SEXP r_func, SEXP r_data,
   SEXP r_out = R_NilValue;
   if (n_out > 0) {
     output = (output_func*)R_ExternalPtrAddr(r_output);
-    r_out = PROTECT(allocMatrix(REALSXP, n_times - 1, n_out));
+    r_out = PROTECT(allocMatrix(REALSXP, n_out, n_times - 1));
     out = REAL(r_out);
   }
 
@@ -47,7 +47,7 @@ SEXP r_dopri5(SEXP r_y, SEXP r_times, SEXP r_func, SEXP r_data,
   obj->rtol = REAL(r_rtol)[0];
   obj->atol = REAL(r_atol)[0];
 
-  SEXP ret_y = PROTECT(allocMatrix(REALSXP, n_times - 1, n));
+  SEXP ret_y = PROTECT(allocMatrix(REALSXP, n, n_times - 1));
   dopri5_integrate(obj, y, times, n_times, REAL(ret_y), out);
 
   if (obj->error) {

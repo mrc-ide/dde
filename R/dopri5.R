@@ -1,4 +1,5 @@
 dopri5 <- function(y, times, func, parms, ...,
+                   n_out = 0L, output = NULL,
                    rtol = 1e-6, atol = 1e-6,
                    n_history = 0, keep_history = n_history > 0, dllname = "",
                    parms_are_real = TRUE) {
@@ -9,16 +10,7 @@ dopri5 <- function(y, times, func, parms, ...,
   ## TODO: will need to support R functions here at some point, for
   ## completeness sake.  This is not that bad to do as they just
   ## become callbacks bound to an environment...
-  if (is.character(func)) {
-    func <- getNativeSymbolInfo(func, dllname)$address
-  } else if (inherits(func, "NativeSymbolInfo")) {
-    func <- func$address
-  } else if (!inherits(func, "externalptr")) {
-    stop("Invalid input for 'func'")
-  }
-  if (length(times) < 2L) {
-    stop("Expected at least two times (start and end point)")
-  }
+  func <- find_function_address(func, dllname)
 
   assert_scalar(rtol)
   assert_scalar(atol)
@@ -26,8 +18,12 @@ dopri5 <- function(y, times, func, parms, ...,
   assert_scalar_logical(keep_history)
   assert_scalar_logical(parms_are_real)
 
-  n_out <- 0L
-  output <- NULL
+  assert_size(n_out)
+  if (n_out > 0L) {
+    output <- find_function_address(output, dllname)
+  } else {
+    output <- NULL
+  }
 
   .Call("r_dopri5", y, times, func, parms,
         n_out, output,
@@ -71,4 +67,15 @@ dopri5_interpolate <- function(h, t) {
   }
 
   ret
+}
+
+find_function_address <- function(fun, dllname = "") {
+  if (is.character(fun)) {
+    fun <- getNativeSymbolInfo(fun, dllname)$address
+  } else if (inherits(fun, "NativeSymbolInfo")) {
+    fun <- fun$address
+  } else if (!inherits(fun, "externalptr")) {
+    stop("Invalid input for 'fun'")
+  }
+  fun
 }

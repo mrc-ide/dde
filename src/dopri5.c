@@ -3,9 +3,6 @@
 #include "util.h"
 #include <R.h>
 
-// used below.
-double * copy_output(dopri5_data *obj, double *out);
-
 dopri5_data* dopri5_data_alloc(deriv_func* target, size_t n,
                                output_func* output, size_t n_out,
                                void *data, size_t n_history) {
@@ -25,7 +22,6 @@ dopri5_data* dopri5_data_alloc(deriv_func* target, size_t n,
 
   ret->output = output;
   ret->n_out = n_out;
-  ret->out = R_Calloc(n_out, double);
 
   ret->k1 = R_Calloc(n, double);
   ret->k2 = R_Calloc(n, double);
@@ -87,7 +83,6 @@ void dopri5_data_free(dopri5_data *obj) {
     R_Free(obj->y0);
     R_Free(obj->y);
     R_Free(obj->y1);
-    R_Free(obj->out);
     R_Free(obj->k1);
     R_Free(obj->k2);
     R_Free(obj->k3);
@@ -199,14 +194,15 @@ void dopri5_integrate(dopri5_data *obj, double *y,
         // of a faff.
         dopri5_interpolate_all((double *) obj->history->head, obj->n,
                                obj->times[obj->times_idx],
-                               y_out, obj->n_times - 1);
-        if (false && obj->n_out > 0) {
+                               y_out);
+        if (obj->n_out > 0) {
           obj->output(obj->n, obj->times[obj->times_idx], y_out,
-                      obj->n_out, obj->out, obj->data);
-          out = copy_output(obj, out);
+                      obj->n_out, out, obj->data);
+          out += obj->n_out;
         }
+
+        y_out += obj->n;
         obj->times_idx++;
-        y_out++;
       }
 
       // Advance the ring buffer; we'll write to the next place after
@@ -382,14 +378,13 @@ double dopri5_interpolate_1(double *history, size_t n, double t, size_t i) {
        history[4 * n + i])));
 }
 
-void dopri5_interpolate_all(double *history, size_t n, double t,
-                            double *y, size_t y_stride) {
+void dopri5_interpolate_all(double *history, size_t n, double t, double *y) {
   const double t_old = history[5 * n], h = history[5 * n + 1];
   const double theta = (t - t_old) / h;
   const double theta1 = 1 - theta;
 
-  for (size_t i = 0, j = 0; i < n; ++i, j += y_stride) {
-    y[j] = history[i] + theta *
+  for (size_t i = 0; i < n; ++i) {
+    y[i] = history[i] + theta *
       (history[n + i] + theta1 *
        (history[2 * n + i] + theta *
         (history[3 * n + i] + theta1 *
@@ -481,13 +476,6 @@ double* dopri5_find_time(dopri5_data *obj, double t) {
   return (double*) h;
 }
 
-double * copy_output(dopri5_data *obj, double *out) {
-  for (size_t i = 0, j = 0; i < obj->n_out; ++i, j += obj->n_times) {
-    out[j] = obj->out[i];
-  }
-  return ++out;
-}
-
 // But these all use the global state object (otherwise these all pick
 // up a `void *data` argument which will be cast to `dopri5_data*`,
 // but then the derivative function needs the same thing, which is
@@ -500,7 +488,7 @@ double ylag_1(double t, size_t i) {
 
 void ylag_all(double t, double *y) {
   double * h = dopri5_find_time(dde_global_obj, t);
-  dopri5_interpolate_all(h, dde_global_obj->n, t, y, 1);
+  dopri5_interpolate_all(h, dde_global_obj->n, t, y);
 }
 
 void ylag_vec(double t, size_t *idx, size_t nidx, double *y) {

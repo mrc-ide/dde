@@ -7,7 +7,7 @@ test_that("ode interface", {
 
   m2 <- run_lorenz_dde(tt)
 
-  expect_equal(m1[-1,], m2, tolerance=1e-6)
+  expect_equal(m1[-1,], t(m2), tolerance=1e-6)
 })
 
 test_that("dense output", {
@@ -17,13 +17,32 @@ test_that("dense output", {
 
   m2 <- run_lorenz_dde(c(0, max(tt)), n_history = 1000L)
   ## single row of output:
-  expect_equal(dim(m2), c(1, 3))
+  expect_equal(dim(m2), c(3, 1))
   h2 <- attr(m2, "history")
   expect_equal(nrow(h2), 17L) # 5 * 3 + 2
 
   m3 <- dopri5_interpolate(h2, tt)
   m4 <- run_lorenz_dde(tt)
 
-  expect_identical(m3[-1,], m4)
+  expect_identical(m3[-1,], t(m4))
   expect_equal(m3, m1, tolerance=1e-6)
+})
+
+test_that("output", {
+  tt <- seq(0, 1, length.out=200)
+
+  p <- c(10, 28, 8 / 3)
+  y0 <- c(10, 1, 1)
+
+  res1 <- dopri5(y0, tt, "lorenz", p, dllname = "lorenz")
+  res2 <- dopri5(y0, tt, "lorenz", p, dllname = "lorenz",
+                 n_out = 1L, output = "lorenz_output")
+
+  expect_equal(names(attributes(res1)), "dim")
+  output <- attr(res2, "output")
+  expect_equal(dim(output), c(1, ncol(res1)))
+  expect_equal(drop(output), pmax(res1[1,], res1[2,], res1[3,]))
+
+  attr(res2, "output") <- NULL
+  expect_identical(res1, res2)
 })

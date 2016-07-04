@@ -44,5 +44,13 @@ void seir(size_t n, double t, double *y, double *dydt, void *data) {
   dydt[3] = sigma * I - b * R - delta * R;
 }
 
+// An output function that takes the sum over all compartments in the
+// model.  Unlike deSolve, these can be added and removed at runtime,
+// rather than just at compile time.
+void seir_output(size_t n, double t, const double *y,
+                 size_t n_out, double *out, const void *data) {
+  out[0] = y[0] + y[1] + y[2] + y[3];
+}
+
 // This needs to be included exactly once per shared library.
 #include <dde/dde.c>
