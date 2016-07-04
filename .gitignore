@@ -6,5 +6,4 @@ src/*.so
 src/*.dll
 orig/
 git_orig
-tmp.R
-use.R
+dde_*.tar.gz

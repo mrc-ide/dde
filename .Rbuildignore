@@ -2,6 +2,8 @@
 ^\.Rproj\.user$
 ^Makefile$
 ^\.travis\.yml$
-^tests/testthat/\.*\.o$
-^tests/testthat/\.*\.so$
-^tests/testthat/\.*\.dll$
+^tests/testthat/.*\.o$
+^tests/testthat/.*\.so$
+^tests/testthat/.*\.dll$
+^notes\.md$
+^dde_.*\.tar\.gz$

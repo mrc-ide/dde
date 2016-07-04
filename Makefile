@@ -32,6 +32,8 @@ check_all:
 
 clean:
 	rm -f src/*.o src/*.so src/*.dll
+	rm -f tests/testthat/*.o tests/testthat/*.so tests/testthat/*.dll
+
 
 README.md: README.Rmd
 	Rscript -e "options(warnPartialMatchArgs=FALSE); knitr::knit('$<')"

@@ -2,6 +2,8 @@
 ## unlocking problem in deSolve.
 loadNamespace("deSolve")
 
+Sys.setenv(DDE_INCLUDE = system.file("include", package = "dde"))
+
 ## A simple Lorenz attractor
 run_lorenz_deSolve <- function(times, tol = 1e-7) {
   sigma <- 10.0
@@ -116,7 +118,10 @@ compile_shlib <- function(path) {
   R <- file.path(R.home(), "bin", "R")
   message("Compiling ", path)
   ok <- system2(R, c("CMD", "SHLIB", path), stdout=FALSE, stderr=FALSE)
-  shlib <- sub("\\.c$", .Platform$dynlib.ext, path)
+  if (ok != 0L) {
+    stop(sprintf("compilation of %s failed", path))
+  }
+  shlib <- sub("\\.c$", .Platform$dynlib.ext, basename(path))
   base <- sub("\\.c$", "", basename(path))
   if (base %in% names(getLoadedDLLs())) {
     dyn.unload(shlib)
