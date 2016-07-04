@@ -2,8 +2,13 @@ dopri5 <- function(y, times, func, parms, ...,
                    rtol = 1e-6, atol = 1e-6,
                    n_history = 0, keep_history = n_history > 0, dllname = "",
                    parms_are_real = TRUE) {
+  DOTS <- list(...)
+  if (length(DOTS) > 0L) {
+    stop("Invalid dot arguments!")
+  }
   ## TODO: will need to support R functions here at some point, for
-  ## completeness sake.
+  ## completeness sake.  This is not that bad to do as they just
+  ## become callbacks bound to an environment...
   if (is.character(func)) {
     func <- getNativeSymbolInfo(func, dllname)$address
   } else if (inherits(func, "NativeSymbolInfo")) {
@@ -21,7 +26,7 @@ dopri5 <- function(y, times, func, parms, ...,
   assert_scalar_logical(keep_history)
   assert_scalar_logical(parms_are_real)
 
-  .Call("r_run_dopri5", y, times, func, parms,
+  .Call("r_dopri5", y, times, func, parms,
         rtol, atol, parms_are_real,
         as.integer(n_history), keep_history,
         PACKAGE="dde")

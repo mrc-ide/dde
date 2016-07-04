@@ -2,3 +2,6 @@
 ^\.Rproj\.user$
 ^Makefile$
 ^\.travis\.yml$
+^tests/testthat/\.*\.o$
+^tests/testthat/\.*\.so$
+^tests/testthat/\.*\.dll$
