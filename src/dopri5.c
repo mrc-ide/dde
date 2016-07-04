@@ -442,8 +442,22 @@ bool dopri5_find_time_pred(void *x, void *data) {
 }
 
 double* dopri5_find_time(dopri5_data *obj, double t) {
-  struct dopri5_find_time_pred_data data = {obj->history_time_idx, t};
-  void *h = ring_buffer_search_linear(obj->history,
+  const size_t t_idx = obj->history_time_idx;
+  struct dopri5_find_time_pred_data data = {t_idx, t};
+  // The first shot at idx here is based on a linear interpolation of
+  // the time; hopefully this gets is close to the correct point
+  // without having to have a really long search time.
+  const size_t n = ring_buffer_used(obj->history, 0);
+  size_t idx0;
+  if (n > 0) {
+    const double
+      t0 = ((double*) ring_buffer_tail(obj->history))[t_idx],
+      t1 = ((double*) ring_buffer_tail_offset(obj->history, n - 1))[t_idx];
+    idx0 = (t1 - t0) / (n - 1);
+  } else {
+    idx0 = 0;
+  }
+  void *h = ring_buffer_search_bisect(obj->history, idx0,
                                       &dopri5_find_time_pred,
                                       &data);
   if (h == NULL) {
