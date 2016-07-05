@@ -36,12 +36,13 @@ test_that("output", {
 
   res1 <- dopri5(y0, tt, "lorenz", p, dllname = "lorenz")
   res2 <- dopri5(y0, tt, "lorenz", p, dllname = "lorenz",
-                 n_out = 1L, output = "lorenz_output")
+                 n_out = 2L, output = "lorenz_output")
 
   expect_equal(names(attributes(res1)), "dim")
   output <- attr(res2, "output")
-  expect_equal(dim(output), c(1, ncol(res1)))
-  expect_equal(drop(output), pmax(res1[1,], res1[2,], res1[3,]))
+  expect_equal(dim(output), c(2L, ncol(res1)))
+  expect_equal(output[1L, ], pmin(res1[1,], res1[2,], res1[3,]))
+  expect_equal(output[2L, ], pmax(res1[1,], res1[2,], res1[3,]))
 
   attr(res2, "output") <- NULL
   expect_identical(res1, res2)

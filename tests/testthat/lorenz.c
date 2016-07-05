@@ -13,5 +13,6 @@ void lorenz(size_t n, double t, double *y, double *dydt, void *data) {
 
 void lorenz_output(size_t n, double t, const double *y,
                    size_t n_out, double *out, void *data) {
-  out[0] = fmax(fmax(y[0], y[1]), y[2]);
+  out[0] = fmin(fmin(y[0], y[1]), y[2]);
+  out[1] = fmax(fmax(y[0], y[1]), y[2]);
 }
