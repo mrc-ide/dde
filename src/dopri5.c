@@ -11,7 +11,6 @@ dopri5_data* dopri5_data_alloc(deriv_func* target, size_t n,
   ret->data = data;
   ret->n = n;
 
-  ret->initialised = false; // this might be droppable.
 
   ret->n_times = 0;
   ret->times = NULL;
@@ -75,25 +74,23 @@ void dopri5_data_reset(dopri5_data *obj, double *y,
   obj->n_step = 0;
   obj->n_accept = 0;
   obj->n_reject = 0;
-  obj->initialised = true;
 }
 
 void dopri5_data_free(dopri5_data *obj) {
-  // TODO: Don't use initialised here; this is currently a potential
-  // leak and not correct.
-  if (obj->initialised) {
-    R_Free(obj->y0);
-    R_Free(obj->y);
-    R_Free(obj->y1);
-    R_Free(obj->k1);
-    R_Free(obj->k2);
-    R_Free(obj->k3);
-    R_Free(obj->k4);
-    R_Free(obj->k5);
-    R_Free(obj->k6);
-    R_Free(obj->ysti);
-     ring_buffer_destroy(obj->history);
-  }
+  R_Free(obj->y0);
+  R_Free(obj->y);
+  R_Free(obj->y1);
+
+  R_Free(obj->k1);
+  R_Free(obj->k2);
+  R_Free(obj->k3);
+  R_Free(obj->k4);
+  R_Free(obj->k5);
+  R_Free(obj->k6);
+  R_Free(obj->ysti);
+
+  ring_buffer_destroy(obj->history);
+
   R_Free(obj->times);
   R_Free(obj);
 }

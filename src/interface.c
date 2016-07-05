@@ -67,6 +67,8 @@ SEXP r_dopri5(SEXP r_y, SEXP r_times, SEXP r_func, SEXP r_data,
     UNPROTECT(1);
   }
 
+  dopri5_data_free(obj);
+
   UNPROTECT(1);
   return ret_y;
 }
