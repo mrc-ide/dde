@@ -1,3 +1,60 @@
+##' Integrate an ODE or DDE with dopri5.
+##' @title Integrate ODE/DDE with dopri5
+##'
+##' @param y Initial conditions for the integration
+##'
+##' @param times Times where output is needed.  Unlike \code{deSolve}
+##'   we won't actually stop at these times, but instead interpolate
+##'   back to get the result.
+##'
+##' @param func Function to integrate.  Can be an R function of
+##'   arguments \code{t, y, parms}, returning a numeric vector, or it
+##'   can be the name or address of a C function with arguments
+##'   \code{size_t n, double t, double *y, double *dydt, void *data}.
+##'
+##' @param parms Parameters to pass through to the derivatives.
+##'
+##' @param ... Dummy arguments - nothing is allowed here, but this
+##'   means that all further arguments \emph{must} be specified by
+##'   name (not order) so I can easily reorder them later on.
+##'
+##' @param n_out Number of "output" variables (not differential
+##'   equation variables) to compute via the routine \code{output}.
+##'
+##' @param output The output routine; either an R function taking
+##'   arguments \code{t, y, parms} or the name/address of a C function
+##'   taking arguments \code{size_t n, double t, const double *y,
+##'   size_t n_out, double *out, void *data}.
+##'
+##' @param rtol The per-step relative tolerance.  The total accuracy
+##'   will be less than this.
+##'
+##' @param atol The per-step absolute tolerance.
+##'
+##' @param n_history Number of history points to retain.  This needs
+##'   to be greater than zero for delay differential equations to
+##'   work.  Alternatively, this may be greater than zero to return
+##'   model outputs that can be inspected later.
+##'
+##' @param keep_history Logical indicating if history should be
+##'   retained or discarded.  By default, history is retained
+##'
+##' @param dllname Name of the shared library (without extension) to
+##'   find the function \code{func} (and \code{output} if given) in
+##'   the case where \code{func} refers to compiled function.
+##'
+##' @param parms_are_real Logical, indicating if \code{parms} should
+##'   be treated as vector of doubles by \code{func} (when it is a
+##'   compiled function).  If \code{FALSE}, then \code{parms} is
+##'   passed through unmodified as a \code{SEXP}.  If \code{TRUE},
+##'   then \code{REAL(parms)}, which is \code{double*} is passed
+##'   through.
+##'
+##' @return At present the return value is transposed relative to
+##'   deSolve.  This might change in future.
+##'
+##' @export
+##' @useDynLib dde
 dopri5 <- function(y, times, func, parms, ...,
                    n_out = 0L, output = NULL,
                    rtol = 1e-6, atol = 1e-6,
