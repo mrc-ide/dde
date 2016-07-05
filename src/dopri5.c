@@ -53,6 +53,8 @@ dopri5_data* dopri5_data_alloc(deriv_func* target, size_t n,
   return ret;
 }
 
+// We'll need a different reset when we're providing history, because
+// then we won't end up resetting t0/y0 the same way.
 void dopri5_data_reset(dopri5_data *obj, double *y,
                        double *times, size_t n_times) {
   memcpy(obj->y0, y, obj->n * sizeof(double));
@@ -123,15 +125,15 @@ void dopri5_integrate(dopri5_data *obj, double *y,
 
   double t_end = times[n_times - 1];
 
+  // Possibly only set this if the number of history variables is
+  // nonzero?  Needs to be set before any calls to target() though.
+  dde_global_obj = obj;
+
   obj->target(obj->n, obj->t, obj->y, obj->k1, obj->data);
   obj->n_eval++;
 
   // Work out the initial step size:
   double h = dopri5_h_init(obj);
-
-  // Possibly only set this if the number of history variables is
-  // nonzero?
-  dde_global_obj = obj;
 
   while (true) {
     if (obj->n_step > obj->step_max_n) {
@@ -482,16 +484,30 @@ double* dopri5_find_time(dopri5_data *obj, double t) {
 // going to seem weird and also means that the same function can't be
 // easily used for dde and non dde use).
 double ylag_1(double t, size_t i) {
-  double * h = dopri5_find_time(dde_global_obj, t);
-  return dopri5_interpolate_1(h, dde_global_obj->n, t, i);
+  if (t <= dde_global_obj->t0) {
+    return dde_global_obj->y0[i];
+  } else {
+    double * h = dopri5_find_time(dde_global_obj, t);
+    return dopri5_interpolate_1(h, dde_global_obj->n, t, i);
+  }
 }
 
 void ylag_all(double t, double *y) {
-  double * h = dopri5_find_time(dde_global_obj, t);
-  dopri5_interpolate_all(h, dde_global_obj->n, t, y);
+  if (t <= dde_global_obj->t0) {
+    memcpy(y, dde_global_obj->y0, dde_global_obj->n * sizeof(double));
+  } else {
+    double * h = dopri5_find_time(dde_global_obj, t);
+    dopri5_interpolate_all(h, dde_global_obj->n, t, y);
+  }
 }
 
 void ylag_vec(double t, size_t *idx, size_t nidx, double *y) {
-  double * h = dopri5_find_time(dde_global_obj, t);
-  dopri5_interpolate_idx(h, dde_global_obj->n, t, idx, nidx, y);
+  if (t <= dde_global_obj->t0) {
+    for (size_t i = 0; i < nidx; ++i) {
+      y[i] = dde_global_obj->y0[idx[i]];
+    }
+  } else {
+    double * h = dopri5_find_time(dde_global_obj, t);
+    dopri5_interpolate_idx(h, dde_global_obj->n, t, idx, nidx, y);
+  }
 }
