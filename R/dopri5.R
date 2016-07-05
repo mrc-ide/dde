@@ -12,6 +12,17 @@ dopri5 <- function(y, times, func, parms, ...,
   ## become callbacks bound to an environment...
   func <- find_function_address(func, dllname)
 
+  is_r_target <- is.function(func)
+
+  if (is_r_target) {
+    parms_are_real <- FALSE
+    parms <- list(func = func, parms = parms, rho = parent.frame())
+    func <- find_function_address("dde_r_harness", "dde")
+    if (nzchar(dllname)) {
+      stop("dllname must not be given when using an R function for 'func'")
+    }
+  }
+
   assert_scalar(rtol)
   assert_scalar(atol)
   assert_size(n_history)
@@ -74,7 +85,7 @@ find_function_address <- function(fun, dllname = "") {
     fun <- getNativeSymbolInfo(fun, dllname)$address
   } else if (inherits(fun, "NativeSymbolInfo")) {
     fun <- fun$address
-  } else if (!inherits(fun, "externalptr")) {
+  } else if (!(inherits(fun, "externalptr") || is.function(fun))) {
     stop("Invalid input for 'fun'")
   }
   fun

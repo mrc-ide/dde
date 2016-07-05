@@ -70,3 +70,18 @@ SEXP r_dopri5(SEXP r_y, SEXP r_times, SEXP r_func, SEXP r_data,
   UNPROTECT(1);
   return ret_y;
 }
+
+void dde_r_harness(size_t n, double t, double *y, double *dydt, void *data) {
+  SEXP d = (SEXP)data;
+  SEXP
+    target = VECTOR_ELT(d, 0),
+    parms = VECTOR_ELT(d, 1),
+    rho = VECTOR_ELT(d, 2);
+  SEXP r_t = PROTECT(ScalarReal(t));
+  SEXP r_y = PROTECT(allocVector(REALSXP, n));
+  memcpy(REAL(r_y), y, n * sizeof(double));
+  SEXP call = PROTECT(lang4(target, r_t, r_y, parms));
+  SEXP ans = PROTECT(eval(call, rho));
+  memcpy(dydt, REAL(ans), n * sizeof(double));
+  UNPROTECT(4);
+}

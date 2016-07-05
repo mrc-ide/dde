@@ -47,3 +47,24 @@ test_that("output", {
   attr(res2, "output") <- NULL
   expect_identical(res1, res2)
 })
+
+test_that("R interface", {
+  p <- c(10, 28, 8 / 3)
+  y0 <- c(10, 1, 1)
+
+  lorenz <- function(t, y, p) {
+    sigma <- p[[1L]]
+    R <- p[[2L]]
+    b <- p[[3L]]
+    c(sigma * (y[[2L]] - y[[1L]]),
+      R * y[[1L]] - y[[2L]] - y[[1L]] * y[[3L]],
+      -b * y[[3L]] + y[[1L]] * y[[2L]])
+  }
+
+  tt <- seq(0, 1, length.out=200)
+  res1 <- dopri5(y0, tt, "lorenz", p, dllname = "lorenz")
+  res2 <- dopri5(y0, tt, lorenz, p)
+  expect_identical(res1, res2)
+
+  res2 <- dopri5(y0, tt, lorenz, p, output = lorenz_output)
+})
