@@ -102,3 +102,7 @@ find_function_address <- function(fun, dllname = "") {
   }
   fun
 }
+
+ylag <- function(t, i = NULL) {
+  .Call("r_ylag", t, i, PACKAGE = "dde")
+}

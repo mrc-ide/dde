@@ -7,3 +7,4 @@ src/*.dll
 orig/
 git_orig
 dde_*.tar.gz
+notes.md

@@ -32,6 +32,10 @@ void seir(size_t n, double t, double *y, double *dydt, void *data) {
 // An output function that takes the sum over all compartments in the
 // model.  Unlike deSolve, these can be added and removed at runtime,
 // rather than just at compile time.
+//
+// The downside of this is that it's going to require an additional
+// set of calls to the lag functions to get access to lag variables.
+// That's going to complicate things a bit for odin I think.
 void seir_output(size_t n, double t, const double *y,
                  size_t n_out, double *out, const void *data) {
   out[0] = y[0] + y[1] + y[2] + y[3];
