@@ -60,11 +60,17 @@ test_that("R interface", {
       R * y[[1L]] - y[[2L]] - y[[1L]] * y[[3L]],
       -b * y[[3L]] + y[[1L]] * y[[2L]])
   }
+  lorenz_output <- function(t, y, p) {
+    c(min(y), max(y))
+  }
 
   tt <- seq(0, 1, length.out=200)
   res1 <- dopri5(y0, tt, "lorenz", p, dllname = "lorenz")
   res2 <- dopri5(y0, tt, lorenz, p)
   expect_identical(res1, res2)
 
-  res2 <- dopri5(y0, tt, lorenz, p, output = lorenz_output)
+  res3 <- dopri5(y0, tt, "lorenz", p, dllname = "lorenz",
+                 n_out = 2L, output = "lorenz_output")
+  res4 <- dopri5(y0, tt, lorenz, p, n_out = 2L, output = lorenz_output)
+  expect_identical(res3, res4)
 })

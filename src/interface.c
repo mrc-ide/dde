@@ -85,3 +85,19 @@ void dde_r_harness(size_t n, double t, double *y, double *dydt, void *data) {
   memcpy(dydt, REAL(ans), n * sizeof(double));
   UNPROTECT(4);
 }
+
+void dde_r_output_harness(size_t n, double t, double *y,
+                          size_t n_out, double *out, void *data) {
+  SEXP d = (SEXP)data;
+  SEXP
+    parms = VECTOR_ELT(d, 1),
+    rho = VECTOR_ELT(d, 2),
+    output = VECTOR_ELT(d, 3);
+  SEXP r_t = PROTECT(ScalarReal(t));
+  SEXP r_y = PROTECT(allocVector(REALSXP, n));
+  memcpy(REAL(r_y), y, n * sizeof(double));
+  SEXP call = PROTECT(lang4(output, r_t, r_y, parms));
+  SEXP ans = PROTECT(eval(call, rho));
+  memcpy(out, REAL(ans), n_out * sizeof(double));
+  UNPROTECT(4);
+}

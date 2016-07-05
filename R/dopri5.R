@@ -32,6 +32,18 @@ dopri5 <- function(y, times, func, parms, ...,
   assert_size(n_out)
   if (n_out > 0L) {
     output <- find_function_address(output, dllname)
+    if (is_r_target) {
+      if (!is.function(output)) {
+        stop("output must be an R function")
+      }
+      parms <- c(parms, output)
+      output <- find_function_address("dde_r_output_harness", "dde")
+    } else {
+      if (is.function(output)) {
+        stop("output must be a compiled function (name or address)")
+      }
+    }
+    ## Here, if fun is an R function we need to be careful...
   } else {
     output <- NULL
   }
