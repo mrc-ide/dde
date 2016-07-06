@@ -20,7 +20,7 @@
 // Some of these are big issues, some are small!
 SEXP r_dopri5(SEXP r_y, SEXP r_times, SEXP r_func, SEXP r_data,
               SEXP r_n_out, SEXP r_output,
-              SEXP r_rtol, SEXP r_atol, SEXP data_is_real,
+              SEXP r_rtol, SEXP r_atol, SEXP r_data_is_real,
               SEXP r_n_history, SEXP r_keep_history) {
   size_t n = length(r_y);
   double *y = REAL(r_y);
@@ -29,7 +29,15 @@ SEXP r_dopri5(SEXP r_y, SEXP r_times, SEXP r_func, SEXP r_data,
   double *times = REAL(r_times);
 
   deriv_func *func = (deriv_func*)R_ExternalPtrAddr(r_func);
-  void *data = INTEGER(data_is_real)[0] ? (void*) REAL(r_data) : (void*) r_data;
+  void *data = NULL;
+  if (TYPEOF(r_data) == REALSXP && INTEGER(r_data_is_real)[0]) {
+    data = (void*) REAL(r_data);
+  } else if (TYPEOF(r_data) == EXTPTRSXP) {
+    data = R_ExternalPtrAddr(r_data);
+  } else {
+    data = (void*) r_data;
+  }
+
   size_t n_history = (size_t)INTEGER(r_n_history)[0];
   bool keep_history = INTEGER(r_keep_history)[0];
 

@@ -45,10 +45,15 @@
 ##'
 ##' @param parms_are_real Logical, indicating if \code{parms} should
 ##'   be treated as vector of doubles by \code{func} (when it is a
-##'   compiled function).  If \code{FALSE}, then \code{parms} is
-##'   passed through unmodified as a \code{SEXP}.  If \code{TRUE},
-##'   then \code{REAL(parms)}, which is \code{double*} is passed
-##'   through.
+##'   compiled function).  If \code{TRUE} (the default), then
+##'   \code{REAL(parms)}, which is \code{double*} is passed through.
+##'   If \code{FALSE} then if \code{params} is an externalptr type
+##'   (\code{EXTPTRSXP}) we pass through the result of
+##'   \code{R_ExternalPtrAddr}, otherwise we pass \code{params}
+##'   through unmodified as a \code{SEXP}.  In the last case, in your
+##'   target function you will need to include \code{<Rinternals.h>},
+##'   cast to \code{SEXP} and then pull it apart using the R API (or
+##'   Rcpp).
 ##'
 ##' @return At present the return value is transposed relative to
 ##'   deSolve.  This might change in future.
