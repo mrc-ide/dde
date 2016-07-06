@@ -6,8 +6,11 @@ test_that("ode interface", {
   dimnames(m1) <- NULL
 
   m2 <- run_lorenz_dde(tt)
+  expect_equal(t(m2), m1[-1,], tolerance=1e-6)
 
-  expect_equal(m1[-1,], t(m2), tolerance=1e-6)
+  m3 <- run_lorenz_dde(tt, by_column = TRUE)
+  expect_equal(m3, m1[-1,], tolerance=1e-6)
+  expect_identical(m3, t(m2))
 })
 
 test_that("dense output", {
@@ -26,6 +29,12 @@ test_that("dense output", {
 
   expect_identical(m3[-1,], t(m4))
   expect_equal(m3, m1, tolerance=1e-6)
+
+  ## Check column output:
+  m5 <- run_lorenz_dde(tt, n_history = 1000L, by_column = TRUE)
+  expect_identical(attr(m5, "history"), attr(m2, "history"))
+  attr(m5, "history") <- NULL
+  expect_identical(m5, t(m4))
 })
 
 test_that("output", {
@@ -46,6 +55,12 @@ test_that("output", {
 
   attr(res2, "output") <- NULL
   expect_identical(res1, res2)
+
+  res3 <- dopri5(y0, tt, "lorenz", p, dllname = "lorenz",
+                 n_out = 2L, output = "lorenz_output", by_column = TRUE)
+  expect_equal(attr(res3, "output"), t(output))
+  attr(res3, "output") <- NULL
+  expect_identical(res3, t(res2))
 })
 
 test_that("R interface", {

@@ -98,10 +98,10 @@ run_seir_deSolve <- function(times, tol = 1e-7) {
                 atol = tol, rtol = tol)[, -1, drop=FALSE]
 }
 
-run_lorenz_dde <- function(times, tol = 1e-7, n_history = 0L) {
+run_lorenz_dde <- function(times, tol = 1e-7, ...) {
   p <- c(10, 28, 8 / 3)
   y <- c(10, 1, 1)
-  dopri5(y, times, "lorenz", p, atol = tol, rtol = tol, n_history = n_history,
+  dopri5(y, times, "lorenz", p, atol = tol, rtol = tol, ...,
          dllname = "lorenz")
 }
 

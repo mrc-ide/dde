@@ -6,7 +6,7 @@
 \usage{
 dopri5(y, times, func, parms, ..., n_out = 0L, output = NULL,
   rtol = 1e-06, atol = 1e-06, n_history = 0, keep_history = n_history >
-  0, dllname = "", parms_are_real = TRUE)
+  0, dllname = "", parms_are_real = TRUE, by_column = FALSE)
 }
 \arguments{
 \item{y}{Initial conditions for the integration}
@@ -62,6 +62,12 @@ through unmodified as a \code{SEXP}.  In the last case, in your
 target function you will need to include \code{<Rinternals.h>},
 cast to \code{SEXP} and then pull it apart using the R API (or
 Rcpp).}
+
+\item{by_column}{Logical, indicating if the output should be
+returned organised by column (rather than row).  This incurs a
+slight cost for transposing the matrices.  If you can work with
+matrices that are transposed relative to \code{deSolve}, then
+set this to \code{FALSE}.}
 }
 \value{
 At present the return value is transposed relative to

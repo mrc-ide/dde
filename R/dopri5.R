@@ -55,6 +55,12 @@
 ##'   cast to \code{SEXP} and then pull it apart using the R API (or
 ##'   Rcpp).
 ##'
+##' @param by_column Logical, indicating if the output should be
+##'   returned organised by column (rather than row).  This incurs a
+##'   slight cost for transposing the matrices.  If you can work with
+##'   matrices that are transposed relative to \code{deSolve}, then
+##'   set this to \code{FALSE}.
+##'
 ##' @return At present the return value is transposed relative to
 ##'   deSolve.  This might change in future.
 ##'
@@ -64,7 +70,7 @@ dopri5 <- function(y, times, func, parms, ...,
                    n_out = 0L, output = NULL,
                    rtol = 1e-6, atol = 1e-6,
                    n_history = 0, keep_history = n_history > 0, dllname = "",
-                   parms_are_real = TRUE) {
+                   parms_are_real = TRUE, by_column = FALSE) {
   DOTS <- list(...)
   if (length(DOTS) > 0L) {
     stop("Invalid dot arguments!")
@@ -90,6 +96,7 @@ dopri5 <- function(y, times, func, parms, ...,
   assert_size(n_history)
   assert_scalar_logical(keep_history)
   assert_scalar_logical(parms_are_real)
+  assert_scalar_logical(by_column)
 
   assert_size(n_out)
   if (n_out > 0L) {
@@ -110,11 +117,19 @@ dopri5 <- function(y, times, func, parms, ...,
     output <- NULL
   }
 
-  .Call("r_dopri5", y, times, func, parms,
-        n_out, output,
-        rtol, atol, parms_are_real,
-        as.integer(n_history), keep_history,
-        PACKAGE="dde")
+  ret <- .Call("r_dopri5", y, times, func, parms,
+               n_out, output,
+               rtol, atol, parms_are_real,
+               as.integer(n_history), keep_history,
+               PACKAGE="dde")
+  if (by_column) {
+    ret <- t.default(ret)
+    if (n_out > 0L) {
+      attr(ret, "output") <- t.default(attr(ret, "output"))
+    }
+  }
+
+  ret
 }
 
 dopri5_interpolate <- function(h, t) {
