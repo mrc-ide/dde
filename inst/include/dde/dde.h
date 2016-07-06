@@ -5,3 +5,4 @@
 double ylag_1(double t, size_t i);
 void ylag_all(double t, double *y);
 void ylag_vec(double t, size_t *idx, size_t nidx, double *y);
+void ylag_vec_int(double t, int *idx, size_t nidx, double *y);

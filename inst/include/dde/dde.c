@@ -28,3 +28,11 @@ void ylag_vec(double t, size_t *idx, size_t nidx, double *y) {
   }
   fun(t, idx, nidx, y);
 }
+
+void ylag_vec_int(double t, int *idx, size_t nidx, double *y) {
+  static t_ylag_vec *fun;
+  if (fun == NULL) {
+    fun = (t_ylag_vec*) R_GetCCallable("dde", "ylag_vec_int");
+  }
+  fun(t, idx, nidx, y);
+}

@@ -392,8 +392,29 @@ void dopri5_interpolate_all(double *history, size_t n, double t, double *y) {
 }
 
 void dopri5_interpolate_idx(double *history, size_t n, double t,
-                            size_t * idx, size_t nidx,
-                            double *y) {
+                            size_t * idx, size_t nidx, double *y) {
+  const double t_old = history[5 * n], h = history[5 * n + 1];
+  const double theta = (t - t_old) / h;
+  const double theta1 = 1 - theta;
+
+  for (size_t i = 0; i < nidx; ++i) {
+    size_t j = idx[i];
+    y[i] = history[j] + theta *
+      (history[n + j] + theta1 *
+       (history[2 * n + j] + theta *
+        (history[3 * n + j] + theta1 *
+         history[4 * n + j])));
+  }
+}
+
+// This exists to deal with deSolve taking integer arguments (and
+// therefore messing up odin).  I could rewrite the whole thing here
+// to use int, but that seems needlessly crap.  The issue here is only
+// the *pointer* '*idx' and not anything else because we can safely
+// cast the plain data arguments.  This affects only this function as
+// it's the only one that takes size_t*
+void dopri5_interpolate_idx_int(double *history, size_t n, double t,
+                                int *idx, size_t nidx, double *y) {
   const double t_old = history[5 * n], h = history[5 * n + 1];
   const double theta = (t - t_old) / h;
   const double theta1 = 1 - theta;
@@ -506,6 +527,17 @@ void ylag_vec(double t, size_t *idx, size_t nidx, double *y) {
   } else {
     double * h = dopri5_find_time(dde_global_obj, t);
     dopri5_interpolate_idx(h, dde_global_obj->n, t, idx, nidx, y);
+  }
+}
+
+void ylag_vec_int(double t, int *idx, size_t nidx, double *y) {
+  if (t <= dde_global_obj->t0) {
+    for (size_t i = 0; i < nidx; ++i) {
+      y[i] = dde_global_obj->y0[idx[i]];
+    }
+  } else {
+    double * h = dopri5_find_time(dde_global_obj, t);
+    dopri5_interpolate_idx_int(h, dde_global_obj->n, t, idx, nidx, y);
   }
 }
 
