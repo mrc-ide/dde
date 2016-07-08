@@ -61,6 +61,8 @@
 ##'   matrices that are transposed relative to \code{deSolve}, then
 ##'   set this to \code{FALSE}.
 ##'
+##' @param keep_initial Logical, indicating if the output should include the initial conditions (like deSolve).
+##'
 ##' @return At present the return value is transposed relative to
 ##'   deSolve.  This might change in future.
 ##'
@@ -70,7 +72,10 @@ dopri5 <- function(y, times, func, parms, ...,
                    n_out = 0L, output = NULL,
                    rtol = 1e-6, atol = 1e-6,
                    n_history = 0, keep_history = n_history > 0, dllname = "",
-                   parms_are_real = TRUE, by_column = FALSE) {
+                   parms_are_real = TRUE,
+                   by_column = FALSE, keep_initial = FALSE) {
+  ## TODO: include "deSolve" mode where we do the transpose, add the
+  ## time column too?
   DOTS <- list(...)
   if (length(DOTS) > 0L) {
     stop("Invalid dot arguments!")
@@ -97,6 +102,7 @@ dopri5 <- function(y, times, func, parms, ...,
   assert_scalar_logical(keep_history)
   assert_scalar_logical(parms_are_real)
   assert_scalar_logical(by_column)
+  assert_scalar_logical(keep_initial)
 
   assert_size(n_out)
   if (n_out > 0L) {
@@ -120,7 +126,7 @@ dopri5 <- function(y, times, func, parms, ...,
   ret <- .Call("r_dopri5", y, times, func, parms,
                n_out, output,
                rtol, atol, parms_are_real,
-               as.integer(n_history), keep_history,
+               as.integer(n_history), keep_history, keep_initial,
                PACKAGE="dde")
   if (by_column) {
     ret <- t.default(ret)

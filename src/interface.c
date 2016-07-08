@@ -18,12 +18,13 @@
 // - events
 //
 // Some of these are big issues, some are small!
-SEXP r_dopri5(SEXP r_y, SEXP r_times, SEXP r_func, SEXP r_data,
+SEXP r_dopri5(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
               SEXP r_n_out, SEXP r_output,
               SEXP r_rtol, SEXP r_atol, SEXP r_data_is_real,
-              SEXP r_n_history, SEXP r_keep_history) {
-  size_t n = length(r_y);
-  double *y = REAL(r_y);
+              SEXP r_n_history, SEXP r_keep_history,
+              SEXP r_keep_initial) {
+  double *y_initial = REAL(r_y_initial);
+  size_t n = length(r_y_initial);
 
   size_t n_times = LENGTH(r_times);
   double *times = REAL(r_times);
@@ -40,6 +41,8 @@ SEXP r_dopri5(SEXP r_y, SEXP r_times, SEXP r_func, SEXP r_data,
 
   size_t n_history = (size_t)INTEGER(r_n_history)[0];
   bool keep_history = INTEGER(r_keep_history)[0];
+  bool keep_initial = INTEGER(r_keep_initial)[0];
+  size_t nt = keep_initial ? n_times : n_times - 1;
 
   size_t n_out = INTEGER(r_n_out)[0];
   output_func *output = NULL;
@@ -47,16 +50,30 @@ SEXP r_dopri5(SEXP r_y, SEXP r_times, SEXP r_func, SEXP r_data,
   SEXP r_out = R_NilValue;
   if (n_out > 0) {
     output = (output_func*)R_ExternalPtrAddr(r_output);
-    r_out = PROTECT(allocMatrix(REALSXP, n_out, n_times - 1));
+    r_out = PROTECT(allocMatrix(REALSXP, n_out, nt));
     out = REAL(r_out);
   }
 
+  // TODO: as an option save the conditions here.  That's not too bad
+  // because we just don't pass through REAL(r_y) but REAL(r_y) +
+  // n.  We do have to run the output functions once more though.
   dopri5_data* obj = dopri5_data_alloc(func, n, output, n_out, data, n_history);
   obj->rtol = REAL(r_rtol)[0];
   obj->atol = REAL(r_atol)[0];
 
-  SEXP ret_y = PROTECT(allocMatrix(REALSXP, n, n_times - 1));
-  dopri5_integrate(obj, y, times, n_times, REAL(ret_y), out);
+  SEXP r_y = PROTECT(allocMatrix(REALSXP, n, nt));
+
+  double *y = REAL(r_y);
+  if (keep_initial) {
+    memcpy(y, y_initial, n * sizeof(double));
+    y += n;
+    if (n_out > 0) {
+      obj->output(obj->n, times[0], y_initial, obj->n_out, out, obj->data);
+      out += n_out;
+    }
+  }
+
+  dopri5_integrate(obj, y_initial, times, n_times, y, out);
 
   if (obj->error) {
     Rf_error("Integration failure with code: %d", obj->code);
@@ -66,19 +83,19 @@ SEXP r_dopri5(SEXP r_y, SEXP r_times, SEXP r_func, SEXP r_data,
     size_t nh = ring_buffer_used(obj->history, 0);
     SEXP history = PROTECT(allocMatrix(REALSXP, obj->history_len, nh));
     ring_buffer_memcpy_from(REAL(history), obj->history, nh);
-    setAttrib(ret_y, install("history"), history);
+    setAttrib(r_y, install("history"), history);
     UNPROTECT(1);
   }
 
   if (n_out > 0) {
-    setAttrib(ret_y, install("output"), r_out);
+    setAttrib(r_y, install("output"), r_out);
     UNPROTECT(1);
   }
 
   dopri5_data_free(obj);
 
   UNPROTECT(1);
-  return ret_y;
+  return r_y;
 }
 
 void dde_r_harness(size_t n, double t, double *y, double *dydt, void *data) {

@@ -6,7 +6,8 @@
 \usage{
 dopri5(y, times, func, parms, ..., n_out = 0L, output = NULL,
   rtol = 1e-06, atol = 1e-06, n_history = 0, keep_history = n_history >
-  0, dllname = "", parms_are_real = TRUE, by_column = FALSE)
+  0, dllname = "", parms_are_real = TRUE, by_column = FALSE,
+  keep_initial = FALSE)
 }
 \arguments{
 \item{y}{Initial conditions for the integration}
@@ -68,6 +69,8 @@ returned organised by column (rather than row).  This incurs a
 slight cost for transposing the matrices.  If you can work with
 matrices that are transposed relative to \code{deSolve}, then
 set this to \code{FALSE}.}
+
+\item{keep_initial}{Logical, indicating if the output should include the initial conditions (like deSolve).}
 }
 \value{
 At present the return value is transposed relative to

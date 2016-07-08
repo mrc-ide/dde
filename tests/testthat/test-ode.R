@@ -63,6 +63,37 @@ test_that("output", {
   expect_identical(res3, t(res2))
 })
 
+test_that("keep initial", {
+  tt <- seq(0, 1, length.out=200)
+
+  p <- c(10, 28, 8 / 3)
+  y0 <- c(10, 1, 1)
+
+  res1 <- dopri5(y0, tt, "lorenz", p, dllname = "lorenz", keep_initial = TRUE)
+  res2 <- dopri5(y0, tt, "lorenz", p, dllname = "lorenz", keep_initial = FALSE)
+  expect_equal(ncol(res1), length(tt))
+  expect_identical(res1[, 1], y0)
+  expect_identical(res1[, -1], res2)
+
+  res3 <- dopri5(y0, tt, "lorenz", p, dllname = "lorenz",
+                 n_out = 2L, output = "lorenz_output", keep_initial = TRUE)
+  res4 <- dopri5(y0, tt, "lorenz", p, dllname = "lorenz",
+                 n_out = 2L, output = "lorenz_output", keep_initial = FALSE)
+  expect_equal(ncol(res3), length(tt))
+  expect_identical(res3[, 1], y0)
+
+  out3 <- attr(res3, "output")
+  out4 <- attr(res4, "output")
+  expect_equal(ncol(out3), length(tt))
+  expect_equal(out3[,1], range(y0)) # based on definition of output function
+  expect_equal(out3[, -1], out4)
+
+  attr(res3, "output") <- attr(res4, "output") <- NULL
+  expect_equal(ncol(res3), length(tt))
+  expect_identical(res3[, 1], y0)
+  expect_identical(res3[, -1], res4)
+})
+
 test_that("R interface", {
   p <- c(10, 28, 8 / 3)
   y0 <- c(10, 1, 1)
