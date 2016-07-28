@@ -2,7 +2,12 @@
 ## unlocking problem in deSolve.
 loadNamespace("deSolve")
 
-Sys.setenv(DDE_INCLUDE = system.file("include", package = "dde"))
+## Workaround for a devtools bug (not sure if new bug or old bug)
+if (nzchar(system.file("include", package = "dde"))) {
+  Sys.setenv(DDE_INCLUDE = system.file("include", package = "dde"))
+} else {
+  Sys.setenv(DDE_INCLUDE = "../../inst/include")
+}
 
 ## A simple Lorenz attractor
 run_lorenz_deSolve <- function(times, tol = 1e-7) {
@@ -114,10 +119,11 @@ run_seir_dde <- function(times, tol = 1e-7, keep_history = FALSE) {
 }
 
 compile_shlib <- function(path) {
+  stdout <- if (interactive()) '' else FALSE
   Sys.setenv("R_TESTS" = "")
   R <- file.path(R.home(), "bin", "R")
   message("Compiling ", path)
-  ok <- system2(R, c("CMD", "SHLIB", path), stdout=FALSE, stderr=FALSE)
+  ok <- system2(R, c("CMD", "SHLIB", path), stdout=stdout, stderr=stdout)
   if (ok != 0L) {
     stop(sprintf("compilation of %s failed", path))
   }
