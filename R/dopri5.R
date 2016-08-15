@@ -76,6 +76,14 @@
 ##'   matrices that are transposed relative to \code{deSolve}, then
 ##'   set this to \code{FALSE}.
 ##'
+##' @param ynames Logical, indicating if the output should be named
+##'   following the names of the input vector \code{y}.
+##'   Alternatively, if \code{ynames} is a character vector of the
+##'   same length as \code{y}, these will be used as the output names.
+##'
+##' @param outnames An optional character vector, used when
+##'   \code{n_out} is greater than 0, to name the model output matrix.
+##'
 ##' @param return_initial Logical, indicating if the output should
 ##'   include the initial conditions (like deSolve).
 ##'
@@ -96,6 +104,7 @@ dopri5 <- function(y, times, func, parms, ...,
                    tcrit = NULL,
                    n_history = 0, return_history = n_history > 0, dllname = "",
                    parms_are_real = TRUE,
+                   ynames = TRUE, outnames = NULL,
                    by_column = FALSE, return_initial = FALSE,
                    return_statistics=FALSE) {
   ## TODO: include "deSolve" mode where we do the transpose, add the
@@ -129,7 +138,32 @@ dopri5 <- function(y, times, func, parms, ...,
   assert_scalar_logical(return_initial)
   assert_scalar_logical(return_statistics)
 
+  if (isTRUE(ynames)) {
+    ## TODO: what about the case of y being a matrix with one bit
+    ## being 1d?  Could use names(drop(y)) here probably?  Too corner
+    ## case?  What does deSolve do?
+    ynames <- names(y)
+  } else if (is.null(ynames) || identical(as.vector(ynames), FALSE)) {
+    ynames <- NULL
+  } else if (is.character(ynames)) {
+    if (length(ynames) != length(y)) {
+      stop("ynames must be the same length as y")
+    }
+  } else {
+    stop("Invalid value for ynames")
+  }
+
   assert_size(n_out)
+  if (!is.null(outnames)) {
+    if (is.character(outnames)) {
+      if (length(outnames) != n_out) {
+        stop("outnames must have length n_out")
+      }
+    } else {
+      stop("Invalid value for outnames")
+    }
+  }
+
   if (n_out > 0L) {
     output <- find_function_address(output, dllname)
     if (is_r_target) {
@@ -154,6 +188,14 @@ dopri5 <- function(y, times, func, parms, ...,
                as.integer(n_history), return_history, return_initial,
                return_statistics,
                PACKAGE="dde")
+
+  if (!is.null(ynames)) {
+    rownames(ret) <- ynames
+  }
+  if (n_out > 0L && !is.null(outnames)) {
+    rownames(attr(ret, "output")) <- outnames
+  }
+
   if (by_column) {
     ret <- t.default(ret)
     if (n_out > 0L) {

@@ -8,7 +8,6 @@
 // - rootfunc (once root-finding is supported)
 // - verbose (some sort of verbose output will be useful)
 // - nroot (not sure)
-// - tcrit (this one is going to be needed)
 // - hmin, hmax, hini
 // - ynames
 // - maxsteps

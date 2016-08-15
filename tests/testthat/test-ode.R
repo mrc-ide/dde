@@ -139,3 +139,59 @@ test_that("critical times", {
   s2 <- attr(res2, "statistics")
   expect_lt(s2[["n_step"]], s1[["n_step"]])
 })
+
+test_that("names", {
+  p <- c(10, 28, 8 / 3)
+  y0 <- c(10, 1, 1)
+
+  lorenz <- function(t, y, p) {
+    sigma <- p[[1L]]
+    R <- p[[2L]]
+    b <- p[[3L]]
+    c(sigma * (y[[2L]] - y[[1L]]),
+      R * y[[1L]] - y[[2L]] - y[[1L]] * y[[3L]],
+      -b * y[[3L]] + y[[1L]] * y[[2L]])
+  }
+  lorenz_output <- function(t, y, p) {
+    c(min(y), max(y))
+  }
+
+  tt <- seq(0, 1, length.out = 200)
+
+  nms <- letters[1:3]
+  cmp <- list(nms, NULL)
+
+  expect_null(dimnames(dopri5(y0, tt, lorenz, p)))
+  expect_equal(dimnames(dopri5(y0, tt, lorenz, p, ynames=nms)), cmp)
+  expect_equal(dimnames(dopri5(setNames(y0, nms), tt, lorenz, p)), cmp)
+  expect_null(dimnames(dopri5(setNames(y0, nms), tt, lorenz, p, ynames=FALSE)))
+
+  expect_error(dopri5(y0, tt, lorenz, p, ynames=nms[1]),
+               "ynames must be the same length as y")
+  expect_error(dopri5(y0, tt, lorenz, p, ynames=1),
+               "Invalid value for ynames")
+
+  ## Similar for output names:
+  onms <- LETTERS[1:2]
+  ocmp <- list(onms, NULL)
+  expect_null(dimnames(attr(dopri5(y0, tt, lorenz, p, n_out = 2L,
+                                   output = lorenz_output), "output")))
+  expect_null(dimnames(attr(dopri5(y0, tt, lorenz, p, n_out = 2L,
+                                   output = lorenz_output, outnames = NULL),
+                            "output")))
+  expect_equal(dimnames(attr(dopri5(y0, tt, lorenz, p, n_out = 2L,
+                                    output = lorenz_output, outnames = onms),
+                             "output")), ocmp)
+  expect_error(dopri5(y0, tt, lorenz, p, n_out = 2L,
+                      output = lorenz_output, outnames = nms),
+               "outnames must have length n_out")
+  expect_error(dopri5(y0, tt, lorenz, p, n_out = 2L,
+                      output = lorenz_output, outnames = 1),
+               "Invalid value for outnames")
+
+  ## Check both together:
+  res <- dopri5(y0, tt, lorenz, p, n_out = 2L,
+                output = lorenz_output, ynames = nms, outnames = onms)
+  expect_equal(dimnames(res), cmp)
+  expect_equal(dimnames(attr(res, "output")), ocmp)
+})

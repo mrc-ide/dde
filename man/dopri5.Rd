@@ -7,7 +7,8 @@
 dopri5(y, times, func, parms, ..., n_out = 0L, output = NULL,
   rtol = 1e-06, atol = 1e-06, tcrit = NULL, n_history = 0,
   return_history = n_history > 0, dllname = "", parms_are_real = TRUE,
-  by_column = FALSE, return_initial = FALSE, return_statistics = FALSE)
+  ynames = TRUE, outnames = NULL, by_column = FALSE,
+  return_initial = FALSE, return_statistics = FALSE)
 }
 \arguments{
 \item{y}{Initial conditions for the integration}
@@ -77,6 +78,14 @@ through unmodified as a \code{SEXP}.  In the last case, in your
 target function you will need to include \code{<Rinternals.h>},
 cast to \code{SEXP} and then pull it apart using the R API (or
 Rcpp).}
+
+\item{ynames}{Logical, indicating if the output should be named
+following the names of the input vector \code{y}.
+Alternatively, if \code{ynames} is a character vector of the
+same length as \code{y}, these will be used as the output names.}
+
+\item{outnames}{An optional character vector, used when
+\code{n_out} is greater than 0, to name the model output matrix.}
 
 \item{by_column}{Logical, indicating if the output should be
 returned organised by column (rather than row).  This incurs a
