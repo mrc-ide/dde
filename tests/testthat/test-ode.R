@@ -230,3 +230,24 @@ test_that("return_time", {
                 by_column = TRUE)
   expect_equal(colnames(res), c("time", nms))
 })
+
+test_that("deSolve mode", {
+  p <- c(10, 28, 8 / 3)
+  y0 <- c(10, 1, 1)
+
+  lorenz <- function(t, y, p) {
+    sigma <- p[[1L]]
+    R <- p[[2L]]
+    b <- p[[3L]]
+    c(sigma * (y[[2L]] - y[[1L]]),
+      R * y[[1L]] - y[[2L]] - y[[1L]] * y[[3L]],
+      -b * y[[3L]] + y[[1L]] * y[[2L]])
+  }
+
+  tt <- seq(0, 1, length.out = 200)
+
+  res <- dopri5(y0, tt, lorenz, p, deSolve_compatible = TRUE)
+  expect_equal(dim(res), c(length(tt), 4))
+  expect_equal(dimnames(res), list(NULL, c("time", 1:3)))
+  expect_equal(res[, 1], tt)
+})

@@ -97,6 +97,12 @@
 ##'   \code{by_column} is \code{TRUE}) representing time is included
 ##'   (this matches deSolve).
 ##'
+##' @param deSolve_compatible Logical, indicating if we should run in
+##'   "deSolve compatible" output mode.  This enables the options
+##'   \code{by_column}, \code{return_initial} and \code{return_time}.
+##'   This affects only some aspects of the output, and not the
+##'   calculations themselves.
+##'
 ##' @return At present the return value is transposed relative to
 ##'   deSolve.  This might change in future.
 ##'
@@ -110,13 +116,20 @@ dopri5 <- function(y, times, func, parms, ...,
                    parms_are_real = TRUE,
                    ynames = TRUE, outnames = NULL,
                    by_column = FALSE, return_initial = FALSE,
-                   return_statistics=FALSE, return_time = FALSE) {
+                   return_statistics=FALSE, return_time = FALSE,
+                   deSolve_compatible = FALSE) {
   ## TODO: include "deSolve" mode where we do the transpose, add the
   ## time column too?
   DOTS <- list(...)
   if (length(DOTS) > 0L) {
     stop("Invalid dot arguments!")
   }
+  if (deSolve_compatible) {
+    by_column <- TRUE
+    return_initial <- TRUE
+    return_time <- TRUE
+  }
+
   func <- find_function_address(func, dllname)
 
   is_r_target <- is.function(func)
@@ -140,10 +153,11 @@ dopri5 <- function(y, times, func, parms, ...,
   assert_scalar_logical(return_statistics)
 
   if (isTRUE(ynames)) {
-    ## TODO: what about the case of y being a matrix with one bit
-    ## being 1d?  Could use names(drop(y)) here probably?  Too corner
-    ## case?  What does deSolve do?
     ynames <- names(y)
+    ## This doesn't seem ideal but does produce more deSolve-like output
+    if (deSolve_compatible && is.null(ynames)) {
+      ynames <- as.character(seq_along(y))
+    }
   } else if (is.null(ynames) || identical(as.vector(ynames), FALSE)) {
     ynames <- NULL
   } else if (is.character(ynames)) {

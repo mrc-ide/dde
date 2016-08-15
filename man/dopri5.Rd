@@ -8,7 +8,8 @@ dopri5(y, times, func, parms, ..., n_out = 0L, output = NULL,
   rtol = 1e-06, atol = 1e-06, tcrit = NULL, n_history = 0,
   return_history = n_history > 0, dllname = "", parms_are_real = TRUE,
   ynames = TRUE, outnames = NULL, by_column = FALSE,
-  return_initial = FALSE, return_statistics = FALSE, return_time = FALSE)
+  return_initial = FALSE, return_statistics = FALSE, return_time = FALSE,
+  deSolve_compatible = FALSE)
 }
 \arguments{
 \item{y}{Initial conditions for the integration}
@@ -105,6 +106,12 @@ named).}
 \item{return_time}{Logical, indicating if a row (or column if
 \code{by_column} is \code{TRUE}) representing time is included
 (this matches deSolve).}
+
+\item{deSolve_compatible}{Logical, indicating if we should run in
+"deSolve compatible" output mode.  This enables the options
+\code{by_column}, \code{return_initial} and \code{return_time}.
+This affects only some aspects of the output, and not the
+calculations themselves.}
 }
 \value{
 At present the return value is transposed relative to
