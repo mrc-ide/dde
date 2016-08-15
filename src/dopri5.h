@@ -43,9 +43,16 @@ typedef struct {
 
   double t0; // initial time (needed?)
   double t;  // current time
+
+  // Times for integration to report at
   double *times; // Set of times to stop at
   size_t n_times;
   size_t times_idx;
+
+  // Times for integration to stop at
+  double *tcrit;
+  size_t n_tcrit;
+  size_t tcrit_idx;
 
   double * y0; // initial state (needed?)
   double * y;  // current state
@@ -115,10 +122,12 @@ dopri5_data* dopri5_data_alloc(deriv_func* target, size_t n,
                                output_func* output, size_t n_out,
                                void *data, size_t n_history);
 void dopri5_data_reset(dopri5_data *obj, double *y,
-                       double *times, size_t n_times);
+                       double *times, size_t n_times,
+                       double *tcrit, size_t n_tcrit);
 void dopri5_data_free(dopri5_data *obj);
 void dopri5_integrate(dopri5_data *obj, double *y,
                       double *times, size_t n_times,
+                      double *tcrit, size_t n_tcrit,
                       double *y_out, double *out);
 void dopri5_step(dopri5_data *obj, double h);
 double dopri5_error(dopri5_data *obj);

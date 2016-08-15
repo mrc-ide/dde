@@ -120,3 +120,16 @@ test_that("R interface", {
   res4 <- dopri5(y0, tt, lorenz, p, n_out = 2L, output = lorenz_output)
   expect_identical(res3, res4)
 })
+
+test_that("critical times", {
+  target <- function(t, y, p) {
+    if (t <= 1) {
+      y
+    } else {
+      -5 * y
+    }
+  }
+  tt <- seq(0, 2, length.out=200)
+  res1 <- dopri5(1, tt, target, numeric(0))
+  res2 <- dopri5(1, tt, target, numeric(0), tcrit=1)
+})

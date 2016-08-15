@@ -5,9 +5,9 @@
 \title{Integrate ODE/DDE with dopri5}
 \usage{
 dopri5(y, times, func, parms, ..., n_out = 0L, output = NULL,
-  rtol = 1e-06, atol = 1e-06, n_history = 0, keep_history = n_history >
-  0, dllname = "", parms_are_real = TRUE, by_column = FALSE,
-  keep_initial = FALSE)
+  rtol = 1e-06, atol = 1e-06, tcrit = NULL, n_history = 0,
+  keep_history = n_history > 0, dllname = "", parms_are_real = TRUE,
+  by_column = FALSE, keep_initial = FALSE)
 }
 \arguments{
 \item{y}{Initial conditions for the integration}
@@ -39,6 +39,17 @@ size_t n_out, double *out, void *data}.}
 will be less than this.}
 
 \item{atol}{The per-step absolute tolerance.}
+
+\item{tcrit}{An optional vector of critical times that the solver
+must stop at (rather than interpolating over).  This can include
+an end time that we can't go past, or points within the
+integration that must be stopped at exactly (for example cases
+where the derivatives change abruptly).  Note that this differs
+from the interpretation of this parameter in deSolve; there
+\code{tcrit} is a single time that integration may not go past
+-- with dde we never go past the final time, and this is just
+for times that fall \emph{within} the range of times in
+\code{times}.}
 
 \item{n_history}{Number of history points to retain.  This needs
 to be greater than zero for delay differential equations to

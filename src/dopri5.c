@@ -55,19 +55,36 @@ dopri5_data* dopri5_data_alloc(deriv_func* target, size_t n,
 // We'll need a different reset when we're providing history, because
 // then we won't end up resetting t0/y0 the same way.
 void dopri5_data_reset(dopri5_data *obj, double *y,
-                       double *times, size_t n_times) {
+                       double *times, size_t n_times,
+                       double *tcrit, size_t n_tcrit) {
   memcpy(obj->y0, y, obj->n * sizeof(double));
   memcpy(obj->y, y, obj->n * sizeof(double));
   obj->t0 = times[0];
   obj->t = times[0];
   if (obj->n_times != n_times) {
-    // consider realloc?
-    R_Free(obj->times);
+    R_Free(obj->times); // consider realloc?
     obj->times = R_Calloc(n_times, double);
     obj->n_times = n_times;
   }
   memcpy(obj->times, times, n_times * sizeof(double));
   obj->times_idx = 1; // skipping the first time!
+
+  if (obj->n_tcrit != n_tcrit) {
+    R_Free(obj->tcrit); // consider realloc?
+    if (n_tcrit > 0) {
+      obj->tcrit = R_Calloc(n_tcrit, double);
+    } else {
+      obj->tcrit = NULL;
+    }
+    obj->n_tcrit = n_tcrit;
+  }
+  memcpy(obj->tcrit, tcrit, n_tcrit * sizeof(double));
+  obj->tcrit_idx = 0;
+  if (n_tcrit > 0) {
+    while (tcrit[obj->tcrit_idx] > obj->t0) {
+      obj->tcrit_idx++;
+    }
+  }
 
   obj->sign = copysign(1.0, times[1] - times[0]);
   obj->n_eval = 0;
@@ -109,18 +126,26 @@ static dopri5_data *dde_global_obj;
 // are 'n_t'.
 void dopri5_integrate(dopri5_data *obj, double *y,
                       double *times, size_t n_times,
+                      double *tcrit, size_t n_tcrit,
                       double *y_out, double *out) {
   obj->error = false;
   obj->code = NOT_SET;
 
   // TODO: check that t is strictly sorted and n_times >= 2
-  dopri5_data_reset(obj, y, times, n_times);
+  dopri5_data_reset(obj, y, times, n_times, tcrit, n_tcrit);
 
   double fac_old = 1e-4;
   double uround = 10 * DBL_EPSILON;
-  bool last = false, reject = false;
+  bool stop = false, last = false, reject = false;
 
   double t_end = times[n_times - 1];
+  double t_stop = t_end;
+  if (obj->tcrit_idx < obj->n_tcrit &&
+      obj->tcrit[obj->tcrit_idx] < t_end) {
+    t_stop = obj->tcrit[obj->tcrit_idx];
+  } else {
+    t_stop = t_end;
+  }
 
   // Possibly only set this if the number of history variables is
   // nonzero?  Needs to be set before any calls to target() though.
@@ -146,6 +171,9 @@ void dopri5_integrate(dopri5_data *obj, double *y,
     if ((obj->t + 1.01 * h - t_end) * obj->sign > 0.0) {
       h = t_end - obj->t;
       last = true;
+    } else if ((obj->t + 1.01 * h - t_stop) * obj->sign > 0.0) {
+      h = t_stop - obj->t;
+      stop = true;
     }
     obj->n_step++;
 
@@ -222,6 +250,18 @@ void dopri5_integrate(dopri5_data *obj, double *y,
         h_new = copysign(fmin(fabs(h_new), fabs(h)), obj->sign);
         reject = false;
       }
+      if (stop) {
+        obj->tcrit_idx++;
+        if (obj->tcrit_idx < obj->n_tcrit &&
+            obj->tcrit[obj->tcrit_idx] < t_end) {
+          t_stop = obj->tcrit[obj->tcrit_idx];
+        } else {
+          t_stop = t_end;
+        }
+        stop = false;
+      } else {
+        h = h_new;
+      }
     } else {
       // Step is rejected :(
       //
@@ -236,8 +276,9 @@ void dopri5_integrate(dopri5_data *obj, double *y,
         obj->n_reject++;
       }
       last = false;
+      stop = false;
+      h = h_new;
     }
-    h = h_new;
   }
 
   // Reset the global state

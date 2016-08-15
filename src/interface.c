@@ -21,6 +21,7 @@
 SEXP r_dopri5(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
               SEXP r_n_out, SEXP r_output,
               SEXP r_rtol, SEXP r_atol, SEXP r_data_is_real,
+              SEXP r_tcrit,
               SEXP r_n_history, SEXP r_keep_history,
               SEXP r_keep_initial) {
   double *y_initial = REAL(r_y_initial);
@@ -28,6 +29,13 @@ SEXP r_dopri5(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
 
   size_t n_times = LENGTH(r_times);
   double *times = REAL(r_times);
+
+  size_t n_tcrit = 0;
+  double *tcrit = NULL;
+  if (r_tcrit != R_NilValue) {
+    n_tcrit = LENGTH(r_tcrit);
+    tcrit = REAL(r_tcrit);
+  }
 
   deriv_func *func = (deriv_func*)R_ExternalPtrAddr(r_func);
   void *data = NULL;
@@ -73,7 +81,7 @@ SEXP r_dopri5(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
     }
   }
 
-  dopri5_integrate(obj, y_initial, times, n_times, y, out);
+  dopri5_integrate(obj, y_initial, times, n_times, tcrit, n_tcrit, y, out);
 
   if (obj->error) {
     Rf_error("Integration failure with code: %d", obj->code);
