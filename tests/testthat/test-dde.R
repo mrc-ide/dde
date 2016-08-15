@@ -29,12 +29,12 @@ test_that("output", {
   p <- numeric(0)
   y0 <- c(1e7 - 1, 0, 1, 0)
   res1 <- dopri5(y0, tt, "seir", p, n_history = 1000L,
-                 dllname = "seir", keep_history = FALSE)
+                 dllname = "seir", return_history = FALSE)
   expect_equal(names(attributes(res1)), "dim")
 
   res2 <- dopri5(y0, tt, "seir", p, n_history = 1000L,
                  n_out = 1L, output = "seir_output",
-                 dllname = "seir", keep_history = FALSE)
+                 dllname = "seir", return_history = FALSE)
 
   output <- attr(res2, "output")
   expect_equal(dim(output), c(1L, ncol(res1)))
@@ -49,7 +49,7 @@ test_that("R interface", {
   p <- numeric(0)
   y0 <- c(1e7 - 1, 0, 1, 0)
   res1 <- dopri5(y0, tt, "seir", p, n_history = 1000L,
-                 dllname = "seir", keep_history = FALSE)
+                 dllname = "seir", return_history = FALSE)
 
   seir <- function(t, y, p) {
     b <- 1.0 / 10.0
@@ -89,9 +89,9 @@ test_that("R interface", {
       sigma * I - b * R - delta * R)
   }
 
-  res2 <- dopri5(y0, tt, seir, "one", n_history = 1000L, keep_history = FALSE)
-  res3 <- dopri5(y0, tt, seir, "idx", n_history = 1000L, keep_history = FALSE)
-  res4 <- dopri5(y0, tt, seir, "all", n_history = 1000L, keep_history = FALSE)
+  res2 <- dopri5(y0, tt, seir, "one", n_history = 1000L, return_history = FALSE)
+  res3 <- dopri5(y0, tt, seir, "idx", n_history = 1000L, return_history = FALSE)
+  res4 <- dopri5(y0, tt, seir, "all", n_history = 1000L, return_history = FALSE)
 
   expect_equal(res2, res1, tolerance = 1e-14)
   expect_identical(res3, res2)

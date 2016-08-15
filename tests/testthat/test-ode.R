@@ -1,7 +1,7 @@
 context("ode")
 
 test_that("ode interface", {
-  tt <- seq(0, 1, length.out=200)
+  tt <- seq(0, 1, length.out = 200)
   m1 <- run_lorenz_deSolve(tt)
   dimnames(m1) <- NULL
 
@@ -14,7 +14,7 @@ test_that("ode interface", {
 })
 
 test_that("dense output", {
-  tt <- seq(0, 1, length.out=200)
+  tt <- seq(0, 1, length.out = 200)
   m1 <- run_lorenz_deSolve(tt)
   dimnames(m1) <- NULL
 
@@ -38,7 +38,7 @@ test_that("dense output", {
 })
 
 test_that("output", {
-  tt <- seq(0, 1, length.out=200)
+  tt <- seq(0, 1, length.out = 200)
 
   p <- c(10, 28, 8 / 3)
   y0 <- c(10, 1, 1)
@@ -64,21 +64,23 @@ test_that("output", {
 })
 
 test_that("keep initial", {
-  tt <- seq(0, 1, length.out=200)
+  tt <- seq(0, 1, length.out = 200)
 
   p <- c(10, 28, 8 / 3)
   y0 <- c(10, 1, 1)
 
-  res1 <- dopri5(y0, tt, "lorenz", p, dllname = "lorenz", keep_initial = TRUE)
-  res2 <- dopri5(y0, tt, "lorenz", p, dllname = "lorenz", keep_initial = FALSE)
+  res1 <- dopri5(y0, tt, "lorenz", p, dllname = "lorenz",
+                 return_initial = TRUE)
+  res2 <- dopri5(y0, tt, "lorenz", p, dllname = "lorenz",
+                 return_initial = FALSE)
   expect_equal(ncol(res1), length(tt))
   expect_identical(res1[, 1], y0)
   expect_identical(res1[, -1], res2)
 
   res3 <- dopri5(y0, tt, "lorenz", p, dllname = "lorenz",
-                 n_out = 2L, output = "lorenz_output", keep_initial = TRUE)
+                 n_out = 2L, output = "lorenz_output", return_initial = TRUE)
   res4 <- dopri5(y0, tt, "lorenz", p, dllname = "lorenz",
-                 n_out = 2L, output = "lorenz_output", keep_initial = FALSE)
+                 n_out = 2L, output = "lorenz_output", return_initial = FALSE)
   expect_equal(ncol(res3), length(tt))
   expect_identical(res3[, 1], y0)
 
@@ -110,7 +112,7 @@ test_that("R interface", {
     c(min(y), max(y))
   }
 
-  tt <- seq(0, 1, length.out=200)
+  tt <- seq(0, 1, length.out = 200)
   res1 <- dopri5(y0, tt, "lorenz", p, dllname = "lorenz")
   res2 <- dopri5(y0, tt, lorenz, p)
   expect_identical(res1, res2)
@@ -129,9 +131,9 @@ test_that("critical times", {
       -5 * y
     }
   }
-  tt <- seq(0, 2, length.out=200)
-  res1 <- dopri5(1, tt, target, numeric(0), return_statistics=TRUE)
-  res2 <- dopri5(1, tt, target, numeric(0), tcrit=1, return_statistics=TRUE)
+  tt <- seq(0, 2, length.out = 200)
+  res1 <- dopri5(1, tt, target, numeric(0), return_statistics = TRUE)
+  res2 <- dopri5(1, tt, target, numeric(0), tcrit=1, return_statistics = TRUE)
 
   s1 <- attr(res1, "statistics")
   s2 <- attr(res2, "statistics")

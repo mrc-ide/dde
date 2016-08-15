@@ -22,8 +22,8 @@ SEXP r_dopri5(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
               SEXP r_n_out, SEXP r_output,
               SEXP r_rtol, SEXP r_atol, SEXP r_data_is_real,
               SEXP r_tcrit,
-              SEXP r_n_history, SEXP r_keep_history,
-              SEXP r_keep_initial, SEXP r_return_statistics) {
+              SEXP r_n_history, SEXP r_return_history,
+              SEXP r_return_initial, SEXP r_return_statistics) {
   double *y_initial = REAL(r_y_initial);
   size_t n = length(r_y_initial);
 
@@ -48,10 +48,10 @@ SEXP r_dopri5(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
   }
 
   size_t n_history = (size_t)INTEGER(r_n_history)[0];
-  bool keep_history = INTEGER(r_keep_history)[0];
-  bool keep_initial = INTEGER(r_keep_initial)[0];
+  bool return_history = INTEGER(r_return_history)[0];
+  bool return_initial = INTEGER(r_return_initial)[0];
   bool return_statistics = INTEGER(r_return_statistics)[0];
-  size_t nt = keep_initial ? n_times : n_times - 1;
+  size_t nt = return_initial ? n_times : n_times - 1;
 
   size_t n_out = INTEGER(r_n_out)[0];
   output_func *output = NULL;
@@ -73,7 +73,7 @@ SEXP r_dopri5(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
   SEXP r_y = PROTECT(allocMatrix(REALSXP, n, nt));
 
   double *y = REAL(r_y);
-  if (keep_initial) {
+  if (return_initial) {
     memcpy(y, y_initial, n * sizeof(double));
     y += n;
     if (n_out > 0) {
@@ -88,7 +88,7 @@ SEXP r_dopri5(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
     Rf_error("Integration failure with code: %d", obj->code);
   }
 
-  if (keep_history) {
+  if (return_history) {
     size_t nh = ring_buffer_used(obj->history, 0);
     SEXP history = PROTECT(allocMatrix(REALSXP, obj->history_len, nh));
     ring_buffer_memcpy_from(REAL(history), obj->history, nh);

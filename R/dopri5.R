@@ -48,7 +48,7 @@
 ##'   work.  Alternatively, this may be greater than zero to return
 ##'   model outputs that can be inspected later.
 ##'
-##' @param keep_history Logical indicating if history should be
+##' @param return_history Logical indicating if history should be
 ##'   returned alongside the output or discarded.  By default, history
 ##'   is retained if \code{n_history} is greater than 0, but that
 ##'   might change (and may not be desirable unless you plan on
@@ -76,7 +76,7 @@
 ##'   matrices that are transposed relative to \code{deSolve}, then
 ##'   set this to \code{FALSE}.
 ##'
-##' @param keep_initial Logical, indicating if the output should
+##' @param return_initial Logical, indicating if the output should
 ##'   include the initial conditions (like deSolve).
 ##'
 ##' @param return_statistics Logical, indicating if statistics about
@@ -94,9 +94,9 @@ dopri5 <- function(y, times, func, parms, ...,
                    n_out = 0L, output = NULL,
                    rtol = 1e-6, atol = 1e-6,
                    tcrit = NULL,
-                   n_history = 0, keep_history = n_history > 0, dllname = "",
+                   n_history = 0, return_history = n_history > 0, dllname = "",
                    parms_are_real = TRUE,
-                   by_column = FALSE, keep_initial = FALSE,
+                   by_column = FALSE, return_initial = FALSE,
                    return_statistics=FALSE) {
   ## TODO: include "deSolve" mode where we do the transpose, add the
   ## time column too?
@@ -123,10 +123,10 @@ dopri5 <- function(y, times, func, parms, ...,
   assert_scalar(rtol)
   assert_scalar(atol)
   assert_size(n_history)
-  assert_scalar_logical(keep_history)
+  assert_scalar_logical(return_history)
   assert_scalar_logical(parms_are_real)
   assert_scalar_logical(by_column)
-  assert_scalar_logical(keep_initial)
+  assert_scalar_logical(return_initial)
   assert_scalar_logical(return_statistics)
 
   assert_size(n_out)
@@ -151,7 +151,7 @@ dopri5 <- function(y, times, func, parms, ...,
   ret <- .Call("r_dopri5", y, times, func, parms,
                n_out, output,
                rtol, atol, parms_are_real, tcrit,
-               as.integer(n_history), keep_history, keep_initial,
+               as.integer(n_history), return_history, return_initial,
                return_statistics,
                PACKAGE="dde")
   if (by_column) {

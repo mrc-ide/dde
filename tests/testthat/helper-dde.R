@@ -110,12 +110,12 @@ run_lorenz_dde <- function(times, tol = 1e-7, ...) {
          dllname = "lorenz")
 }
 
-run_seir_dde <- function(times, tol = 1e-7, keep_history = FALSE) {
+run_seir_dde <- function(times, tol = 1e-7, return_history = FALSE) {
   n_history <- 1000L
   p <- numeric(0)
   y0 <- c(1e7 - 1, 0, 1, 0)
   dopri5(y0, times, "seir", p, atol = tol, rtol = tol, n_history = n_history,
-         dllname = "seir", keep_history = keep_history)
+         dllname = "seir", return_history = return_history)
 }
 
 compile_shlib <- function(path) {
