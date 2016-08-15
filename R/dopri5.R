@@ -93,6 +93,10 @@
 ##'   accepted steps and rejected steps is returned (the vector is
 ##'   named).
 ##'
+##' @param return_time Logical, indicating if a row (or column if
+##'   \code{by_column} is \code{TRUE}) representing time is included
+##'   (this matches deSolve).
+##'
 ##' @return At present the return value is transposed relative to
 ##'   deSolve.  This might change in future.
 ##'
@@ -106,16 +110,13 @@ dopri5 <- function(y, times, func, parms, ...,
                    parms_are_real = TRUE,
                    ynames = TRUE, outnames = NULL,
                    by_column = FALSE, return_initial = FALSE,
-                   return_statistics=FALSE) {
+                   return_statistics=FALSE, return_time = FALSE) {
   ## TODO: include "deSolve" mode where we do the transpose, add the
   ## time column too?
   DOTS <- list(...)
   if (length(DOTS) > 0L) {
     stop("Invalid dot arguments!")
   }
-  ## TODO: will need to support R functions here at some point, for
-  ## completeness sake.  This is not that bad to do as they just
-  ## become callbacks bound to an environment...
   func <- find_function_address(func, dllname)
 
   is_r_target <- is.function(func)
@@ -153,6 +154,10 @@ dopri5 <- function(y, times, func, parms, ...,
     stop("Invalid value for ynames")
   }
 
+  if (return_time && !is.null(ynames)) {
+    ynames <- c("time", ynames)
+  }
+
   assert_size(n_out)
   if (!is.null(outnames)) {
     if (is.character(outnames)) {
@@ -188,6 +193,11 @@ dopri5 <- function(y, times, func, parms, ...,
                as.integer(n_history), return_history, return_initial,
                return_statistics,
                PACKAGE="dde")
+
+  if (return_time) {
+    ret <- rbind(if (return_initial) times else times[-1],
+                 ret, deparse.level = 0)
+  }
 
   if (!is.null(ynames)) {
     rownames(ret) <- ynames
