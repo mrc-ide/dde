@@ -7,7 +7,7 @@
 dopri5(y, times, func, parms, ..., n_out = 0L, output = NULL,
   rtol = 1e-06, atol = 1e-06, tcrit = NULL, n_history = 0,
   keep_history = n_history > 0, dllname = "", parms_are_real = TRUE,
-  by_column = FALSE, keep_initial = FALSE)
+  by_column = FALSE, keep_initial = FALSE, return_statistics = FALSE)
 }
 \arguments{
 \item{y}{Initial conditions for the integration}
@@ -57,7 +57,10 @@ work.  Alternatively, this may be greater than zero to return
 model outputs that can be inspected later.}
 
 \item{keep_history}{Logical indicating if history should be
-retained or discarded.  By default, history is retained}
+returned alongside the output or discarded.  By default, history
+is retained if \code{n_history} is greater than 0, but that
+might change (and may not be desirable unless you plan on
+actually using it).}
 
 \item{dllname}{Name of the shared library (without extension) to
 find the function \code{func} (and \code{output} if given) in
@@ -81,7 +84,14 @@ slight cost for transposing the matrices.  If you can work with
 matrices that are transposed relative to \code{deSolve}, then
 set this to \code{FALSE}.}
 
-\item{keep_initial}{Logical, indicating if the output should include the initial conditions (like deSolve).}
+\item{keep_initial}{Logical, indicating if the output should
+include the initial conditions (like deSolve).}
+
+\item{return_statistics}{Logical, indicating if statistics about
+the run should be included.  If \code{TRUE}, then an integer
+vector containing the number of target evaluations, steps,
+accepted steps and rejected steps is returned (the vector is
+named).}
 }
 \value{
 At present the return value is transposed relative to

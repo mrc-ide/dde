@@ -23,7 +23,7 @@ SEXP r_dopri5(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
               SEXP r_rtol, SEXP r_atol, SEXP r_data_is_real,
               SEXP r_tcrit,
               SEXP r_n_history, SEXP r_keep_history,
-              SEXP r_keep_initial) {
+              SEXP r_keep_initial, SEXP r_return_statistics) {
   double *y_initial = REAL(r_y_initial);
   size_t n = length(r_y_initial);
 
@@ -50,6 +50,7 @@ SEXP r_dopri5(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
   size_t n_history = (size_t)INTEGER(r_n_history)[0];
   bool keep_history = INTEGER(r_keep_history)[0];
   bool keep_initial = INTEGER(r_keep_initial)[0];
+  bool return_statistics = INTEGER(r_return_statistics)[0];
   size_t nt = keep_initial ? n_times : n_times - 1;
 
   size_t n_out = INTEGER(r_n_out)[0];
@@ -98,6 +99,22 @@ SEXP r_dopri5(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
   if (n_out > 0) {
     setAttrib(r_y, install("output"), r_out);
     UNPROTECT(1);
+  }
+
+  if (return_statistics) {
+    SEXP stats = PROTECT(allocVector(INTSXP, 4));
+    SEXP stats_nms = PROTECT(allocVector(STRSXP, 4));
+    INTEGER(stats)[0] = obj->n_eval;
+    SET_STRING_ELT(stats_nms, 0, mkChar("n_eval"));
+    INTEGER(stats)[1] = obj->n_step;
+    SET_STRING_ELT(stats_nms, 1, mkChar("n_step"));
+    INTEGER(stats)[2] = obj->n_accept;
+    SET_STRING_ELT(stats_nms, 2, mkChar("n_accept"));
+    INTEGER(stats)[3] = obj->n_reject;
+    SET_STRING_ELT(stats_nms, 3, mkChar("n_reject"));
+    setAttrib(stats, R_NamesSymbol, stats_nms);
+    setAttrib(r_y, install("statistics"), stats);
+    UNPROTECT(2);
   }
 
   dopri5_data_free(obj);

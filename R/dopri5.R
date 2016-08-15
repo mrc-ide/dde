@@ -1,4 +1,5 @@
 ##' Integrate an ODE or DDE with dopri5.
+##'
 ##' @title Integrate ODE/DDE with dopri5
 ##'
 ##' @param y Initial conditions for the integration
@@ -48,7 +49,10 @@
 ##'   model outputs that can be inspected later.
 ##'
 ##' @param keep_history Logical indicating if history should be
-##'   retained or discarded.  By default, history is retained
+##'   returned alongside the output or discarded.  By default, history
+##'   is retained if \code{n_history} is greater than 0, but that
+##'   might change (and may not be desirable unless you plan on
+##'   actually using it).
 ##'
 ##' @param dllname Name of the shared library (without extension) to
 ##'   find the function \code{func} (and \code{output} if given) in
@@ -72,7 +76,14 @@
 ##'   matrices that are transposed relative to \code{deSolve}, then
 ##'   set this to \code{FALSE}.
 ##'
-##' @param keep_initial Logical, indicating if the output should include the initial conditions (like deSolve).
+##' @param keep_initial Logical, indicating if the output should
+##'   include the initial conditions (like deSolve).
+##'
+##' @param return_statistics Logical, indicating if statistics about
+##'   the run should be included.  If \code{TRUE}, then an integer
+##'   vector containing the number of target evaluations, steps,
+##'   accepted steps and rejected steps is returned (the vector is
+##'   named).
 ##'
 ##' @return At present the return value is transposed relative to
 ##'   deSolve.  This might change in future.
@@ -85,7 +96,8 @@ dopri5 <- function(y, times, func, parms, ...,
                    tcrit = NULL,
                    n_history = 0, keep_history = n_history > 0, dllname = "",
                    parms_are_real = TRUE,
-                   by_column = FALSE, keep_initial = FALSE) {
+                   by_column = FALSE, keep_initial = FALSE,
+                   return_statistics=FALSE) {
   ## TODO: include "deSolve" mode where we do the transpose, add the
   ## time column too?
   DOTS <- list(...)
@@ -115,6 +127,7 @@ dopri5 <- function(y, times, func, parms, ...,
   assert_scalar_logical(parms_are_real)
   assert_scalar_logical(by_column)
   assert_scalar_logical(keep_initial)
+  assert_scalar_logical(return_statistics)
 
   assert_size(n_out)
   if (n_out > 0L) {
@@ -139,6 +152,7 @@ dopri5 <- function(y, times, func, parms, ...,
                n_out, output,
                rtol, atol, parms_are_real, tcrit,
                as.integer(n_history), keep_history, keep_initial,
+               return_statistics,
                PACKAGE="dde")
   if (by_column) {
     ret <- t.default(ret)
