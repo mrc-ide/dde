@@ -130,6 +130,10 @@ test_that("critical times", {
     }
   }
   tt <- seq(0, 2, length.out=200)
-  res1 <- dopri5(1, tt, target, numeric(0))
-  res2 <- dopri5(1, tt, target, numeric(0), tcrit=1)
+  res1 <- dopri5(1, tt, target, numeric(0), return_statistics=TRUE)
+  res2 <- dopri5(1, tt, target, numeric(0), tcrit=1, return_statistics=TRUE)
+
+  s1 <- attr(res1, "statistics")
+  s2 <- attr(res2, "statistics")
+  expect_lt(s2[["n_step"]], s1[["n_step"]])
 })

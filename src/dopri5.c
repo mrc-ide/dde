@@ -81,7 +81,7 @@ void dopri5_data_reset(dopri5_data *obj, double *y,
   memcpy(obj->tcrit, tcrit, n_tcrit * sizeof(double));
   obj->tcrit_idx = 0;
   if (n_tcrit > 0) {
-    while (tcrit[obj->tcrit_idx] > obj->t0) {
+    while (tcrit[obj->tcrit_idx] < obj->t0 && obj->tcrit_idx < n_tcrit) {
       obj->tcrit_idx++;
     }
   }
