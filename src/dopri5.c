@@ -156,6 +156,7 @@ void dopri5_integrate(dopri5_data *obj, double *y,
 
   // Work out the initial step size:
   double h = dopri5_h_init(obj);
+  double h_save = 0.0;
 
   while (true) {
     if (obj->n_step > obj->step_max_n) {
@@ -169,6 +170,7 @@ void dopri5_integrate(dopri5_data *obj, double *y,
       break;
     }
     if ((obj->t + 1.01 * h - t_end) * obj->sign > 0.0) {
+      h_save = h;
       h = t_end - obj->t;
       last = true;
     } else if ((obj->t + 1.01 * h - t_stop) * obj->sign > 0.0) {
@@ -237,7 +239,7 @@ void dopri5_integrate(dopri5_data *obj, double *y,
       ring_buffer_head_advance(obj->history);
 
       if (last) {
-        // TODO: we could save h back into obj here?
+        obj->step_size_initial = h_save;
         obj->code = OK_COMPLETE;
         break;
       }

@@ -138,6 +138,8 @@ test_that("critical times", {
   s1 <- attr(res1, "statistics")
   s2 <- attr(res2, "statistics")
   expect_lt(s2[["n_step"]], s1[["n_step"]])
+
+  expect_is(attr(res1, "step_size"), "numeric")
 })
 
 test_that("names", {

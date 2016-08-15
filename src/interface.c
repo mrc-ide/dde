@@ -113,6 +113,7 @@ SEXP r_dopri5(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
     SET_STRING_ELT(stats_nms, 3, mkChar("n_reject"));
     setAttrib(stats, R_NamesSymbol, stats_nms);
     setAttrib(r_y, install("statistics"), stats);
+    setAttrib(r_y, install("step_size"), ScalarReal(obj->step_size_initial));
     UNPROTECT(2);
   }
 
