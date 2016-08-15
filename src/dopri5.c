@@ -333,6 +333,7 @@ void dopri5_step(dopri5_data *obj, double h) {
     obj->k4[i] = h * (E1 * obj->k1[i] + E3 * obj->k3[i] + E4 * obj->k4[i] +
                       E5 * obj->k5[i] + E6 * obj->k6[i] + E7 * obj->k2[i]);
   }
+  obj->n_eval += 6;
 }
 
 double dopri5_error(dopri5_data *obj) {
