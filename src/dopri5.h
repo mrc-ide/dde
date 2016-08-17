@@ -134,9 +134,11 @@ double dopri5_error(dopri5_data *obj);
 double dopri5_h_new(dopri5_data *obj, double fac_old, double h, double err);
 double dopri5_h_init(dopri5_data *obj);
 
-double dopri5_interpolate_1(double *history, size_t n, double t, size_t i);
-void dopri5_interpolate_all(double *history, size_t n, double t, double *y);
-void dopri5_interpolate_idx(double *history, size_t n, double t,
+double dopri5_interpolate_1(const double *history, size_t n, double t,
+                            size_t i);
+void dopri5_interpolate_all(const double *history, size_t n, double t,
+                            double *y);
+void dopri5_interpolate_idx(const double *history, size_t n, double t,
                             size_t * idx, size_t nidx, double *y);
-void dopri5_interpolate_idx_int(double *history, size_t n, double t,
+void dopri5_interpolate_idx_int(const double *history, size_t n, double t,
                                 int *idx, size_t nidx, double *y);

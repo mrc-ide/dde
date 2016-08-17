@@ -90,7 +90,7 @@ SEXP r_dopri5(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
   if (return_history) {
     size_t nh = ring_buffer_used(obj->history, 0);
     SEXP history = PROTECT(allocMatrix(REALSXP, obj->history_len, nh));
-    ring_buffer_memcpy_from(REAL(history), obj->history, nh);
+    ring_buffer_take(obj->history, REAL(history), nh);
     setAttrib(r_y, install("history"), history);
     UNPROTECT(1);
   }

@@ -409,7 +409,8 @@ double dopri5_h_init(dopri5_data *obj) {
 // There are two interpolation functions here; one (interpolate_1())
 // interpolates a single variable while the other (interpolate())
 // interpolates the entire y vector.
-double dopri5_interpolate_1(double *history, size_t n, double t, size_t i) {
+double dopri5_interpolate_1(const double *history, size_t n, double t,
+                            size_t i) {
   const double t_old = history[5 * n], h = history[5 * n + 1];
   const double theta = (t - t_old) / h;
   const double theta1 = 1 - theta;
@@ -421,7 +422,8 @@ double dopri5_interpolate_1(double *history, size_t n, double t, size_t i) {
        history[4 * n + i])));
 }
 
-void dopri5_interpolate_all(double *history, size_t n, double t, double *y) {
+void dopri5_interpolate_all(const double *history, size_t n, double t,
+                            double *y) {
   const double t_old = history[5 * n], h = history[5 * n + 1];
   const double theta = (t - t_old) / h;
   const double theta1 = 1 - theta;
@@ -435,7 +437,7 @@ void dopri5_interpolate_all(double *history, size_t n, double t, double *y) {
   }
 }
 
-void dopri5_interpolate_idx(double *history, size_t n, double t,
+void dopri5_interpolate_idx(const double *history, size_t n, double t,
                             size_t * idx, size_t nidx, double *y) {
   const double t_old = history[5 * n], h = history[5 * n + 1];
   const double theta = (t - t_old) / h;
@@ -457,7 +459,7 @@ void dopri5_interpolate_idx(double *history, size_t n, double t,
 // the *pointer* '*idx' and not anything else because we can safely
 // cast the plain data arguments.  This affects only this function as
 // it's the only one that takes size_t*
-void dopri5_interpolate_idx_int(double *history, size_t n, double t,
+void dopri5_interpolate_idx_int(const double *history, size_t n, double t,
                                 int *idx, size_t nidx, double *y) {
   const double t_old = history[5 * n], h = history[5 * n + 1];
   const double theta = (t - t_old) / h;
@@ -509,13 +511,13 @@ struct dopri5_find_time_pred_data {
   double time;
 };
 
-bool dopri5_find_time_pred(void *x, void *data) {
+bool dopri5_find_time_pred(const void *x, void *data) {
   const struct dopri5_find_time_pred_data *d =
     (struct dopri5_find_time_pred_data *) data;
   return ((double*) x)[d->idx] <= d->time;
 }
 
-double* dopri5_find_time(dopri5_data *obj, double t) {
+const double* dopri5_find_time(dopri5_data *obj, double t) {
   const size_t t_idx = obj->history_time_idx;
   struct dopri5_find_time_pred_data data = {t_idx, t};
   // The first shot at idx here is based on a linear interpolation of
@@ -531,9 +533,9 @@ double* dopri5_find_time(dopri5_data *obj, double t) {
   } else {
     idx0 = 0;
   }
-  void *h = ring_buffer_search_bisect(obj->history, idx0,
-                                      &dopri5_find_time_pred,
-                                      &data);
+  const void *h = ring_buffer_search_bisect(obj->history, idx0,
+                                            &dopri5_find_time_pred,
+                                            &data);
   if (h == NULL) {
     Rf_error("Cannot find time within buffer");
   }
@@ -549,7 +551,7 @@ double ylag_1(double t, size_t i) {
   if (t <= dde_global_obj->t0) {
     return dde_global_obj->y0[i];
   } else {
-    double * h = dopri5_find_time(dde_global_obj, t);
+    const double * h = dopri5_find_time(dde_global_obj, t);
     return dopri5_interpolate_1(h, dde_global_obj->n, t, i);
   }
 }
@@ -558,7 +560,7 @@ void ylag_all(double t, double *y) {
   if (t <= dde_global_obj->t0) {
     memcpy(y, dde_global_obj->y0, dde_global_obj->n * sizeof(double));
   } else {
-    double * h = dopri5_find_time(dde_global_obj, t);
+    const double * h = dopri5_find_time(dde_global_obj, t);
     dopri5_interpolate_all(h, dde_global_obj->n, t, y);
   }
 }
@@ -569,7 +571,7 @@ void ylag_vec(double t, size_t *idx, size_t nidx, double *y) {
       y[i] = dde_global_obj->y0[idx[i]];
     }
   } else {
-    double * h = dopri5_find_time(dde_global_obj, t);
+    const double * h = dopri5_find_time(dde_global_obj, t);
     dopri5_interpolate_idx(h, dde_global_obj->n, t, idx, nidx, y);
   }
 }
@@ -580,7 +582,7 @@ void ylag_vec_int(double t, int *idx, size_t nidx, double *y) {
       y[i] = dde_global_obj->y0[idx[i]];
     }
   } else {
-    double * h = dopri5_find_time(dde_global_obj, t);
+    const double * h = dopri5_find_time(dde_global_obj, t);
     dopri5_interpolate_idx_int(h, dde_global_obj->n, t, idx, nidx, y);
   }
 }
