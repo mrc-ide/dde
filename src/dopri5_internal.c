@@ -44,50 +44,55 @@
 void dopri5_step(dopri5_data *obj, double h) {
   const double t = obj->t;
   const size_t n = obj->n;
+  double
+    *k1 = obj->k[0],
+    *k2 = obj->k[1],
+    *k3 = obj->k[2],
+    *k4 = obj->k[3],
+    *k5 = obj->k[4],
+    *k6 = obj->k[5];
+
   for (size_t i = 0; i < n; ++i) { // 22
-    obj->y1[i] = obj->y[i] + h * A21 * obj->k1[i];
+    obj->y1[i] = obj->y[i] + h * A21 * k1[i];
   }
-  obj->target(n, t + C2 * h, obj->y1, obj->k2, obj->data);
+  obj->target(n, t + C2 * h, obj->y1, k2, obj->data);
   for (size_t i = 0; i < n; ++i) { // 23
-    obj->y1[i] = obj->y[i] + h * (A31 * obj->k1[i] + A32 * obj->k2[i]);
+    obj->y1[i] = obj->y[i] + h * (A31 * k1[i] + A32 * k2[i]);
   }
-  obj->target(n, t + C3 * h, obj->y1, obj->k3, obj->data);
+  obj->target(n, t + C3 * h, obj->y1, k3, obj->data);
   for (size_t i = 0; i < n; ++i) { // 24
-    obj->y1[i] = obj->y[i] + h * (A41 * obj->k1[i] + A42 * obj->k2[i] +
-                                  A43 * obj->k3[i]);
+    obj->y1[i] = obj->y[i] + h * (A41 * k1[i] + A42 * k2[i] + A43 * k3[i]);
   }
-  obj->target(n, t + C4 * h, obj->y1, obj->k4, obj->data);
+  obj->target(n, t + C4 * h, obj->y1, k4, obj->data);
   for (size_t i = 0; i < n; ++i) { // 25
-    obj->y1[i] = obj->y[i] + h * (A51 * obj->k1[i] + A52 * obj->k2[i] +
-                                  A53 * obj->k3[i] + A54 * obj->k4[i]);
+    obj->y1[i] = obj->y[i] + h * (A51 * k1[i] + A52 * k2[i] +
+                                  A53 * k3[i] + A54 * k4[i]);
   }
-  obj->target(n, t + C5 * h, obj->y1, obj->k5, obj->data);
+  obj->target(n, t + C5 * h, obj->y1, k5, obj->data);
   for (size_t i = 0; i < n; ++i) { // 26
-    obj->ysti[i] = obj->y[i] + h * (A61 * obj->k1[i] + A62 * obj->k2[i] +
-                                    A63 * obj->k3[i] + A64 * obj->k4[i] +
-                                    A65 * obj->k5[i]);
+    obj->ysti[i] = obj->y[i] + h * (A61 * k1[i] + A62 * k2[i] + A63 * k3[i] +
+                                    A64 * k4[i] + A65 * k5[i]);
   }
   double t_next = t + h;
-  obj->target(n, t_next, obj->ysti, obj->k6, obj->data);
+  obj->target(n, t_next, obj->ysti, k6, obj->data);
   for (size_t i = 0; i < n; ++i) { // 27
-    obj->y1[i] = obj->y[i] + h * (A71 * obj->k1[i] + A73 * obj->k3[i] +
-                                  A74 * obj->k4[i] + A75 * obj->k5[i] +
-                                  A76 * obj->k6[i]);
+    obj->y1[i] = obj->y[i] + h * (A71 * k1[i] + A73 * k3[i] + A74 * k4[i] +
+                                  A75 * k5[i] + A76 * k6[i]);
   }
-  obj->target(n, t_next, obj->y1, obj->k2, obj->data);
+  obj->target(n, t_next, obj->y1, k2, obj->data);
 
   // TODO: Doing this unconditionally at the moment, but this should
   // be tuned, and possibly thinned (e.g., with the index thing).
   double *history = (double*) obj->history->head;
   for (size_t i = 0, j = 4 * n; i < n; ++i, ++j) {
     history[j] =
-      h * (D1 * obj->k1[i] + D3 * obj->k3[i] + D4 * obj->k4[i] +
-           D5 * obj->k5[i] + D6 * obj->k6[i] + D7 * obj->k2[i]);
+      h * (D1 * k1[i] + D3 * k3[i] + D4 * k4[i] +
+           D5 * k5[i] + D6 * k6[i] + D7 * k2[i]);
   }
 
   for (size_t i = 0; i < n; ++i) {
-    obj->k4[i] = h * (E1 * obj->k1[i] + E3 * obj->k3[i] + E4 * obj->k4[i] +
-                      E5 * obj->k5[i] + E6 * obj->k6[i] + E7 * obj->k2[i]);
+    k4[i] = h * (E1 * k1[i] + E3 * k3[i] + E4 * k4[i] +
+                      E5 * k5[i] + E6 * k6[i] + E7 * k2[i]);
   }
   obj->n_eval += 6;
 }

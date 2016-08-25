@@ -2,6 +2,8 @@
 #include "util.h"
 #include <R.h>
 
+#define NK 6
+
 dopri5_data* dopri5_data_alloc(deriv_func* target, size_t n,
                                output_func* output, size_t n_out,
                                void *data, size_t n_history) {
@@ -21,12 +23,11 @@ dopri5_data* dopri5_data_alloc(deriv_func* target, size_t n,
   ret->output = output;
   ret->n_out = n_out;
 
-  ret->k1 = R_Calloc(n, double);
-  ret->k2 = R_Calloc(n, double);
-  ret->k3 = R_Calloc(n, double);
-  ret->k4 = R_Calloc(n, double);
-  ret->k5 = R_Calloc(n, double);
-  ret->k6 = R_Calloc(n, double);
+  // in 5 we have k1-6 and ysti but in 853 we'll have k1-10 and *not* ysti
+  ret->k = R_Calloc(NK, double*);
+  for (size_t i = 0; i < NK; ++i) {
+    ret->k[i] = R_Calloc(n, double);
+  }
   ret->ysti = R_Calloc(n, double);
 
   ret->history_len = 2 + 5 * n;
@@ -97,12 +98,10 @@ void dopri5_data_free(dopri5_data *obj) {
   R_Free(obj->y);
   R_Free(obj->y1);
 
-  R_Free(obj->k1);
-  R_Free(obj->k2);
-  R_Free(obj->k3);
-  R_Free(obj->k4);
-  R_Free(obj->k5);
-  R_Free(obj->k6);
+  for (size_t i = 0; i < NK; ++i) {
+    R_Free(obj->k[i]);
+  }
+  R_Free(obj->k);
   R_Free(obj->ysti);
 
   ring_buffer_destroy(obj->history);
@@ -155,7 +154,7 @@ void dopri5_integrate(dopri5_data *obj, double *y,
   // nonzero?  Needs to be set before any calls to target() though.
   dde_global_obj = obj;
 
-  obj->target(obj->n, obj->t, obj->y, obj->k1, obj->data);
+  obj->target(obj->n, obj->t, obj->y, obj->k[0], obj->data);
   obj->n_eval++;
 
   // Work out the initial step size:
@@ -204,11 +203,11 @@ void dopri5_integrate(dopri5_data *obj, double *y,
       double *history = (double*) obj->history->head;
       for (size_t i = 0; i < obj->n; ++i) {
         double ydiff = obj->y1[i] - obj->y[i];
-        double bspl = h * obj->k1[i] - ydiff;
+        double bspl = h * obj->k[0][i] - ydiff;
         history[             i] = obj->y[i];
         history[    obj->n + i] = ydiff;
         history[2 * obj->n + i] = bspl;
-        history[3 * obj->n + i] = -h * obj->k2[i] + ydiff - bspl;
+        history[3 * obj->n + i] = -h * obj->k[1][i] + ydiff - bspl;
       }
       history[obj->history_time_idx    ] = obj->t;
       history[obj->history_time_idx + 1] = h;
@@ -216,7 +215,7 @@ void dopri5_integrate(dopri5_data *obj, double *y,
       // Always do these bits (TODO, it's quite possible that we can
       // do this with a swap rather than a memcpy which would be
       // nice).
-      memcpy(obj->k1, obj->k2, obj->n * sizeof(double));
+      memcpy(obj->k[0], obj->k[1], obj->n * sizeof(double));
       memcpy(obj->y,  obj->y1, obj->n * sizeof(double));
       obj->t += h;
 
@@ -295,7 +294,7 @@ double dopri5_error(dopri5_data *obj) {
   double err = 0.0;
   for (size_t i = 0; i < obj->n; ++i) {
     double sk = obj->atol + obj->rtol * fmax(fabs(obj->y[i]), fabs(obj->y1[i]));
-    err += square(obj->k4[i] / sk);
+    err += square(obj->k[3][i] / sk);
   }
   return sqrt(err / obj->n);
 }
@@ -319,7 +318,7 @@ double dopri5_h_init(dopri5_data *obj) {
 
   // NOTE: This is destructive with respect to most of the information
   // in the object; in particular k2, k3 will be modified.
-  double *f0 = obj->k1, *f1 = obj->k2, *y1 = obj->k3;
+  double *f0 = obj->k[0], *f1 = obj->k[1], *y1 = obj->k[2];
 
   // Compute a first guess for explicit Euler as
   //   h = 0.01 * norm (y0) / norm (f0)

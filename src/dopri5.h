@@ -61,14 +61,8 @@ typedef struct {
   size_t n_out; // number of output variables (possibly zero)
   output_func* output; // optional output function
 
-  // TODO: If I generalise this over orders, then this becomes a **
-  // and the length is stored here -- not too bad.
-  double * k1; // internal state for the dopri step
-  double * k2;
-  double * k3;
-  double * k4;
-  double * k5;
-  double * k6;
+  // internal state for the dopri step
+  double **k;
   double * ysti;
 
   // For the dde version this is going to become a circular buffer,
