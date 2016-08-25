@@ -123,6 +123,34 @@ SEXP r_dopri5(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
   return r_y;
 }
 
+SEXP r_ylag(SEXP r_t, SEXP r_idx) {
+  size_t n = get_current_problem_size();
+  if (n == 0) {
+    Rf_error("Can't call this without being in an integration");
+  }
+  double t = REAL(r_t)[0];
+  SEXP r_y;
+  if (r_idx == R_NilValue) {
+    r_y = PROTECT(allocVector(REALSXP, n));
+    ylag_all(t, REAL(r_y));
+  } else {
+    const size_t ni = length(r_idx);
+    r_y = PROTECT(allocVector(REALSXP, ni));
+    if (ni == 1) {
+      REAL(r_y)[0] = ylag_1(t, INTEGER(r_idx)[0] - 1);
+    } else {
+      r_y = allocVector(REALSXP, ni);
+      size_t *idx = (size_t*) R_alloc(ni, sizeof(size_t));
+      for (size_t i = 0; i < ni; ++i) {
+        idx[i] = (size_t)INTEGER(r_idx)[i] - 1;
+      }
+      ylag_vec(t, idx, ni, REAL(r_y));
+    }
+  }
+  UNPROTECT(1);
+  return r_y;
+}
+
 void dde_r_harness(size_t n, double t, double *y, double *dydt, void *data) {
   SEXP d = (SEXP)data;
   SEXP

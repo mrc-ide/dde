@@ -122,6 +122,11 @@ void dopri5_data_free(dopri5_data *obj) {
 // of achiving this.  Might change later though.
 static dopri5_data *dde_global_obj;
 
+// Used to query the problem size safely from the interface.c file
+size_t get_current_problem_size() {
+  return dde_global_obj == NULL ? 0 : dde_global_obj->n;
+}
+
 // Integration is going to be over a set of times 't', of which there
 // are 'n_t'.
 void dopri5_integrate(dopri5_data *obj, double *y,
@@ -585,32 +590,4 @@ void ylag_vec_int(double t, int *idx, size_t nidx, double *y) {
     const double * h = dopri5_find_time(dde_global_obj, t);
     dopri5_interpolate_idx_int(h, dde_global_obj->n, t, idx, nidx, y);
   }
-}
-
-#include <Rinternals.h>
-SEXP r_ylag(SEXP r_t, SEXP r_idx) {
-  if (dde_global_obj == NULL) {
-    Rf_error("Can't call this without being in an integration");
-  }
-  double t = REAL(r_t)[0];
-  SEXP r_y;
-  if (r_idx == R_NilValue) {
-    r_y = PROTECT(allocVector(REALSXP, dde_global_obj->n));
-    ylag_all(t, REAL(r_y));
-  } else {
-    const size_t ni = length(r_idx);
-    r_y = PROTECT(allocVector(REALSXP, ni));
-    if (ni == 1) {
-      REAL(r_y)[0] = ylag_1(t, INTEGER(r_idx)[0] - 1);
-    } else {
-      r_y = allocVector(REALSXP, ni);
-      size_t *idx = (size_t*) R_alloc(ni, sizeof(size_t));
-      for (size_t i = 0; i < ni; ++i) {
-        idx[i] = (size_t)INTEGER(r_idx)[i] - 1;
-      }
-      ylag_vec(t, idx, ni, REAL(r_y));
-    }
-  }
-  UNPROTECT(1);
-  return r_y;
 }

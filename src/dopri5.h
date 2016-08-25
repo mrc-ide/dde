@@ -142,3 +142,6 @@ void dopri5_interpolate_idx(const double *history, size_t n, double t,
                             size_t * idx, size_t nidx, double *y);
 void dopri5_interpolate_idx_int(const double *history, size_t n, double t,
                                 int *idx, size_t nidx, double *y);
+
+// Helper
+size_t get_current_problem_size();

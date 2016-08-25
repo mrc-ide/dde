@@ -107,7 +107,7 @@
 ##'   deSolve.  This might change in future.
 ##'
 ##' @export
-##' @useDynLib dde
+##' @useDynLib dde, .registration = TRUE
 dopri5 <- function(y, times, func, parms, ...,
                    n_out = 0L, output = NULL,
                    rtol = 1e-6, atol = 1e-6,
@@ -201,12 +201,11 @@ dopri5 <- function(y, times, func, parms, ...,
     output <- NULL
   }
 
-  ret <- .Call("r_dopri5", y, times, func, parms,
+  ret <- .Call(Cdopri5, y, times, func, parms,
                n_out, output,
                rtol, atol, parms_are_real, tcrit,
                as.integer(n_history), return_history, return_initial,
-               return_statistics,
-               PACKAGE="dde")
+               return_statistics)
 
   if (return_time) {
     ret <- rbind(if (return_initial) times else times[-1],
@@ -279,5 +278,5 @@ find_function_address <- function(fun, dllname = "") {
 }
 
 ylag <- function(t, i = NULL) {
-  .Call("r_ylag", t, i, PACKAGE = "dde")
+  .Call(Cylag, t, i)
 }
