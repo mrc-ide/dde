@@ -10,8 +10,11 @@ dopri5_data* dopri5_data_alloc(deriv_func* target, size_t n,
   dopri5_data *ret = (dopri5_data*) R_Calloc(1, dopri5_data);
   ret->target = target;
   ret->data = data;
-  ret->n = n;
 
+  ret->method = DOPRI_5;
+  ret->order = 5;
+
+  ret->n = n;
 
   ret->n_times = 0;
   ret->times = NULL;
@@ -200,17 +203,7 @@ void dopri5_integrate(dopri5_data *obj, double *y,
       obj->n_accept++;
       // TODO: Stiffness detection, once done.
       // TODO: make conditional
-      double *history = (double*) obj->history->head;
-      for (size_t i = 0; i < obj->n; ++i) {
-        double ydiff = obj->y1[i] - obj->y[i];
-        double bspl = h * obj->k[0][i] - ydiff;
-        history[             i] = obj->y[i];
-        history[    obj->n + i] = ydiff;
-        history[2 * obj->n + i] = bspl;
-        history[3 * obj->n + i] = -h * obj->k[1][i] + ydiff - bspl;
-      }
-      history[obj->history_time_idx    ] = obj->t;
-      history[obj->history_time_idx + 1] = h;
+      dopri5_save_history(obj, h);
 
       // Always do these bits (TODO, it's quite possible that we can
       // do this with a swap rather than a memcpy which would be
@@ -349,11 +342,10 @@ double dopri5_h_init(dopri5_data *obj) {
   der2 = sqrt(der2) / h;
 
   // Step size is computed such that
-  //   h^iord * fmax(norm(f0), norm(der2)) = 0.01
-  size_t iord = 5;
+  //   h^order * fmax(norm(f0), norm(der2)) = 0.01
   double der12 = fmax(fabs(der2), sqrt(norm_f));
   double h1 = (der12 <= 1e-15) ?
-    fmax(1e-6, fabs(h) * 1e-3) : pow(0.01 / der12, 1.0 / iord);
+    fmax(1e-6, fabs(h) * 1e-3) : pow(0.01 / der12, 1.0 / obj->order);
   h = fmin(fmin(100 * fabs(h), h1), obj->step_size_max);
   return copysign(h, obj->sign);
 }

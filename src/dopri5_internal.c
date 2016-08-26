@@ -96,3 +96,17 @@ void dopri5_step(dopri5_data *obj, double h) {
   }
   obj->n_eval += 6;
 }
+
+void dopri5_save_history(dopri5_data *obj, double h) {
+  double *history = (double*) obj->history->head;
+  for (size_t i = 0; i < obj->n; ++i) {
+    double ydiff = obj->y1[i] - obj->y[i];
+    double bspl = h * obj->k[0][i] - ydiff;
+    history[             i] = obj->y[i];
+    history[    obj->n + i] = ydiff;
+    history[2 * obj->n + i] = bspl;
+    history[3 * obj->n + i] = -h * obj->k[1][i] + ydiff - bspl;
+  }
+  history[obj->history_time_idx    ] = obj->t;
+  history[obj->history_time_idx + 1] = h;
+}

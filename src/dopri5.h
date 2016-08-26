@@ -29,6 +29,11 @@ typedef enum return_code {
   OK_INTERRUPTED = 2
 } return_code;
 
+typedef enum dopri_method {
+  DOPRI_5, // or 54?
+  DOPRI_853
+} dopri_method;
+
 typedef void deriv_func(size_t n_eq, double t, const double *y, double *dydt,
                         const void *data);
 typedef void output_func(size_t n_eq, double t, const double *y,
@@ -37,6 +42,9 @@ typedef void output_func(size_t n_eq, double t, const double *y,
 typedef struct {
   deriv_func* target;
   void* data;
+
+  dopri_method method;
+  size_t order; // order of integration
 
   size_t n;     // number of equations
   bool initialised;
@@ -124,6 +132,7 @@ void dopri5_integrate(dopri5_data *obj, double *y,
                       double *tcrit, size_t n_tcrit,
                       double *y_out, double *out);
 void dopri5_step(dopri5_data *obj, double h);
+void dopri5_save_history(dopri5_data *obj, double h);
 double dopri5_error(dopri5_data *obj);
 double dopri5_h_new(dopri5_data *obj, double fac_old, double h, double err);
 double dopri5_h_init(dopri5_data *obj);
