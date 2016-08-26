@@ -123,6 +123,7 @@ typedef struct {
   double step_size_initial;
   size_t step_max_n; // max number of steps (100000)
   double step_beta;
+  double step_constant; // internal
 
   // Error reporting
   bool error;

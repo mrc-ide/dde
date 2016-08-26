@@ -43,23 +43,28 @@ dopri_data* dopri_data_alloc(deriv_func* target, size_t n,
     ring_buffer_create(n_history, ret->history_len * sizeof(double));
   ret->history_time_idx = ret->order * n;
 
-  // Defaults!
   // TODO: Support vectorised tolerances?
+  // TODO: Support user-supplied tolerances
   ret->atol = 1e-6;
   ret->rtol = 1e-6;
 
-  // TODO: These all need to be modifiable from R
+  // TODO: Support user-supplied step control; all of these really.
   switch (ret->method) {
   case DOPRI_5:
     // TODO: these are different for dde; switch again on delay and document.
     ret->step_factor_min = 0.2;  // from dopri5.f:276
     ret->step_factor_max = 10.0; // from dopri5.f:281
     ret->step_beta = 0.04;       // from dopri5.f:287
+    ret->step_constant = 0.2 - ret->step_beta * 0.75;
     break;
   case DOPRI_853:
     ret->step_factor_min = 0.333; // from dopri853.f:285
     ret->step_factor_max = 6.0;   // from dopri853.f:290
     ret->step_beta = 0.0;         // from dopri853.f:296
+    // NOTE: probably worth chasing down the source of these
+    // calculations.  It does look like 1/order - beta * C, but not
+    // sure where C comes from.
+    ret->step_constant = 0.125 - ret->step_beta * 0.2;
     break;
   }
   ret->step_size_max = DBL_MAX;
@@ -73,8 +78,8 @@ dopri_data* dopri_data_alloc(deriv_func* target, size_t n,
 // We'll need a different reset when we're providing history, because
 // then we won't end up resetting t0/y0 the same way.
 void dopri_data_reset(dopri_data *obj, double *y,
-                       double *times, size_t n_times,
-                       double *tcrit, size_t n_tcrit) {
+                      double *times, size_t n_times,
+                      double *tcrit, size_t n_tcrit) {
   obj->error = false;
   obj->code = NOT_SET;
   memcpy(obj->y0, y, obj->n * sizeof(double));
@@ -236,7 +241,6 @@ void dopri_integrate(dopri_data *obj, double *y,
     // recomputing.  This would be the case possibly where output
     // variables are being calculated so might want to put this back
     // in once the signalling is done.
-
     dopri_step(obj, h);
 
     // Error estimation:
@@ -314,11 +318,9 @@ void dopri_integrate(dopri_data *obj, double *y,
     } else {
       // Step is rejected :(
       //
-      // TODO: This is very annoying because we need to recompute
-      // fac11 here, and re-invert the minimum step factor.
-      //
-      // TODO: move this thing (arg2 of pow) into the struct?
-      double fac11 = pow(err, 0.2 - obj->step_beta * 0.75);
+      // TODO: This is very annoying because we need to re-invert the
+      // minimum step factor.
+      double fac11 = pow(err, obj->step_constant);
       h_new = h / fmin(1 / obj->step_factor_min, fac11 / obj->step_factor_safe);
       reject = true;
       if (obj->n_accept >= 1) {
@@ -334,10 +336,8 @@ void dopri_integrate(dopri_data *obj, double *y,
   dde_global_obj = NULL;
 }
 
-// Shared
 double dopri_h_new(dopri_data *obj, double fac_old, double h, double err) {
-  double expo1 = 0.2 - obj->step_beta * 0.75;
-  double fac11 = pow(err, expo1);
+  double fac11 = pow(err, obj->step_constant);
   double step_factor_min = 1.0 / obj->step_factor_min;
   double step_factor_max = 1.0 / obj->step_factor_max;
   // Lund-stabilisation
