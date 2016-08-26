@@ -47,6 +47,8 @@
 ##'   supported methods are \code{"dopri5"} (5th order method with 4th
 ##'   order dense output) and \code{"dopri853"} (8th order method with
 ##'   7th order output and embedded 5th and 3rd order schemes).
+##'   Alternatively, use the functions \code{dopri5} or
+##'   \code{dopri853} which simply sets this argument.
 ##'
 ##' @param n_history Number of history points to retain.  This needs
 ##'   to be greater than zero for delay differential equations to
@@ -236,6 +238,17 @@ dopri <- function(y, times, func, parms, ...,
   }
 
   ret
+}
+
+##' @export
+##' @rdname dopri
+dopri5 <- function(y, times, func, parms, ...) {
+  dopri(y, times, func, parms, ..., method="dopri5")
+}
+##' @export
+##' @rdname dopri
+dopri853 <- function(y, times, func, parms, ...) {
+  dopri(y, times, func, parms, ..., method="dopri853")
 }
 
 dopri_interpolate <- function(h, t) {
