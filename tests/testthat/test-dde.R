@@ -14,14 +14,44 @@ test_that("dde", {
   dimnames(yy1) <- dimnames(yy2) <- dimnames(yy3) <- NULL
 
   ## Before the lag; this one is easy:
-  zz1 <- run_seir_dde(tt1)
-  expect_equal(t(zz1), yy1[-1, ])
+  expect_equal(run_seir_dde(tt1),
+               t(yy1[-1, ]))
+  expect_equal(run_seir_dde(tt1, method = "dopri853"),
+               t(yy1[-1, ]))
 
-  zz2 <- run_seir_dde(tt2)
-  expect_equal(t(zz2), yy2[-1, ])
+  ## Post lag
+  expect_equal(run_seir_dde(tt2),
+               t(yy2[-1, ]))
+  expect_equal(run_seir_dde(tt2, method = "dopri853"),
+               t(yy2[-1, ]))
 
-  zz3 <- run_seir_dde(tt3)
-  expect_equal(t(zz3), yy3[-1, ], tolerance = 1e-6)
+  ## Entire interesting
+  expect_equal(run_seir_dde(tt3),
+               t(yy3[-1, ]), tolerance = 1e-6)
+  expect_equal(run_seir_dde(tt3, method="dopri853"),
+               t(yy3[-1, ]), tolerance = 1e-6)
+
+  ## Confirm that different integrators were actually run here:
+  y5 <- run_seir_dde(tt3, return_statistics=TRUE)
+  y8 <- run_seir_dde(tt3, method="dopri853", return_statistics=TRUE)
+  expect_false(identical(y5, y8))
+
+  ## The 853 stepper should take fewer steps (though in this case it's
+  ## more ~10% more function evaluations because of more rejected
+  ## steps).
+  s5 <- attr(y5, "statistics")
+  s8 <- attr(y8, "statistics")
+  expect_gt(s5[["n_step"]], s8[["n_step"]])
+  expect_lt(s5[["n_eval"]], s8[["n_eval"]])
+
+  ## Run again with a critical time at the point the delay starts:
+  y5_2 <- run_seir_dde(tt3, return_statistics=TRUE, tcrit = 14)
+  y8_2 <- run_seir_dde(tt3, method="dopri853", return_statistics=TRUE, tcrit = 14)
+  s5_2 <- attr(y5_2, "statistics")
+  s8_2 <- attr(y8_2, "statistics")
+  expect_gt(s5_2[["n_step"]], s8_2[["n_step"]])
+  expect_gt(s5_2[["n_eval"]], s8_2[["n_eval"]])
+  expect_lt(s8_2[["n_reject"]], s8[["n_reject"]])
 })
 
 test_that("output", {
