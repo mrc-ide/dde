@@ -1,5 +1,6 @@
 #include "dopri.h"
 #include "dopri_5.h"
+#include "dopri_853.h"
 #include <R.h>
 
 dopri_data* dopri_data_alloc(deriv_func* target, size_t n,
@@ -151,7 +152,7 @@ void dopri_step(dopri_data *obj, double h) {
     dopri5_step(obj, h);
     break;
   case DOPRI_853:
-    Rf_error("not yet implemented");
+    dopri853_step(obj, h);
     break;
   }
 }
@@ -161,8 +162,7 @@ double dopri_error(dopri_data *obj) {
   case DOPRI_5:
     return dopri5_error(obj);
   case DOPRI_853:
-    Rf_error("not yet implemented");
-    return 0;
+    return dopri853_error(obj);
   }
 }
 
@@ -172,7 +172,7 @@ void dopri_save_history(dopri_data *obj, double h) {
     dopri5_save_history(obj, h);
     break;
   case DOPRI_853:
-    Rf_error("not yet implemented");
+    dopri853_save_history(obj, h);
     break;
   }
 }
@@ -410,11 +410,8 @@ double dopri_interpolate_1(const double *history, dopri_method method,
   switch (method) {
   case DOPRI_5:
     return dopri5_interpolate(n, theta, theta1, history + i);
-    break;
   case DOPRI_853:
-    Rf_error("not yet implemented");
-    return 0; // not implemented!
-    break;
+    return dopri853_interpolate(n, theta, theta1, history + i);
   }
 }
 
@@ -431,7 +428,9 @@ void dopri_interpolate_all(const double *history, dopri_method method,
     }
     break;
   case DOPRI_853:
-    Rf_error("not yet implemented");
+    for (size_t i = 0; i < n; ++i) {
+      y[i] = dopri853_interpolate(n, theta, theta1, history + i);
+    }
     break;
   }
 }
@@ -450,7 +449,9 @@ void dopri_interpolate_idx(const double *history, dopri_method method,
     }
     break;
   case DOPRI_853:
-    Rf_error("not yet implemented");
+    for (size_t i = 0; i < nidx; ++i) {
+      y[i] = dopri853_interpolate(n, theta, theta1, history + idx[i]);
+    }
     break;
   }
 }
@@ -475,7 +476,9 @@ void dopri_interpolate_idx_int(const double *history, dopri_method method,
     }
     break;
   case DOPRI_853:
-    Rf_error("not yet implemented");
+    for (size_t i = 0; i < nidx; ++i) {
+      y[i] = dopri853_interpolate(n, theta, theta1, history + idx[i]);
+    }
     break;
   }
 }
