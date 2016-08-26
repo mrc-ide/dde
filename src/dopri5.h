@@ -84,7 +84,7 @@ typedef struct {
   // DOPRI5_:
   //
   //   double[n]: y
-  //   double[n]: deltay
+  //   double[n]: ydiff
   //   double[n]: bspl
   //   double[n]: expr (a function of the above)
   //   double[n]: dens (computed from the ks)
@@ -142,20 +142,20 @@ void dopri5_integrate(dopri5_data *obj, double *y,
                       double *times, size_t n_times,
                       double *tcrit, size_t n_tcrit,
                       double *y_out, double *out);
-void dopri5_step(dopri5_data *obj, double h);
-void dopri5_save_history(dopri5_data *obj, double h);
 double dopri5_error(dopri5_data *obj);
 double dopri5_h_new(dopri5_data *obj, double fac_old, double h, double err);
 double dopri5_h_init(dopri5_data *obj);
 
-double dopri5_interpolate_1(const double *history, size_t n, double t,
-                            size_t i);
-void dopri5_interpolate_all(const double *history, size_t n, double t,
-                            double *y);
-void dopri5_interpolate_idx(const double *history, size_t n, double t,
-                            size_t * idx, size_t nidx, double *y);
-void dopri5_interpolate_idx_int(const double *history, size_t n, double t,
-                                int *idx, size_t nidx, double *y);
+double dopri_interpolate_1(const double *history, dopri_method method,
+                           size_t n, double t, size_t i);
+void dopri_interpolate_all(const double *history, dopri_method method,
+                           size_t n, double t, double *y);
+void dopri_interpolate_idx(const double *history, dopri_method method,
+                           size_t n, double t, size_t * idx, size_t nidx,
+                           double *y);
+void dopri_interpolate_idx_int(const double *history, dopri_method method,
+                               size_t n, double t, int *idx, size_t nidx,
+                               double *y);
 
 // Helper
 size_t get_current_problem_size();

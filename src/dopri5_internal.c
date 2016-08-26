@@ -97,6 +97,15 @@ void dopri5_step(dopri5_data *obj, double h) {
   obj->n_eval += 6;
 }
 
+double dopri5_error(dopri5_data *obj) {
+  double err = 0.0;
+  for (size_t i = 0; i < obj->n; ++i) {
+    double sk = obj->atol + obj->rtol * fmax(fabs(obj->y[i]), fabs(obj->y1[i]));
+    err += square(obj->k[3][i] / sk);
+  }
+  return sqrt(err / obj->n);
+}
+
 void dopri5_save_history(dopri5_data *obj, double h) {
   double *history = (double*) obj->history->head;
   for (size_t i = 0; i < obj->n; ++i) {
@@ -109,4 +118,13 @@ void dopri5_save_history(dopri5_data *obj, double h) {
   }
   history[obj->history_time_idx    ] = obj->t;
   history[obj->history_time_idx + 1] = h;
+}
+
+double dopri5_interpolate(size_t n, double theta, double theta1,
+                          const double *history) {
+  return history[0] + theta *
+    (history[n] + theta1 *
+     (history[2 * n] + theta *
+      (history[3 * n] + theta1 *
+       history[4 * n])));
 }
