@@ -2,5 +2,5 @@
 void dopri853_step(dopri_data *obj, double h);
 double dopri853_error(dopri_data *obj);
 void dopri853_save_history(dopri_data *obj, double h);
-double dopri8_interpolate(size_t n, double theta, double theta1,
-                          const double *history);
+double dopri853_interpolate(size_t n, double theta, double theta1,
+                            const double *history);

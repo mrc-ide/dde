@@ -64,7 +64,6 @@ dopri_data* dopri_data_alloc(deriv_func* target, size_t n,
   ret->step_size_max = DBL_MAX;
   ret->step_size_initial = 0.0;
   ret->step_max_n = 100000;    // from dopri5.f:212
-  // NOTE: beta is different for dde and dopri5
   ret->step_factor_safe = 0.9; // from dopri5.f:265
 
   return ret;
@@ -75,6 +74,8 @@ dopri_data* dopri_data_alloc(deriv_func* target, size_t n,
 void dopri_data_reset(dopri_data *obj, double *y,
                        double *times, size_t n_times,
                        double *tcrit, size_t n_tcrit) {
+  obj->error = false;
+  obj->code = NOT_SET;
   memcpy(obj->y0, y, obj->n * sizeof(double));
   memcpy(obj->y, y, obj->n * sizeof(double));
   obj->t0 = times[0];
@@ -182,9 +183,6 @@ void dopri_integrate(dopri_data *obj, double *y,
                       double *times, size_t n_times,
                       double *tcrit, size_t n_tcrit,
                       double *y_out, double *out) {
-  obj->error = false;
-  obj->code = NOT_SET;
-
   // TODO: check that t is strictly sorted and n_times >= 2 (in R)
   dopri_data_reset(obj, y, times, n_times, tcrit, n_tcrit);
 
@@ -250,14 +248,20 @@ void dopri_integrate(dopri_data *obj, double *y,
       fac_old = fmax(err, 1e-4);
       obj->n_accept++;
       // TODO: Stiffness detection, once done.
-      // TODO: make conditional
       dopri_save_history(obj, h);
 
-      // Always do these bits (TODO, it's quite possible that we can
-      // do this with a swap rather than a memcpy which would be
-      // nice).
-      memcpy(obj->k[0], obj->k[1], obj->n * sizeof(double));
-      memcpy(obj->y,  obj->y1, obj->n * sizeof(double));
+      // TODO: it's quite possible that we can swap the pointers here
+      // and avoid the memcpy.
+      switch (obj->method) {
+      case DOPRI_5:
+        memcpy(obj->k[0], obj->k[1], obj->n * sizeof(double)); // k1 = k2
+        memcpy(obj->y,    obj->y1,   obj->n * sizeof(double)); // y  = y1
+        break;
+      case DOPRI_853:
+        memcpy(obj->k[0], obj->k[3], obj->n * sizeof(double)); // k1 = k4
+        memcpy(obj->y,    obj->k[4], obj->n * sizeof(double)); // y  = k5
+        break;
+      }
       obj->t += h;
 
       while (obj->times_idx < obj->n_times &&
@@ -399,7 +403,8 @@ double dopri_h_init(dopri_data *obj) {
 // * interpolate_idx_int: As for _idx but with an integer index (see below)
 double dopri_interpolate_1(const double *history, dopri_method method,
                            size_t n, double t, size_t i) {
-  const double t_old = history[5 * n], h = history[5 * n + 1];
+  const size_t idx_t = (method == DOPRI_5 ? 5 : 8) * n;
+  const double t_old = history[idx_t], h = history[idx_t + 1];
   const double theta = (t - t_old) / h;
   const double theta1 = 1 - theta;
   switch (method) {
@@ -407,6 +412,7 @@ double dopri_interpolate_1(const double *history, dopri_method method,
     return dopri5_interpolate(n, theta, theta1, history + i);
     break;
   case DOPRI_853:
+    Rf_error("not yet implemented");
     return 0; // not implemented!
     break;
   }
@@ -414,7 +420,8 @@ double dopri_interpolate_1(const double *history, dopri_method method,
 
 void dopri_interpolate_all(const double *history, dopri_method method,
                            size_t n, double t, double *y) {
-  const double t_old = history[5 * n], h = history[5 * n + 1];
+  const size_t idx_t = (method == DOPRI_5 ? 5 : 8) * n;
+  const double t_old = history[idx_t], h = history[idx_t + 1];
   const double theta = (t - t_old) / h;
   const double theta1 = 1 - theta;
   switch (method) {
@@ -424,6 +431,7 @@ void dopri_interpolate_all(const double *history, dopri_method method,
     }
     break;
   case DOPRI_853:
+    Rf_error("not yet implemented");
     break;
   }
 }
@@ -431,7 +439,8 @@ void dopri_interpolate_all(const double *history, dopri_method method,
 void dopri_interpolate_idx(const double *history, dopri_method method,
                            size_t n, double t, size_t * idx, size_t nidx,
                            double *y) {
-  const double t_old = history[5 * n], h = history[5 * n + 1];
+  const size_t idx_t = (method == DOPRI_5 ? 5 : 8) * n;
+  const double t_old = history[idx_t], h = history[idx_t + 1];
   const double theta = (t - t_old) / h;
   const double theta1 = 1 - theta;
   switch (method) {
@@ -441,6 +450,7 @@ void dopri_interpolate_idx(const double *history, dopri_method method,
     }
     break;
   case DOPRI_853:
+    Rf_error("not yet implemented");
     break;
   }
 }
@@ -454,7 +464,8 @@ void dopri_interpolate_idx(const double *history, dopri_method method,
 void dopri_interpolate_idx_int(const double *history, dopri_method method,
                                size_t n, double t, int *idx, size_t nidx,
                                double *y) {
-  const double t_old = history[5 * n], h = history[5 * n + 1];
+  const size_t idx_t = (method == DOPRI_5 ? 5 : 8) * n;
+  const double t_old = history[idx_t], h = history[idx_t + 1];
   const double theta = (t - t_old) / h;
   const double theta1 = 1 - theta;
   switch (method) {
@@ -464,6 +475,7 @@ void dopri_interpolate_idx_int(const double *history, dopri_method method,
     }
     break;
   case DOPRI_853:
+    Rf_error("not yet implemented");
     break;
   }
 }
@@ -511,8 +523,8 @@ bool dopri_find_time_pred(const void *x, void *data) {
 }
 
 const double* dopri_find_time(dopri_data *obj, double t) {
-  const size_t t_idx = obj->history_time_idx;
-  struct dopri_find_time_pred_data data = {t_idx, t};
+  const size_t idx_t = obj->history_time_idx;
+  struct dopri_find_time_pred_data data = {idx_t, t};
   // The first shot at idx here is based on a linear interpolation of
   // the time; hopefully this gets is close to the correct point
   // without having to have a really long search time.
@@ -520,8 +532,8 @@ const double* dopri_find_time(dopri_data *obj, double t) {
   size_t idx0;
   if (n > 0) {
     const double
-      t0 = ((double*) ring_buffer_tail(obj->history))[t_idx],
-      t1 = ((double*) ring_buffer_tail_offset(obj->history, n - 1))[t_idx];
+      t0 = ((double*) ring_buffer_tail(obj->history))[idx_t],
+      t1 = ((double*) ring_buffer_tail_offset(obj->history, n - 1))[idx_t];
     idx0 = (t1 - t0) / (n - 1);
   } else {
     idx0 = 0;
