@@ -174,12 +174,16 @@ void dopri_step(dopri_data *obj, double h) {
 }
 
 double dopri_error(dopri_data *obj) {
+  double ret;
   switch (obj->method) {
   case DOPRI_5:
-    return dopri5_error(obj);
+    ret = dopri5_error(obj);
+    break;
   case DOPRI_853:
-    return dopri853_error(obj);
+    ret = dopri853_error(obj);
+    break;
   }
+  return ret;
 }
 
 void dopri_save_history(dopri_data *obj, double h) {
@@ -426,12 +430,16 @@ double dopri_interpolate_1(const double *history, dopri_method method,
   const double t_old = history[idx_t], h = history[idx_t + 1];
   const double theta = (t - t_old) / h;
   const double theta1 = 1 - theta;
+  double ret;
   switch (method) {
   case DOPRI_5:
-    return dopri5_interpolate(n, theta, theta1, history + i);
+    ret = dopri5_interpolate(n, theta, theta1, history + i);
+    break;
   case DOPRI_853:
-    return dopri853_interpolate(n, theta, theta1, history + i);
+    ret = dopri853_interpolate(n, theta, theta1, history + i);
+    break;
   }
+  return ret;
 }
 
 void dopri_interpolate_all(const double *history, dopri_method method,
