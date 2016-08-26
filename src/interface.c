@@ -1,4 +1,4 @@
-#include "dopri5.h"
+#include "dopri.h"
 #include <R.h>
 #include <Rinternals.h>
 
@@ -17,12 +17,12 @@
 // - events
 //
 // Some of these are big issues, some are small!
-SEXP r_dopri5(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
-              SEXP r_n_out, SEXP r_output,
-              SEXP r_rtol, SEXP r_atol, SEXP r_data_is_real,
-              SEXP r_tcrit,
-              SEXP r_n_history, SEXP r_return_history,
-              SEXP r_return_initial, SEXP r_return_statistics) {
+SEXP r_dopri(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
+             SEXP r_n_out, SEXP r_output,
+             SEXP r_rtol, SEXP r_atol, SEXP r_data_is_real,
+             SEXP r_tcrit,
+             SEXP r_n_history, SEXP r_return_history,
+             SEXP r_return_initial, SEXP r_return_statistics) {
   double *y_initial = REAL(r_y_initial);
   size_t n = length(r_y_initial);
 
@@ -65,7 +65,7 @@ SEXP r_dopri5(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
   // TODO: as an option save the conditions here.  That's not too bad
   // because we just don't pass through REAL(r_y) but REAL(r_y) +
   // n.  We do have to run the output functions once more though.
-  dopri5_data* obj = dopri5_data_alloc(func, n, output, n_out, data, n_history);
+  dopri_data* obj = dopri_data_alloc(func, n, output, n_out, data, n_history);
   obj->rtol = REAL(r_rtol)[0];
   obj->atol = REAL(r_atol)[0];
 
@@ -81,7 +81,7 @@ SEXP r_dopri5(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
     }
   }
 
-  dopri5_integrate(obj, y_initial, times, n_times, tcrit, n_tcrit, y, out);
+  dopri_integrate(obj, y_initial, times, n_times, tcrit, n_tcrit, y, out);
 
   if (obj->error) {
     Rf_error("Integration failure with code: %d", obj->code);
@@ -117,7 +117,7 @@ SEXP r_dopri5(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
     UNPROTECT(2);
   }
 
-  dopri5_data_free(obj);
+  dopri_data_free(obj);
 
   UNPROTECT(1);
   return r_y;

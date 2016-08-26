@@ -1,5 +1,4 @@
-#include "dopri5.h"
-#include "util.h"
+#include "dopri_5.h"
 
 // dopri5 constants
 #define C2 0.2
@@ -40,7 +39,7 @@
 #define D6 -1453857185.0 / 822651844.0
 #define D7 69997945.0 / 29380423.0
 
-void dopri5_step(dopri5_data *obj, double h) {
+void dopri5_step(dopri_data *obj, double h) {
   const double t = obj->t;
   const size_t n = obj->n;
   double
@@ -97,7 +96,7 @@ void dopri5_step(dopri5_data *obj, double h) {
   obj->n_eval += 6;
 }
 
-double dopri5_error(dopri5_data *obj) {
+double dopri5_error(dopri_data *obj) {
   double err = 0.0;
   for (size_t i = 0; i < obj->n; ++i) {
     double sk = obj->atol + obj->rtol * fmax(fabs(obj->y[i]), fabs(obj->y1[i]));
@@ -106,7 +105,7 @@ double dopri5_error(dopri5_data *obj) {
   return sqrt(err / obj->n);
 }
 
-void dopri5_save_history(dopri5_data *obj, double h) {
+void dopri5_save_history(dopri_data *obj, double h) {
   double *history = (double*) obj->history->head;
   for (size_t i = 0; i < obj->n; ++i) {
     double ydiff = obj->y1[i] - obj->y[i];

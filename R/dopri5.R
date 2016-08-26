@@ -1,6 +1,6 @@
-##' Integrate an ODE or DDE with dopri5.
+##' Integrate an ODE or DDE with dopri.
 ##'
-##' @title Integrate ODE/DDE with dopri5
+##' @title Integrate ODE/DDE with dopri
 ##'
 ##' @param y Initial conditions for the integration
 ##'
@@ -108,16 +108,16 @@
 ##'
 ##' @export
 ##' @useDynLib dde, .registration = TRUE
-dopri5 <- function(y, times, func, parms, ...,
-                   n_out = 0L, output = NULL,
-                   rtol = 1e-6, atol = 1e-6,
-                   tcrit = NULL,
-                   n_history = 0, return_history = n_history > 0, dllname = "",
-                   parms_are_real = TRUE,
-                   ynames = TRUE, outnames = NULL,
-                   by_column = FALSE, return_initial = FALSE,
-                   return_statistics=FALSE, return_time = FALSE,
-                   deSolve_compatible = FALSE) {
+dopri <- function(y, times, func, parms, ...,
+                  n_out = 0L, output = NULL,
+                  rtol = 1e-6, atol = 1e-6,
+                  tcrit = NULL,
+                  n_history = 0, return_history = n_history > 0, dllname = "",
+                  parms_are_real = TRUE,
+                  ynames = TRUE, outnames = NULL,
+                  by_column = FALSE, return_initial = FALSE,
+                  return_statistics=FALSE, return_time = FALSE,
+                  deSolve_compatible = FALSE) {
   ## TODO: include "deSolve" mode where we do the transpose, add the
   ## time column too?
   DOTS <- list(...)
@@ -201,7 +201,7 @@ dopri5 <- function(y, times, func, parms, ...,
     output <- NULL
   }
 
-  ret <- .Call(Cdopri5, y, times, func, parms,
+  ret <- .Call(Cdopri, y, times, func, parms,
                n_out, output,
                rtol, atol, parms_are_real, tcrit,
                as.integer(n_history), return_history, return_initial,
@@ -229,7 +229,7 @@ dopri5 <- function(y, times, func, parms, ...,
   ret
 }
 
-dopri5_interpolate <- function(h, t) {
+dopri_interpolate <- function(h, t) {
   nh <- ncol(h)
   nd <- (nrow(h) - 2) / 5
   it <- nrow(h) - 1L

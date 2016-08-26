@@ -1,3 +1,6 @@
+#ifndef _DOPRI_H_
+#define _DOPRI_H_
+
 #include <dde/dde.h>
 #include <R.h> // dragging in a big include, strip down later
 #include <stdbool.h>
@@ -94,13 +97,16 @@ typedef struct {
   // DOPRI_853:
   //
   //   double[n]: y
-  //   ...
+  //   double[n]: ydiff
+  //   double[n]: bspl
+  //   double[n]: expr (a function of the above)
+  //   double[n]: }
+  //   double[n]: } four expressions that are written to twice
+  //   double[n]: }
+  //   double[n]: }
   //   double: t (at 8 * n)
   //   double: h (at 8 * n + 1)
   //
-  // Because 'n' is dynamically sized we'll not be able to put these
-  // in a circular buffer easily (unless boost's circular buffer is
-  // very clever) so I'm going to have do pointer arithmetic here.
   size_t history_len;
   ring_buffer *history;
   size_t history_time_idx;
@@ -129,22 +135,27 @@ typedef struct {
   size_t n_reject;
 
   bool initialised; // flag indicating if internal state is ready to go
-} dopri5_data;
+} dopri_data;
 
-dopri5_data* dopri5_data_alloc(deriv_func* target, size_t n,
-                               output_func* output, size_t n_out,
+dopri_data* dopri_data_alloc(deriv_func* target, size_t n,
+                             output_func* output, size_t n_out,
                                void *data, size_t n_history);
-void dopri5_data_reset(dopri5_data *obj, double *y,
-                       double *times, size_t n_times,
-                       double *tcrit, size_t n_tcrit);
-void dopri5_data_free(dopri5_data *obj);
-void dopri5_integrate(dopri5_data *obj, double *y,
+void dopri_data_reset(dopri_data *obj, double *y,
+                      double *times, size_t n_times,
+                      double *tcrit, size_t n_tcrit);
+void dopri_data_free(dopri_data *obj);
+void dopri_integrate(dopri_data *obj, double *y,
                       double *times, size_t n_times,
                       double *tcrit, size_t n_tcrit,
                       double *y_out, double *out);
-double dopri5_error(dopri5_data *obj);
-double dopri5_h_new(dopri5_data *obj, double fac_old, double h, double err);
-double dopri5_h_init(dopri5_data *obj);
+
+// Wrappers around the two methods:
+void dopri_step(dopri_data *obj, double h);
+double dopri_error(dopri_data *obj);
+void dopri_save_history(dopri_data *obj, double h);
+
+double dopri_h_new(dopri_data *obj, double fac_old, double h, double err);
+double dopri_h_init(dopri_data *obj);
 
 double dopri_interpolate_1(const double *history, dopri_method method,
                            size_t n, double t, size_t i);
@@ -159,3 +170,6 @@ void dopri_interpolate_idx_int(const double *history, dopri_method method,
 
 // Helper
 size_t get_current_problem_size();
+double square(double x);
+
+#endif

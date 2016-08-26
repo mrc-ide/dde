@@ -106,16 +106,16 @@ run_seir_deSolve <- function(times, tol = 1e-7) {
 run_lorenz_dde <- function(times, tol = 1e-7, ...) {
   p <- c(10, 28, 8 / 3)
   y <- c(10, 1, 1)
-  dopri5(y, times, "lorenz", p, atol = tol, rtol = tol, ...,
-         dllname = "lorenz")
+  dopri(y, times, "lorenz", p, atol = tol, rtol = tol, ...,
+        dllname = "lorenz")
 }
 
 run_seir_dde <- function(times, tol = 1e-7, return_history = FALSE) {
   n_history <- 1000L
   p <- numeric(0)
   y0 <- c(1e7 - 1, 0, 1, 0)
-  dopri5(y0, times, "seir", p, atol = tol, rtol = tol, n_history = n_history,
-         dllname = "seir", return_history = return_history)
+  dopri(y0, times, "seir", p, atol = tol, rtol = tol, n_history = n_history,
+        dllname = "seir", return_history = return_history)
 }
 
 compile_shlib <- function(path) {

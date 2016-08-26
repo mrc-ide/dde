@@ -1,5 +1,4 @@
-#include "dopri5.h"
-#include "util.h"
+#include "dopri_853.h"
 
 // *Massive* constant list
 #define  C2      0.526001519587677318785587544488e-01
@@ -157,7 +156,7 @@
 #define  D715   -0.39177261675615439165231486172e+02
 #define  D716   -0.14972683625798562581422125276e+03
 
-void dopri853_step(dopri5_data *obj, double h) {
+void dopri853_step(dopri_data *obj, double h) {
   const double t = obj->t;
   const size_t n = obj->n;
   double
@@ -250,7 +249,7 @@ void dopri853_step(dopri5_data *obj, double h) {
   obj->n_eval += 11;
 }
 
-double dopri853_error(dopri5_data *obj) {
+double dopri853_error(dopri_data *obj) {
   double
     *k1 = obj->k[0],
     *k2 = obj->k[1],
@@ -285,16 +284,4 @@ double dopri853_error(dopri5_data *obj) {
     deno = 1.0;
   }
   return obj->sign * err * sqrt(1.0 / (obj->n * deno));
-}
-
-double dopri853_h_new(dopri5_data *obj, double fac_old, double h, double err) {
-  double expo1 = 0.2 - obj->step_beta * 0.75;
-  double fac11 = pow(err, expo1);
-  double step_factor_min = 1.0 / obj->step_factor_min;
-  double step_factor_max = 1.0 / obj->step_factor_max;
-  // Lund-stabilisation
-  double fac = fac11 / pow(fac_old, obj->step_beta);
-  fac = fmax(step_factor_max,
-             fmin(step_factor_min, fac / obj->step_factor_safe));
-  return h / fac;
 }

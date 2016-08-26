@@ -1,12 +1,11 @@
-#include "dopri5.h"
-#include "dopri5_internal.h"
-#include "util.h"
+#include "dopri.h"
+#include "dopri_5.h"
 #include <R.h>
 
-dopri5_data* dopri5_data_alloc(deriv_func* target, size_t n,
-                               output_func* output, size_t n_out,
-                               void *data, size_t n_history) {
-  dopri5_data *ret = (dopri5_data*) R_Calloc(1, dopri5_data);
+dopri_data* dopri_data_alloc(deriv_func* target, size_t n,
+                             output_func* output, size_t n_out,
+                             void *data, size_t n_history) {
+  dopri_data *ret = (dopri_data*) R_Calloc(1, dopri_data);
   ret->target = target;
   ret->output = output;
   ret->data = data;
@@ -73,7 +72,7 @@ dopri5_data* dopri5_data_alloc(deriv_func* target, size_t n,
 
 // We'll need a different reset when we're providing history, because
 // then we won't end up resetting t0/y0 the same way.
-void dopri5_data_reset(dopri5_data *obj, double *y,
+void dopri_data_reset(dopri_data *obj, double *y,
                        double *times, size_t n_times,
                        double *tcrit, size_t n_tcrit) {
   memcpy(obj->y0, y, obj->n * sizeof(double));
@@ -112,7 +111,7 @@ void dopri5_data_reset(dopri5_data *obj, double *y,
   obj->n_reject = 0;
 }
 
-void dopri5_data_free(dopri5_data *obj) {
+void dopri_data_free(dopri_data *obj) {
   R_Free(obj->y0);
   R_Free(obj->y);
   R_Free(obj->y1);
@@ -137,24 +136,57 @@ void dopri5_data_free(dopri5_data *obj) {
 // with deSolve even more and make the interface for the dde and
 // non-dde equations quite different) this seems like a reasonable way
 // of achiving this.  Might change later though.
-static dopri5_data *dde_global_obj;
+static dopri_data *dde_global_obj;
 
 // Used to query the problem size safely from the interface.c file
 size_t get_current_problem_size() {
   return dde_global_obj == NULL ? 0 : dde_global_obj->n;
 }
 
+// Wrappers around the two methods:
+void dopri_step(dopri_data *obj, double h) {
+  switch (obj->method) {
+  case DOPRI_5:
+    dopri5_step(obj, h);
+    break;
+  case DOPRI_853:
+    Rf_error("not yet implemented");
+    break;
+  }
+}
+
+double dopri_error(dopri_data *obj) {
+  switch (obj->method) {
+  case DOPRI_5:
+    return dopri5_error(obj);
+  case DOPRI_853:
+    Rf_error("not yet implemented");
+    return 0;
+  }
+}
+
+void dopri_save_history(dopri_data *obj, double h) {
+  switch (obj->method) {
+  case DOPRI_5:
+    dopri5_save_history(obj, h);
+    break;
+  case DOPRI_853:
+    Rf_error("not yet implemented");
+    break;
+  }
+}
+
 // Integration is going to be over a set of times 't', of which there
 // are 'n_t'.
-void dopri5_integrate(dopri5_data *obj, double *y,
+void dopri_integrate(dopri_data *obj, double *y,
                       double *times, size_t n_times,
                       double *tcrit, size_t n_tcrit,
                       double *y_out, double *out) {
   obj->error = false;
   obj->code = NOT_SET;
 
-  // TODO: check that t is strictly sorted and n_times >= 2
-  dopri5_data_reset(obj, y, times, n_times, tcrit, n_tcrit);
+  // TODO: check that t is strictly sorted and n_times >= 2 (in R)
+  dopri_data_reset(obj, y, times, n_times, tcrit, n_tcrit);
 
   double fac_old = 1e-4;
   double uround = 10 * DBL_EPSILON;
@@ -177,7 +209,7 @@ void dopri5_integrate(dopri5_data *obj, double *y,
   obj->n_eval++;
 
   // Work out the initial step size:
-  double h = dopri5_h_init(obj);
+  double h = dopri_h_init(obj);
   double h_save = 0.0;
 
   while (true) {
@@ -207,11 +239,11 @@ void dopri5_integrate(dopri5_data *obj, double *y,
     // variables are being calculated so might want to put this back
     // in once the signalling is done.
 
-    dopri5_step(obj, h);
+    dopri_step(obj, h);
 
     // Error estimation:
-    double err = dopri5_error(obj);
-    double h_new = dopri5_h_new(obj, fac_old, h, err);
+    double err = dopri_error(obj);
+    double h_new = dopri_h_new(obj, fac_old, h, err);
 
     if (err <= 1) {
       // Step is accepted :)
@@ -219,7 +251,7 @@ void dopri5_integrate(dopri5_data *obj, double *y,
       obj->n_accept++;
       // TODO: Stiffness detection, once done.
       // TODO: make conditional
-      dopri5_save_history(obj, h);
+      dopri_save_history(obj, h);
 
       // Always do these bits (TODO, it's quite possible that we can
       // do this with a swap rather than a memcpy which would be
@@ -299,7 +331,7 @@ void dopri5_integrate(dopri5_data *obj, double *y,
 }
 
 // Shared
-double dopri5_h_new(dopri5_data *obj, double fac_old, double h, double err) {
+double dopri_h_new(dopri_data *obj, double fac_old, double h, double err) {
   double expo1 = 0.2 - obj->step_beta * 0.75;
   double fac11 = pow(err, expo1);
   double step_factor_min = 1.0 / obj->step_factor_min;
@@ -311,7 +343,7 @@ double dopri5_h_new(dopri5_data *obj, double fac_old, double h, double err) {
   return h / fac;
 }
 
-double dopri5_h_init(dopri5_data *obj) {
+double dopri_h_init(dopri_data *obj) {
   if (obj->step_size_initial > 0.0) {
     return obj->step_size_initial;
   }
@@ -467,20 +499,20 @@ void dopri_interpolate_idx_int(const double *history, dopri_method method,
 // search, or in the code below.
 
 // These bits are all nice and don't use any globals
-struct dopri5_find_time_pred_data {
+struct dopri_find_time_pred_data {
   size_t idx;
   double time;
 };
 
-bool dopri5_find_time_pred(const void *x, void *data) {
-  const struct dopri5_find_time_pred_data *d =
-    (struct dopri5_find_time_pred_data *) data;
+bool dopri_find_time_pred(const void *x, void *data) {
+  const struct dopri_find_time_pred_data *d =
+    (struct dopri_find_time_pred_data *) data;
   return ((double*) x)[d->idx] <= d->time;
 }
 
-const double* dopri5_find_time(dopri5_data *obj, double t) {
+const double* dopri_find_time(dopri_data *obj, double t) {
   const size_t t_idx = obj->history_time_idx;
-  struct dopri5_find_time_pred_data data = {t_idx, t};
+  struct dopri_find_time_pred_data data = {t_idx, t};
   // The first shot at idx here is based on a linear interpolation of
   // the time; hopefully this gets is close to the correct point
   // without having to have a really long search time.
@@ -495,7 +527,7 @@ const double* dopri5_find_time(dopri5_data *obj, double t) {
     idx0 = 0;
   }
   const void *h = ring_buffer_search_bisect(obj->history, idx0,
-                                            &dopri5_find_time_pred,
+                                            &dopri_find_time_pred,
                                             &data);
   if (h == NULL) {
     Rf_error("Cannot find time within buffer");
@@ -504,7 +536,7 @@ const double* dopri5_find_time(dopri5_data *obj, double t) {
 }
 
 // But these all use the global state object (otherwise these all pick
-// up a `void *data` argument which will be cast to `dopri5_data*`,
+// up a `void *data` argument which will be cast to `dopri_data*`,
 // but then the derivative function needs the same thing, which is
 // going to seem weird and also means that the same function can't be
 // easily used for dde and non dde use).
@@ -512,7 +544,7 @@ double ylag_1(double t, size_t i) {
   if (t <= dde_global_obj->t0) {
     return dde_global_obj->y0[i];
   } else {
-    const double * h = dopri5_find_time(dde_global_obj, t);
+    const double * h = dopri_find_time(dde_global_obj, t);
     return dopri_interpolate_1(h, dde_global_obj->method,
                                dde_global_obj->n, t, i);
   }
@@ -522,7 +554,7 @@ void ylag_all(double t, double *y) {
   if (t <= dde_global_obj->t0) {
     memcpy(y, dde_global_obj->y0, dde_global_obj->n * sizeof(double));
   } else {
-    const double * h = dopri5_find_time(dde_global_obj, t);
+    const double * h = dopri_find_time(dde_global_obj, t);
     dopri_interpolate_all(h, dde_global_obj->method, dde_global_obj->n, t, y);
   }
 }
@@ -533,7 +565,7 @@ void ylag_vec(double t, size_t *idx, size_t nidx, double *y) {
       y[i] = dde_global_obj->y0[idx[i]];
     }
   } else {
-    const double * h = dopri5_find_time(dde_global_obj, t);
+    const double * h = dopri_find_time(dde_global_obj, t);
     dopri_interpolate_idx(h, dde_global_obj->method,
                           dde_global_obj->n, t, idx, nidx, y);
   }
@@ -545,8 +577,13 @@ void ylag_vec_int(double t, int *idx, size_t nidx, double *y) {
       y[i] = dde_global_obj->y0[idx[i]];
     }
   } else {
-    const double * h = dopri5_find_time(dde_global_obj, t);
+    const double * h = dopri_find_time(dde_global_obj, t);
     dopri_interpolate_idx_int(h, dde_global_obj->method,
                               dde_global_obj->n, t, idx, nidx, y);
   }
+}
+
+// Utility
+double square(double x) {
+  return x * x;
 }
