@@ -365,20 +365,28 @@ double dopri5_h_init(dopri5_data *obj) {
   return copysign(h, obj->sign);
 }
 
-// There are two interpolation functions here; one (interpolate_1())
-// interpolates a single variable while the other (interpolate())
-// interpolates the entire y vector.
+// Specific...
+double dopri5_interpolate(size_t n, double theta, double theta1,
+                          const double *history) {
+  return history[0] + theta *
+    (history[n] + theta1 *
+     (history[2 * n] + theta *
+      (history[3 * n] + theta1 *
+       history[4 * n])));
+}
+
+// There are several interpolation functions here;
+//
+// * interpolate_1; interpolate a single variable i
+// * interpolate_all: interpolate the entire vector
+// * interpolate_idx: interpolate some of the vector
+// * interpolate_idx_int: As for _idx but with an integer index (see below)
 double dopri5_interpolate_1(const double *history, size_t n, double t,
                             size_t i) {
   const double t_old = history[5 * n], h = history[5 * n + 1];
   const double theta = (t - t_old) / h;
   const double theta1 = 1 - theta;
-
-  return history[i] + theta *
-    (history[n + i] + theta1 *
-     (history[2 * n + i] + theta *
-      (history[3 * n + i] + theta1 *
-       history[4 * n + i])));
+  return dopri5_interpolate(n, theta, theta1, history + i);
 }
 
 void dopri5_interpolate_all(const double *history, size_t n, double t,
@@ -386,13 +394,8 @@ void dopri5_interpolate_all(const double *history, size_t n, double t,
   const double t_old = history[5 * n], h = history[5 * n + 1];
   const double theta = (t - t_old) / h;
   const double theta1 = 1 - theta;
-
   for (size_t i = 0; i < n; ++i) {
-    y[i] = history[i] + theta *
-      (history[n + i] + theta1 *
-       (history[2 * n + i] + theta *
-        (history[3 * n + i] + theta1 *
-         history[4 * n + i])));
+    y[i] = dopri5_interpolate(n, theta, theta1, history + i);
   }
 }
 
@@ -401,14 +404,8 @@ void dopri5_interpolate_idx(const double *history, size_t n, double t,
   const double t_old = history[5 * n], h = history[5 * n + 1];
   const double theta = (t - t_old) / h;
   const double theta1 = 1 - theta;
-
   for (size_t i = 0; i < nidx; ++i) {
-    size_t j = idx[i];
-    y[i] = history[j] + theta *
-      (history[n + j] + theta1 *
-       (history[2 * n + j] + theta *
-        (history[3 * n + j] + theta1 *
-         history[4 * n + j])));
+    y[i] = dopri5_interpolate(n, theta, theta1, history + idx[i]);
   }
 }
 
@@ -423,14 +420,8 @@ void dopri5_interpolate_idx_int(const double *history, size_t n, double t,
   const double t_old = history[5 * n], h = history[5 * n + 1];
   const double theta = (t - t_old) / h;
   const double theta1 = 1 - theta;
-
   for (size_t i = 0; i < nidx; ++i) {
-    size_t j = idx[i];
-    y[i] = history[j] + theta *
-      (history[n + j] + theta1 *
-       (history[2 * n + j] + theta *
-        (history[3 * n + j] + theta1 *
-         history[4 * n + j])));
+    y[i] = dopri5_interpolate(n, theta, theta1, history + idx[i]);
   }
 }
 
