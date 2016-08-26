@@ -5,13 +5,14 @@
 
 dopri_data* dopri_data_alloc(deriv_func* target, size_t n,
                              output_func* output, size_t n_out,
-                             void *data, size_t n_history) {
+                             void *data,
+                             dopri_method method, size_t n_history) {
   dopri_data *ret = (dopri_data*) R_Calloc(1, dopri_data);
   ret->target = target;
   ret->output = output;
   ret->data = data;
 
-  ret->method = DOPRI_5;
+  ret->method = method;
   ret->order = ret->method == DOPRI_5 ? 5 : 8;
 
   ret->n = n;
@@ -43,28 +44,25 @@ dopri_data* dopri_data_alloc(deriv_func* target, size_t n,
     ring_buffer_create(n_history, ret->history_len * sizeof(double));
   ret->history_time_idx = ret->order * n;
 
+  // NOTE: The numbers below are defaults only, but to alter them,
+  // directly modify the object after creation.  I may set up some
+  // sort of helper functions for this later, but for now just don't
+  // set anything stupid.
+  //
   // TODO: Support vectorised tolerances?
-  // TODO: Support user-supplied tolerances
   ret->atol = 1e-6;
   ret->rtol = 1e-6;
 
-  // TODO: Support user-supplied step control; all of these really.
   switch (ret->method) {
   case DOPRI_5:
-    // TODO: these are different for dde; switch again on delay and document.
-    ret->step_factor_min = 0.2;  // from dopri5.f:276
-    ret->step_factor_max = 10.0; // from dopri5.f:281
-    ret->step_beta = 0.04;       // from dopri5.f:287
-    ret->step_constant = 0.2 - ret->step_beta * 0.75;
+    ret->step_factor_min = 0.2;  // from dopri5.f:276, retard.f:328
+    ret->step_factor_max = 10.0; // from dopri5.f:281, retard.f:333
+    ret->step_beta = 0.04;       // from dopri5.f:287, retard.f:339
     break;
   case DOPRI_853:
     ret->step_factor_min = 0.333; // from dopri853.f:285
     ret->step_factor_max = 6.0;   // from dopri853.f:290
     ret->step_beta = 0.0;         // from dopri853.f:296
-    // NOTE: probably worth chasing down the source of these
-    // calculations.  It does look like 1/order - beta * C, but not
-    // sure where C comes from.
-    ret->step_constant = 0.125 - ret->step_beta * 0.2;
     break;
   }
   ret->step_size_max = DBL_MAX;
@@ -82,6 +80,19 @@ void dopri_data_reset(dopri_data *obj, double *y,
                       double *tcrit, size_t n_tcrit) {
   obj->error = false;
   obj->code = NOT_SET;
+
+  switch (obj->method) {
+  case DOPRI_5:
+    obj->step_constant = 0.2 - obj->step_beta * 0.75;
+    break;
+  case DOPRI_853:
+    // NOTE: probably worth chasing down the source of these
+    // calculations.  It does look like 1/order - beta * C, but not
+    // sure where C comes from.
+    obj->step_constant = 0.125 - obj->step_beta * 0.2;
+    break;
+  }
+
   memcpy(obj->y0, y, obj->n * sizeof(double));
   memcpy(obj->y, y, obj->n * sizeof(double));
   obj->t0 = times[0];
@@ -221,6 +232,9 @@ void dopri_integrate(dopri_data *obj, double *y,
       obj->code = ERR_TOO_MANY_STEPS;
       break;
     }
+    // NOTE: in retard.f this is:
+    //   fabs(h) < fabs(t) * uround
+    // which is less strict
     if (0.1 * fabs(h) <= fabs(obj->t) * uround) {
       obj->error = true;
       obj->code = ERR_STEP_SIZE_TOO_SMALL;
@@ -234,6 +248,11 @@ void dopri_integrate(dopri_data *obj, double *y,
       h = t_stop - obj->t;
       stop = true;
     }
+    // NOTE: in retard.f there is an else condition:
+    //
+    //   else if ((t + 1.8 * h - t_end) * sign > 0) {
+    //     h = (t_end - t) * 0.55
+    //   }
     obj->n_step++;
 
     // TODO: In the Fortran there is an option here to check the irtrn

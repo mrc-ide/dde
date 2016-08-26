@@ -5,22 +5,24 @@
 // There are more arguments from lsoda not implemented here that will
 // be needed:
 //
+// - hmin, hmax, hini (and other step size control)
 // - rootfunc (once root-finding is supported)
-// - verbose (some sort of verbose output will be useful)
 // - nroot (not sure)
-// - hmin, hmax, hini
+// - verbose (some sort of verbose output will be useful)
 // - ynames
 // - maxsteps
-// - nout
-// - outnames
-// - forcings
+// - forcings (not sure now)
 // - events
 //
 // Some of these are big issues, some are small!
+//
+// TODO: Probably shuffle around the arguments here into some sensible
+// order give there are so many.
 SEXP r_dopri(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
              SEXP r_n_out, SEXP r_output,
              SEXP r_rtol, SEXP r_atol, SEXP r_data_is_real,
              SEXP r_tcrit,
+             SEXP r_use_853,
              SEXP r_n_history, SEXP r_return_history,
              SEXP r_return_initial, SEXP r_return_statistics) {
   double *y_initial = REAL(r_y_initial);
@@ -36,6 +38,12 @@ SEXP r_dopri(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
     tcrit = REAL(r_tcrit);
   }
 
+  // There is probably a nicer way of doing this, but while we have
+  // exactly two methods, this is not too bad.
+  dopri_method method = INTEGER(r_use_853)[0] ? DOPRI_853 : DOPRI_5;
+
+  // TODO: check for NULL function pointers here to avoid crashes;
+  // also test type?
   deriv_func *func = (deriv_func*)R_ExternalPtrAddr(r_func);
   void *data = NULL;
   if (TYPEOF(r_data) == REALSXP && INTEGER(r_data_is_real)[0]) {
@@ -65,7 +73,8 @@ SEXP r_dopri(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
   // TODO: as an option save the conditions here.  That's not too bad
   // because we just don't pass through REAL(r_y) but REAL(r_y) +
   // n.  We do have to run the output functions once more though.
-  dopri_data* obj = dopri_data_alloc(func, n, output, n_out, data, n_history);
+  dopri_data* obj = dopri_data_alloc(func, n, output, n_out, data,
+                                     method, n_history);
   obj->rtol = REAL(r_rtol)[0];
   obj->atol = REAL(r_atol)[0];
 

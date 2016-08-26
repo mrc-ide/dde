@@ -43,6 +43,11 @@
 ##'   for times that fall \emph{within} the range of times in
 ##'   \code{times}.
 ##'
+##' @param method The integration method to use, as a string.  The
+##'   supported methods are \code{"dopri5"} (5th order method with 4th
+##'   order dense output) and \code{"dopri853"} (8th order method with
+##'   7th order output and embedded 5th and 3rd order schemes).
+##'
 ##' @param n_history Number of history points to retain.  This needs
 ##'   to be greater than zero for delay differential equations to
 ##'   work.  Alternatively, this may be greater than zero to return
@@ -112,6 +117,7 @@ dopri <- function(y, times, func, parms, ...,
                   n_out = 0L, output = NULL,
                   rtol = 1e-6, atol = 1e-6,
                   tcrit = NULL,
+                  method = "dopri5",
                   n_history = 0, return_history = n_history > 0, dllname = "",
                   parms_are_real = TRUE,
                   ynames = TRUE, outnames = NULL,
@@ -142,6 +148,8 @@ dopri <- function(y, times, func, parms, ...,
       stop("dllname must not be given when using an R function for 'func'")
     }
   }
+
+  use_853 <- match_value(method, c("dopri5", "dopri853")) == "dopri853"
 
   assert_scalar(rtol)
   assert_scalar(atol)
@@ -204,6 +212,7 @@ dopri <- function(y, times, func, parms, ...,
   ret <- .Call(Cdopri, y, times, func, parms,
                n_out, output,
                rtol, atol, parms_are_real, tcrit,
+               use_853,
                as.integer(n_history), return_history, return_initial,
                return_statistics)
 

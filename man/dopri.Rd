@@ -5,10 +5,10 @@
 \title{Integrate ODE/DDE with dopri}
 \usage{
 dopri(y, times, func, parms, ..., n_out = 0L, output = NULL, rtol = 1e-06,
-  atol = 1e-06, tcrit = NULL, n_history = 0, return_history = n_history
-  > 0, dllname = "", parms_are_real = TRUE, ynames = TRUE,
-  outnames = NULL, by_column = FALSE, return_initial = FALSE,
-  return_statistics = FALSE, return_time = FALSE,
+  atol = 1e-06, tcrit = NULL, method = "dopri5", n_history = 0,
+  return_history = n_history > 0, dllname = "", parms_are_real = TRUE,
+  ynames = TRUE, outnames = NULL, by_column = FALSE,
+  return_initial = FALSE, return_statistics = FALSE, return_time = FALSE,
   deSolve_compatible = FALSE)
 }
 \arguments{
@@ -52,6 +52,11 @@ from the interpretation of this parameter in deSolve; there
 -- with dde we never go past the final time, and this is just
 for times that fall \emph{within} the range of times in
 \code{times}.}
+
+\item{method}{The integration method to use, as a string.  The
+supported methods are \code{"dopri5"} (5th order method with 4th
+order dense output) and \code{"dopri853"} (8th order method with
+7th order output and embedded 5th and 3rd order schemes).}
 
 \item{n_history}{Number of history points to retain.  This needs
 to be greater than zero for delay differential equations to

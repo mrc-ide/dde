@@ -15,6 +15,17 @@ assert_scalar_logical <- function(x, name=deparse(substitute(x))) {
   assert_logical(x, name)
 }
 
+assert_character <- function(x, name=deparse(substitute(x))) {
+  if (!is.character(x)) {
+    stop(sprintf("%s must be character", name), call.=FALSE)
+  }
+}
+
+assert_scalar_character <- function(x, name=deparse(substitute(x))) {
+  assert_scalar(x, name)
+  assert_character(x, name)
+}
+
 assert_size <- function(x, strict=FALSE, name=deparse(substitute(x))) {
   assert_scalar(x, name)
   assert_integer(x, strict, name)
@@ -35,4 +46,14 @@ assert_integer <- function(x, strict=FALSE, name=deparse(substitute(x))) {
       stop(sprintf("%s must be integer", name), call.=FALSE)
     }
   }
+}
+
+match_value <- function(x, choices, name=deparse(substitute(x))) {
+  assert_scalar_character(x, name)
+  i <- match(x, choices)
+  if (is.na(i)) {
+    stop(sprintf("%s must be one of {%s}", name, paste(choices, collapse=", ")),
+         call.=FALSE)
+  }
+  choices[[i]]
 }
