@@ -285,3 +285,101 @@ double dopri853_error(dopri_data *obj) {
   }
   return obj->sign * err * sqrt(1.0 / (obj->n * deno));
 }
+
+void dopri853_save_history(dopri_data *obj, double h) {
+  double *history = (double*) obj->history->head;
+  double *y = obj->y, *y1 = obj->y1;
+  double
+    *k1 = obj->k[0],
+    *k2 = obj->k[1],
+    *k3 = obj->k[2],
+    *k4 = obj->k[3],
+    *k5 = obj->k[4],
+    *k6 = obj->k[5],
+    *k7 = obj->k[6],
+    *k8 = obj->k[7],
+    *k9 = obj->k[8],
+    *k10 = obj->k[0];
+  double t = obj->t;
+  size_t n = obj->n;
+
+  // NOTE: We have a function call here, in contrast with dopri5.
+  // This call comes from dop853.f:673
+  obj->target(obj->n, obj->t + h, k5, k4, obj->data);
+
+  for (size_t i = 0; i < n; ++i) {
+    double ydiff = k5[i] - y[i];
+    double bspl = h * k1[i] - ydiff;
+    history[             i] = y[i];
+    history[    n + i] = ydiff;
+    history[2 * n + i] = bspl;
+    history[3 * n + i] = ydiff - h * k4[i] - bspl;
+    // Next ones are more different than the dopri5 case and
+    // significantly uglier:
+    history[4 * n + i] = (D41  * k1[i] + D46  * k6[i] + D47  * k7[i]  +
+                          D48  * k8[i] + D49  * k9[i] + D410 * k10[i] +
+                          D411 * k2[i] + D412 * k3[i]);
+    history[5 * n + i] = (D51  * k1[i] + D56  * k6[i] + D57  * k7[i]  +
+                          D58  * k8[i] + D59  * k9[i] + D510 * k10[i] +
+                          D511 * k2[i] + D512 * k3[i]);
+    history[6 * n + i] = (D61  * k1[i] + D66  * k6[i] + D67  * k7[i]  +
+                          D68  * k8[i] + D69  * k9[i] + D610 * k10[i] +
+                          D611 * k2[i] + D612 * k3[i]);
+    history[7 * n + i] = (D71  * k1[i] + D76  * k6[i] + D77  * k7[i]  +
+                          D78  * k8[i] + D79  * k9[i] + D710 * k10[i] +
+                          D711 * k2[i] + D712 * k3[i]);
+  }
+
+  // Then three more function evaluations
+  for (size_t i = 0; i < n; ++i) { // 51
+    y1[i]=y[i] + h * (A141  * k1[i] + A147  * k7[i]  + A148  * k8[i] +
+                      A149  * k9[i] + A1410 * k10[i] + A1411 * k2[i] +
+                      A1412 * k3[i] + A1413 * k4[i]);
+  }
+  obj->target(n, t + C14 * h, y1, k10, obj->data);
+  for (size_t i = 0; i < n; ++i) { // 52
+    y1[i]=y[i] + h * (A151  * k1[i] + A156  * k6[i] + A157  * k7[i] +
+                      A158  * k8[i] + A1511 * k2[i] + A1512 * k3[i] +
+                      A1513 * k4[i] + A1514 * k10[i]);
+  }
+  obj->target(n, t + C15 * h, y1, k2, obj->data);
+  for (size_t i = 0; i < n; ++i) { // 53
+    y1[i]=y[i] + h * (A161  * k1[i]  + A166  * k6[i] + A167  * k7[i] +
+                      A168  * k8[i]  + A169  * k9[i] + A1613 * k4[i] +
+                      A1614 * k10[i] + A1615 * k2[i]);
+  }
+  obj->target(n, t + C16 * h, y1, k3, obj->data);
+  obj->n_eval += 4; // including the one on entry
+
+  // Final history preparation
+  for (size_t i = 0; i < n; ++i) {
+    history[4 * n + i] = h * (history[4 * n + i] +
+                              D413 * k4[i] + D414 * k10[i] +
+                              D415 * k2[i] + D416 * k3[i]);
+    history[5 * n + i] = h * (history[5 * n + i] +
+                              D513 * k4[i] + D514 * k10[i] +
+                              D515 * k2[i] + D516 * k3[i]);
+    history[6 * n + i] = h * (history[6 * n + i] +
+                              D613 * k4[i] + D614 * k10[i] +
+                              D615 * k2[i] + D616 * k3[i]);
+    history[7 * n + i] = h * (history[7 * n + i] +
+                              D713 * k4[i] + D714 * k10[i] +
+                              D715 * k2[i] + D716 * k3[i]);
+  }
+
+  history[obj->history_time_idx    ] = t;
+  history[obj->history_time_idx + 1] = h;
+}
+
+double dopri8_interpolate(size_t n, double theta, double theta1,
+                          const double *history) {
+  double tmp = history[4 * n] + theta *
+    (history[5 * n] + theta1 *
+     (history[6 * n] + theta *
+      history[7 * n]));
+  return history[0] + theta *
+    (history[n] + theta1 *
+     (history[2 * n] + theta *
+      (history[3 * n] + theta1 *
+       tmp)));
+}
