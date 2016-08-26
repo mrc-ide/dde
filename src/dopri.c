@@ -223,7 +223,7 @@ void dopri_integrate(dopri_data *obj, double *y,
   // nonzero?  Needs to be set before any calls to target() though.
   dde_global_obj = obj;
 
-  obj->target(obj->n, obj->t, obj->y, obj->k[0], obj->data);
+  obj->target(obj->n, obj->t, obj->y, obj->k[0], obj->data); // y => k1
   obj->n_eval++;
 
   // Work out the initial step size:

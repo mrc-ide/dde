@@ -169,7 +169,7 @@ void dopri853_step(dopri_data *obj, double h) {
     *k7 = obj->k[6],
     *k8 = obj->k[7],
     *k9 = obj->k[8],
-    *k10 = obj->k[0];
+    *k10 = obj->k[9];
   double *y = obj->y, *y1 = obj->y1;
   void* data = obj->data;
 
@@ -260,7 +260,7 @@ double dopri853_error(dopri_data *obj) {
     *k7 = obj->k[6],
     *k8 = obj->k[7],
     *k9 = obj->k[8],
-    *k10 = obj->k[0];
+    *k10 = obj->k[9];
   double err = 0.0, err2 = 0.0;
   for (size_t i = 0; i < obj->n; ++i) {
     double sk = obj->atol + obj->rtol * fmax(fabs(obj->y[i]), fabs(k5[i]));
@@ -299,7 +299,7 @@ void dopri853_save_history(dopri_data *obj, double h) {
     *k7 = obj->k[6],
     *k8 = obj->k[7],
     *k9 = obj->k[8],
-    *k10 = obj->k[0];
+    *k10 = obj->k[9];
   double t = obj->t;
   size_t n = obj->n;
 

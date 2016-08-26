@@ -13,6 +13,14 @@ test_that("ode interface", {
   expect_identical(m3, t(m2))
 })
 
+test_that("ode, 873 stepper", {
+  tt <- seq(0, 1, length.out = 200)
+  m5 <- run_lorenz_dde(tt)
+  m8 <- run_lorenz_dde(tt, method = "dopri853")
+  expect_equal(m5, m8, tolerance=1e-7)
+  expect_false(identical(m5, m8))
+})
+
 test_that("dense output", {
   tt <- seq(0, 1, length.out = 200)
   m1 <- run_lorenz_deSolve(tt)
