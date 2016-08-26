@@ -249,3 +249,52 @@ void dopri853_step(dopri5_data *obj, double h) {
 
   obj->n_eval += 11;
 }
+
+double dopri853_error(dopri5_data *obj) {
+  double
+    *k1 = obj->k[0],
+    *k2 = obj->k[1],
+    *k3 = obj->k[2],
+    *k4 = obj->k[3],
+    *k5 = obj->k[4],
+    *k6 = obj->k[5],
+    *k7 = obj->k[6],
+    *k8 = obj->k[7],
+    *k9 = obj->k[8],
+    *k10 = obj->k[0];
+  double err = 0.0, err2 = 0.0;
+  for (size_t i = 0; i < obj->n; ++i) {
+    double sk = obj->atol + obj->rtol * fmax(fabs(obj->y[i]), fabs(k5[i]));
+    double erri = (k4[i] -
+                   BHH1 * k1[i] -
+                   BHH2 * k9[i] -
+                   BHH3 * k3[i]);
+    err2 += square(erri / sk);
+    erri = (ER1 * k1[i] +
+            ER6 * k6[i] +
+            ER7 * k7[i] +
+            ER8 * k8[i] +
+            ER9 * k9[i] +
+            ER10 * k10[i] +
+            ER11 * k2[i] +
+            ER12 * k3[i]);
+    err += square(erri / sk);
+  }
+  double deno = err + 0.01 * err2;
+  if (deno <= 0.0) {
+    deno = 1.0;
+  }
+  return obj->sign * err * sqrt(1.0 / (obj->n * deno));
+}
+
+double dopri853_h_new(dopri5_data *obj, double fac_old, double h, double err) {
+  double expo1 = 0.2 - obj->step_beta * 0.75;
+  double fac11 = pow(err, expo1);
+  double step_factor_min = 1.0 / obj->step_factor_min;
+  double step_factor_max = 1.0 / obj->step_factor_max;
+  // Lund-stabilisation
+  double fac = fac11 / pow(fac_old, obj->step_beta);
+  fac = fmax(step_factor_max,
+             fmin(step_factor_min, fac / obj->step_factor_safe));
+  return h / fac;
+}
