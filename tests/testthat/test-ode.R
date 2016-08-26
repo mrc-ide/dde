@@ -26,23 +26,27 @@ test_that("dense output", {
   m1 <- run_lorenz_deSolve(tt)
   dimnames(m1) <- NULL
 
-  m2 <- run_lorenz_dde(c(0, max(tt)), n_history = 1000L)
-  ## single row of output:
-  expect_equal(dim(m2), c(3, 1))
-  h2 <- attr(m2, "history")
-  expect_equal(nrow(h2), 17L) # 5 * 3 + 2
+  for (method in c(dopri_methods())) {
+    m2 <- run_lorenz_dde(c(0, max(tt)), n_history = 1000L, method = method)
+    ## single row of output:
+    expect_equal(dim(m2), c(3, 1))
+    h2 <- attr(m2, "history")
+    expect_equal(nrow(h2),
+                 if (method == "dopri5") 17L else 26L) # c(5, 8) * 3 + 2
+    expect_identical(attr(h2, "n"), 3L)
 
-  m3 <- dopri_interpolate(h2, tt)
-  m4 <- run_lorenz_dde(tt)
+    m3 <- dopri_interpolate(h2, tt)
+    m4 <- run_lorenz_dde(tt, method = method)
 
-  expect_identical(m3[-1,], t(m4))
-  expect_equal(m3, m1, tolerance=1e-6)
+    expect_identical(m3[-1,], t(m4))
+    expect_equal(m3, m1, tolerance=1e-6)
 
-  ## Check column output:
-  m5 <- run_lorenz_dde(tt, n_history = 1000L, by_column = TRUE)
-  expect_identical(attr(m5, "history"), attr(m2, "history"))
-  attr(m5, "history") <- NULL
-  expect_identical(m5, t(m4))
+    ## Check column output:
+    m5 <- run_lorenz_dde(tt, n_history = 1000L, by_column = TRUE, method = method)
+    expect_identical(attr(m5, "history"), attr(m2, "history"))
+    attr(m5, "history") <- NULL
+    expect_identical(m5, t(m4))
+  }
 })
 
 test_that("output", {
