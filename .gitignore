@@ -4,7 +4,7 @@
 src/*.o
 src/*.so
 src/*.dll
-orig/
-git_orig
+ignore/
 dde_*.tar.gz
 notes.md
+.valgrind_ignore
