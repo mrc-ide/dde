@@ -139,6 +139,7 @@ void dopri_data_free(dopri_data *obj) {
     R_Free(obj->k[i]);
   }
   R_Free(obj->k);
+  R_Free(obj->tcrit);
 
   ring_buffer_destroy(obj->history);
 
