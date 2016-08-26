@@ -50,7 +50,7 @@ void dopri5_step(dopri5_data *obj, double h) {
     *k4 = obj->k[3],
     *k5 = obj->k[4],
     *k6 = obj->k[5];
-  double *y = obj->y, *y1 = obj->y1;
+  double *y = obj->y, *y1 = obj->y1, *ysti = obj->k[6];
   void *data = obj->data;
 
   for (size_t i = 0; i < n; ++i) { // 22
@@ -70,11 +70,11 @@ void dopri5_step(dopri5_data *obj, double h) {
   }
   obj->target(n, t + C5 * h, y1, k5, data);
   for (size_t i = 0; i < n; ++i) { // 26
-    obj->ysti[i] = y[i] + h * (A61 * k1[i] + A62 * k2[i] + A63 * k3[i] +
-                               A64 * k4[i] + A65 * k5[i]);
+    ysti[i] = y[i] + h * (A61 * k1[i] + A62 * k2[i] + A63 * k3[i] +
+                          A64 * k4[i] + A65 * k5[i]);
   }
   double t_next = t + h;
-  obj->target(n, t_next, obj->ysti, k6, data);
+  obj->target(n, t_next, ysti, k6, data);
   for (size_t i = 0; i < n; ++i) { // 27
     y1[i] = y[i] + h * (A71 * k1[i] + A73 * k3[i] + A74 * k4[i] +
                         A75 * k5[i] + A76 * k6[i]);

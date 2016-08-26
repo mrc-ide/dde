@@ -40,14 +40,16 @@ typedef void output_func(size_t n_eq, double t, const double *y,
                          size_t n_out, double *out, const void *data);
 
 typedef struct {
-  deriv_func* target;
+  deriv_func* target;  // core rhs function
+  output_func* output; // optional output function
   void* data;
 
-  dopri_method method;
-  size_t order; // order of integration
+  dopri_method method; // switch between (4)5 and 8(5(3))
+  size_t order;        // order of integration, based on method
 
   size_t n;     // number of equations
-  bool initialised;
+  size_t n_out; // number of output variables (possibly zero)
+
 
   double t0; // initial time (needed?)
   double t;  // current time
@@ -62,32 +64,39 @@ typedef struct {
   size_t n_tcrit;
   size_t tcrit_idx;
 
-  double * y0; // initial state (needed?)
+  double * y0; // initial state
   double * y;  // current state
   double * y1; // next state
 
-  size_t n_out; // number of output variables (possibly zero)
-  output_func* output; // optional output function
-
   // internal state for the dopri step
   double **k;
-  double * ysti;
 
   // For the dde version this is going to become a circular buffer,
   // but we need a place to keep this here now.  This has length:
   //
-  //     5 * n + 2
+  //     5 * n + 2 (DOPRI_5)
+  //     8 * n + 2 (DOPRI_853)
   //
   // long, (and for dde there will be mxst of these).
   //
-  // The memory layout of each element:
+  // The memory layout of each element;
+  //
+  // DOPRI5_:
+  //
   //   double[n]: y
   //   double[n]: deltay
   //   double[n]: bspl
   //   double[n]: expr (a function of the above)
   //   double[n]: dens (computed from the ks)
-  //   double: t
-  //   double: h
+  //   double: t (at 5 * n)
+  //   double: h (at 5 * n + 1)
+  //
+  // DOPRI_853:
+  //
+  //   double[n]: y
+  //   ...
+  //   double: t (at 8 * n)
+  //   double: h (at 8 * n + 1)
   //
   // Because 'n' is dynamically sized we'll not be able to put these
   // in a circular buffer easily (unless boost's circular buffer is
@@ -118,6 +127,8 @@ typedef struct {
   size_t n_step;
   size_t n_accept;
   size_t n_reject;
+
+  bool initialised; // flag indicating if internal state is ready to go
 } dopri5_data;
 
 dopri5_data* dopri5_data_alloc(deriv_func* target, size_t n,

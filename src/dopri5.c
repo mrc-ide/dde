@@ -2,54 +2,69 @@
 #include "util.h"
 #include <R.h>
 
-#define NK 6
-
 dopri5_data* dopri5_data_alloc(deriv_func* target, size_t n,
                                output_func* output, size_t n_out,
                                void *data, size_t n_history) {
   dopri5_data *ret = (dopri5_data*) R_Calloc(1, dopri5_data);
   ret->target = target;
+  ret->output = output;
   ret->data = data;
 
   ret->method = DOPRI_5;
-  ret->order = 5;
+  ret->order = ret->method == DOPRI_5 ? 5 : 8;
 
   ret->n = n;
+  ret->n_out = n_out;
 
   ret->n_times = 0;
   ret->times = NULL;
+  // ret->times_idx -- set in reset
 
-  ret->y0 = R_Calloc(n, double);
-  ret->y  = R_Calloc(n, double);
-  ret->y1 = R_Calloc(n, double);
+  // tcrit variables are set in reset
 
-  ret->output = output;
-  ret->n_out = n_out;
+  // State vectors
+  ret->y0 = R_Calloc(n, double); // initial
+  ret->y  = R_Calloc(n, double); // current
+  ret->y1 = R_Calloc(n, double); // next
 
-  // in 5 we have k1-6 and ysti but in 853 we'll have k1-10 and *not* ysti
-  ret->k = R_Calloc(NK, double*);
-  for (size_t i = 0; i < NK; ++i) {
+  // NOTE: There's no real reason to believe that the storage
+  // requirements (nk) will always grow linearly like this, but I
+  // don't really anticipate adding any other schemes soon anyway, so
+  // the fact that this works well for the two we have is enough.
+  size_t nk = ret->order + 2;
+  ret->k = R_Calloc(nk, double*);
+  for (size_t i = 0; i < nk; ++i) {
     ret->k[i] = R_Calloc(n, double);
   }
-  ret->ysti = R_Calloc(n, double);
 
-  ret->history_len = 2 + 5 * n;
+  ret->history_len = 2 + ret->order * n;
   ret->history =
     ring_buffer_create(n_history, ret->history_len * sizeof(double));
-  ret->history_time_idx = 5 * n;
+  ret->history_time_idx = ret->order * n;
 
   // Defaults!
+  // TODO: Support vectorised tolerances?
   ret->atol = 1e-6;
   ret->rtol = 1e-6;
 
-  // NOTE: these are different for dde!
-  ret->step_factor_min = 0.2;  // from dopri5.f:276
-  ret->step_factor_max = 10.0; // from dopri5.f:281
+  // TODO: These all need to be modifiable from R
+  switch (ret->method) {
+  case DOPRI_5:
+    // TODO: these are different for dde; switch again on delay and document.
+    ret->step_factor_min = 0.2;  // from dopri5.f:276
+    ret->step_factor_max = 10.0; // from dopri5.f:281
+    ret->step_beta = 0.04;       // from dopri5.f:287
+    break;
+  case DOPRI_853:
+    ret->step_factor_min = 0.333; // from dopri853.f:285
+    ret->step_factor_max = 6.0;   // from dopri853.f:290
+    ret->step_beta = 0.0;         // from dopri853.f:296
+    break;
+  }
   ret->step_size_max = DBL_MAX;
   ret->step_size_initial = 0.0;
   ret->step_max_n = 100000;    // from dopri5.f:212
   // NOTE: beta is different for dde and dopri5
-  ret->step_beta = 0.04;       // from dopri5.f:287
   ret->step_factor_safe = 0.9; // from dopri5.f:265
 
   return ret;
@@ -101,11 +116,11 @@ void dopri5_data_free(dopri5_data *obj) {
   R_Free(obj->y);
   R_Free(obj->y1);
 
-  for (size_t i = 0; i < NK; ++i) {
+  size_t nk = obj->order + 2;
+  for (size_t i = 0; i < nk; ++i) {
     R_Free(obj->k[i]);
   }
   R_Free(obj->k);
-  R_Free(obj->ysti);
 
   ring_buffer_destroy(obj->history);
 
