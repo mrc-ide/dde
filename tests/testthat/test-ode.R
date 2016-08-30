@@ -265,3 +265,30 @@ test_that("deSolve mode", {
   expect_equal(dimnames(res), list(NULL, c("time", 1:3)))
   expect_equal(res[, 1], tt)
 })
+
+test_that("step tuning", {
+  tt <- seq(0, 1, length.out = 200)
+  T_IDX <- 16L
+  m0 <- run_lorenz_dde(tt, n_history = 500, return_statistics = TRUE)
+  t0 <- attr(m0, "history")[T_IDX, ]
+  s0 <- attr(m0, "statistics")
+
+  hmax <- max(diff(t0)) / 5
+  m1 <- run_lorenz_dde(tt, step_size_max = hmax, n_history = 500)
+  t1 <- attr(m1, "history")[T_IDX, ]
+  expect_gt(length(t1), length(t0))
+  expect_equal(max(diff(t1)), hmax)
+
+  h0 <- diff(t0[1:2])
+  m2 <- run_lorenz_dde(tt, n_history = 500, return_statistics = TRUE,
+                       step_size_initial = h0)
+  t2 <- attr(m0, "history")[T_IDX, ]
+  expect_equal(t0, t2)
+  expect_equal(attr(m2, "statistics")[["n_eval"]],
+               s0[["n_eval"]] - 1L)
+
+  expect_error(run_lorenz_dde(tt, step_max_n = length(t0) - 20),
+               "too many steps")
+  expect_error(run_lorenz_dde(tt, step_size_min = min(diff(t0)) * 1.1),
+               "step size too small")
+})
