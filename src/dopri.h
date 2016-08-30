@@ -24,16 +24,15 @@ typedef enum return_code {
   ERR_INCONSISTENT=-1,
   ERR_TOO_MANY_STEPS=-2,
   ERR_STEP_SIZE_TOO_SMALL=-3,
-  ERR_STIFF=-4,
-  ERR_YLAG_ERROR=-5,
-  ERR_NOT_INITIALISED=-6,
+  ERR_STIFF=-4,      // TODO: never used
+  ERR_YLAG_ERROR=-5, // TODO: never used!
   NOT_SET=0,
   OK_COMPLETE = 1,
-  OK_INTERRUPTED = 2
+  OK_INTERRUPTED = 2 // TODO: never used!
 } return_code;
 
 typedef enum dopri_method {
-  DOPRI_5, // or 54?
+  DOPRI_5,
   DOPRI_853
 } dopri_method;
 

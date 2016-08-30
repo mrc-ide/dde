@@ -18,6 +18,7 @@
 //
 // TODO: Probably shuffle around the arguments here into some sensible
 // order give there are so many.
+void r_integration_error(dopri_data* obj);
 SEXP r_dopri(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
              SEXP r_n_out, SEXP r_output,
              SEXP r_rtol, SEXP r_atol, SEXP r_data_is_real,
@@ -93,7 +94,8 @@ SEXP r_dopri(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
   dopri_integrate(obj, y_initial, times, n_times, tcrit, n_tcrit, y, out);
 
   if (obj->error) {
-    Rf_error("Integration failure with code: %d", obj->code);
+    r_integration_error(obj); // will error
+    return R_NilValue; // never gets here
   }
 
   if (return_history) {
@@ -131,6 +133,35 @@ SEXP r_dopri(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
 
   UNPROTECT(1);
   return r_y;
+}
+
+void r_integration_error(dopri_data* obj) {
+  int code = obj->code;
+  double t = obj->t;
+  dopri_data_free(obj);
+  switch (code) {
+  case ERR_INCONSISTENT:
+    Rf_error("Integration failure: input is not consistent (code: %d)", code);
+    break;
+  case ERR_TOO_MANY_STEPS:
+    Rf_error("Integration failure: too many steps (at t = %2.5f)", t);
+    break;
+  case ERR_STEP_SIZE_TOO_SMALL:
+    Rf_error("Integration failure: step size too small (at t = %2.5f)", t);
+    break;
+  case ERR_STIFF:
+    // TODO: never thrown
+    Rf_error("Integration failure: problem became stiff (at t = %2.5f)", t);
+    break;
+  case ERR_YLAG_ERROR:
+    // TODO: never thrown
+    Rf_error("Integration failure: error while evaluating lag (at t = %2.5f)",
+             t);
+    break;
+  default:
+    Rf_error("Integration failure: unknown (code %d) -- this is a bug", code);
+    break;
+  }
 }
 
 SEXP r_ylag(SEXP r_t, SEXP r_idx) {
