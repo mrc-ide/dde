@@ -292,3 +292,25 @@ test_that("step tuning", {
   expect_error(run_lorenz_dde(tt, step_size_min = min(diff(t0)) * 1.1),
                "step size too small")
 })
+
+test_that("Native Symbol interface", {
+  p <- c(10, 28, 8 / 3)
+  y <- c(10, 1, 1)
+  times <- seq(0, 10, length.out=101)
+  func <- getNativeSymbolInfo("lorenz", PACKAGE="lorenz")
+  y <- dopri(y, times, func, p)
+  expect_equal(y, run_lorenz_dde(times, tol = 1e-6))
+})
+
+test_that("NULL pointer safety", {
+  p <- c(10, 28, 8 / 3)
+  y <- c(10, 1, 1)
+  times <- seq(0, 10, length.out=101)
+
+  func <- getNativeSymbolInfo("lorenz", PACKAGE="lorenz")
+  func <- unserialize(serialize(func, NULL))
+
+  expect_error(dopri(y, times, func, p), "null pointer")
+  expect_error(dopri(y, times, "lorenz", p, output = func, n_out = 2L),
+               "null pointer")
+})

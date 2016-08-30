@@ -241,7 +241,7 @@ dopri <- function(y, times, func, parms, ...,
   }
 
   ret <- .Call(Cdopri, y, times, func, parms,
-               n_out, output, parms_are_real,
+               as.integer(n_out), output, parms_are_real,
                ## Tolerance:
                rtol, atol,
                ## Step control:

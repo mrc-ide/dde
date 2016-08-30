@@ -47,6 +47,9 @@ SEXP r_dopri(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
   // TODO: check for NULL function pointers here to avoid crashes;
   // also test type?
   deriv_func *func = (deriv_func*)R_ExternalPtrAddr(r_func);
+  if (func == NULL) {
+    Rf_error("Was passed null pointer for 'func'");
+  }
   void *data = NULL;
   if (TYPEOF(r_data) == REALSXP && INTEGER(r_data_is_real)[0]) {
     data = (void*) REAL(r_data);
@@ -68,6 +71,9 @@ SEXP r_dopri(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
   SEXP r_out = R_NilValue;
   if (n_out > 0) {
     output = (output_func*)R_ExternalPtrAddr(r_output);
+    if (output == NULL) {
+      Rf_error("Was passed null pointer for 'output'");
+    }
     r_out = PROTECT(allocMatrix(REALSXP, n_out, nt));
     out = REAL(r_out);
   }
