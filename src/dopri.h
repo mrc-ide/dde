@@ -135,8 +135,6 @@ typedef struct {
   size_t n_step;
   size_t n_accept;
   size_t n_reject;
-
-  bool initialised; // flag indicating if internal state is ready to go
 } dopri_data;
 
 dopri_data* dopri_data_alloc(deriv_func* target, size_t n,

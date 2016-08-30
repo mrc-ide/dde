@@ -5,19 +5,14 @@
 // There are more arguments from lsoda not implemented here that will
 // be needed:
 //
-// - hmin, hmax, hini (and other step size control)
 // - rootfunc (once root-finding is supported)
 // - nroot (not sure)
 // - verbose (some sort of verbose output will be useful)
-// - ynames
-// - maxsteps
 // - forcings (not sure now)
 // - events
 //
 // Some of these are big issues, some are small!
 //
-// TODO: Probably shuffle around the arguments here into some sensible
-// order give there are so many.
 void r_integration_error(dopri_data* obj);
 SEXP r_dopri(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
              SEXP r_n_out, SEXP r_output, SEXP r_data_is_real,
