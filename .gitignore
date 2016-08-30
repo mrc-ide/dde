@@ -8,3 +8,6 @@ ignore/
 dde_*.tar.gz
 notes.md
 .valgrind_ignore
+src/dde.so.dSYM
+tests/testthat/lorenz.so.dSYM
+tests/testthat/seir.so.dSYM
