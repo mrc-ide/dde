@@ -7,11 +7,12 @@
 \title{Integrate ODE/DDE with dopri}
 \usage{
 dopri(y, times, func, parms, ..., n_out = 0L, output = NULL, rtol = 1e-06,
-  atol = 1e-06, tcrit = NULL, method = "dopri5", n_history = 0,
-  return_history = n_history > 0, dllname = "", parms_are_real = TRUE,
-  ynames = TRUE, outnames = NULL, by_column = FALSE,
-  return_initial = FALSE, return_statistics = FALSE, return_time = FALSE,
-  deSolve_compatible = FALSE)
+  atol = 1e-06, step_size_min = 0, step_size_max = Inf,
+  step_size_initial = 0, step_max_n = 100000L, tcrit = NULL,
+  method = "dopri5", n_history = 0, return_history = n_history > 0,
+  dllname = "", parms_are_real = TRUE, ynames = TRUE, outnames = NULL,
+  by_column = FALSE, return_initial = FALSE, return_statistics = FALSE,
+  return_time = FALSE, deSolve_compatible = FALSE)
 
 dopri5(y, times, func, parms, ...)
 
@@ -47,6 +48,29 @@ size_t n_out, double *out, void *data}.}
 will be less than this.}
 
 \item{atol}{The per-step absolute tolerance.}
+
+\item{step_size_min}{The minimum step size.  The actual minimum
+used will be the largest of the absolute value of this
+\code{step_size_min} or \code{.Machine$double.eps}.  If the
+integration attempts to make a step smaller than this, it will
+throw an error, stopping the integration (note that this differs
+from the treatment of \code{hmin} in \code{deSolve::lsoda}).}
+
+\item{step_size_max}{The largest step size.  By default there is
+no maximum step size (Inf) so the solver can take as large a
+step as it wants to.  If you have short events you want the
+solver to notice, then specify a smaller maximim step size here
+(or use \code{tcrit} below).}
+
+\item{step_size_initial}{The initial step size.  By default the
+integrator will guess the step size automatically, but one can
+be given here instead.}
+
+\item{step_max_n}{The maximum number of steps allowed.  If the
+solver takes more steps than this it will throw an error.  Note
+the number of evaluations of \code{func} will be about 6 times
+the number of steps (or 11 times if using \code{method =
+"dopri853"}).}
 
 \item{tcrit}{An optional vector of critical times that the solver
 must stop at (rather than interpolating over).  This can include

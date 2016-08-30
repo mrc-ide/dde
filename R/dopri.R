@@ -32,6 +32,29 @@
 ##'
 ##' @param atol The per-step absolute tolerance.
 ##'
+##' @param step_size_min The minimum step size.  The actual minimum
+##'   used will be the largest of the absolute value of this
+##'   \code{step_size_min} or \code{.Machine$double.eps}.  If the
+##'   integration attempts to make a step smaller than this, it will
+##'   throw an error, stopping the integration (note that this differs
+##'   from the treatment of \code{hmin} in \code{deSolve::lsoda}).
+##'
+##' @param step_size_max The largest step size.  By default there is
+##'   no maximum step size (Inf) so the solver can take as large a
+##'   step as it wants to.  If you have short events you want the
+##'   solver to notice, then specify a smaller maximim step size here
+##'   (or use \code{tcrit} below).
+##'
+##' @param step_size_initial The initial step size.  By default the
+##'   integrator will guess the step size automatically, but one can
+##'   be given here instead.
+##'
+##' @param step_max_n The maximum number of steps allowed.  If the
+##'   solver takes more steps than this it will throw an error.  Note
+##'   the number of evaluations of \code{func} will be about 6 times
+##'   the number of steps (or 11 times if using \code{method =
+##'   "dopri853"}).
+##'
 ##' @param tcrit An optional vector of critical times that the solver
 ##'   must stop at (rather than interpolating over).  This can include
 ##'   an end time that we can't go past, or points within the
@@ -77,12 +100,6 @@
 ##'   cast to \code{SEXP} and then pull it apart using the R API (or
 ##'   Rcpp).
 ##'
-##' @param by_column Logical, indicating if the output should be
-##'   returned organised by column (rather than row).  This incurs a
-##'   slight cost for transposing the matrices.  If you can work with
-##'   matrices that are transposed relative to \code{deSolve}, then
-##'   set this to \code{FALSE}.
-##'
 ##' @param ynames Logical, indicating if the output should be named
 ##'   following the names of the input vector \code{y}.
 ##'   Alternatively, if \code{ynames} is a character vector of the
@@ -90,6 +107,12 @@
 ##'
 ##' @param outnames An optional character vector, used when
 ##'   \code{n_out} is greater than 0, to name the model output matrix.
+##'
+##' @param by_column Logical, indicating if the output should be
+##'   returned organised by column (rather than row).  This incurs a
+##'   slight cost for transposing the matrices.  If you can work with
+##'   matrices that are transposed relative to \code{deSolve}, then
+##'   set this to \code{FALSE}.
 ##'
 ##' @param return_initial Logical, indicating if the output should
 ##'   include the initial conditions (like deSolve).
@@ -118,6 +141,8 @@
 dopri <- function(y, times, func, parms, ...,
                   n_out = 0L, output = NULL,
                   rtol = 1e-6, atol = 1e-6,
+                  step_size_min = 0, step_size_max = Inf,
+                  step_size_initial = 0, step_max_n = 100000L,
                   tcrit = NULL,
                   method = "dopri5",
                   n_history = 0, return_history = n_history > 0, dllname = "",
@@ -155,6 +180,10 @@ dopri <- function(y, times, func, parms, ...,
 
   assert_scalar(rtol)
   assert_scalar(atol)
+  assert_scalar(step_size_min)
+  assert_scalar(step_size_max)
+  assert_scalar(step_size_initial)
+  assert_size(step_max_n)
   assert_size(n_history)
   assert_scalar_logical(return_history)
   assert_scalar_logical(parms_are_real)
@@ -212,11 +241,17 @@ dopri <- function(y, times, func, parms, ...,
   }
 
   ret <- .Call(Cdopri, y, times, func, parms,
-               n_out, output,
-               rtol, atol, parms_are_real, tcrit,
-               use_853,
-               as.integer(n_history), return_history, return_initial,
-               return_statistics)
+               n_out, output, parms_are_real,
+               ## Tolerance:
+               rtol, atol,
+               ## Step control:
+               step_size_min, step_size_max,
+               step_size_initial, as.integer(step_max_n),
+               ## Other:
+               tcrit, use_853,
+               ## Return information:
+               as.integer(n_history), return_history,
+               return_initial, return_statistics)
 
   if (return_time) {
     ret <- rbind(if (return_initial) times else times[-1],

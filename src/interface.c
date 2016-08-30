@@ -20,10 +20,16 @@
 // order give there are so many.
 void r_integration_error(dopri_data* obj);
 SEXP r_dopri(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
-             SEXP r_n_out, SEXP r_output,
-             SEXP r_rtol, SEXP r_atol, SEXP r_data_is_real,
+             SEXP r_n_out, SEXP r_output, SEXP r_data_is_real,
+             // Tolerance:
+             SEXP r_rtol, SEXP r_atol,
+             // Step size control:
+             SEXP r_step_size_min, SEXP r_step_size_max,
+             SEXP r_step_size_initial, SEXP r_step_max_n,
+             // Other:
              SEXP r_tcrit,
              SEXP r_use_853,
+             // Return information:
              SEXP r_n_history, SEXP r_return_history,
              SEXP r_return_initial, SEXP r_return_statistics) {
   double *y_initial = REAL(r_y_initial);
@@ -78,6 +84,10 @@ SEXP r_dopri(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
                                      method, n_history);
   obj->rtol = REAL(r_rtol)[0];
   obj->atol = REAL(r_atol)[0];
+  obj->step_size_min = fmax(fabs(REAL(r_step_size_min)[0]), DBL_EPSILON);
+  obj->step_size_max = fmin(fabs(REAL(r_step_size_max)[0]), DBL_MAX);
+  obj->step_size_initial = REAL(r_step_size_initial)[0];
+  obj->step_max_n = INTEGER(r_step_max_n)[0];
 
   SEXP r_y = PROTECT(allocMatrix(REALSXP, n, nt));
 
@@ -148,6 +158,9 @@ void r_integration_error(dopri_data* obj) {
     break;
   case ERR_STEP_SIZE_TOO_SMALL:
     Rf_error("Integration failure: step size too small (at t = %2.5f)", t);
+    break;
+  case ERR_STEP_SIZE_VANISHED:
+    Rf_error("Integration failure: step size vanished (at t = %2.5f)", t);
     break;
   case ERR_STIFF:
     // TODO: never thrown

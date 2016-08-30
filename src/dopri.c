@@ -65,6 +65,7 @@ dopri_data* dopri_data_alloc(deriv_func* target, size_t n,
     ret->step_beta = 0.0;         // from dopri853.f:296
     break;
   }
+  ret->step_size_min = DBL_EPSILON;
   ret->step_size_max = DBL_MAX;
   ret->step_size_initial = 0.0;
   ret->step_max_n = 100000;    // from dopri5.f:212
@@ -208,7 +209,6 @@ void dopri_integrate(dopri_data *obj, double *y,
   dopri_data_reset(obj, y, times, n_times, tcrit, n_tcrit);
 
   double fac_old = 1e-4;
-  double uround = 10 * DBL_EPSILON;
   bool stop = false, last = false, reject = false;
 
   double t_end = times[n_times - 1];
@@ -231,18 +231,20 @@ void dopri_integrate(dopri_data *obj, double *y,
   double h = dopri_h_init(obj);
   double h_save = 0.0;
 
+  // TODO: factor into its own thing
   while (true) {
     if (obj->n_step > obj->step_max_n) {
       obj->error = true;
       obj->code = ERR_TOO_MANY_STEPS;
       break;
     }
-    // NOTE: in retard.f this is:
-    //   fabs(h) < fabs(t) * uround
-    // which is less strict
-    if (0.1 * fabs(h) <= fabs(obj->t) * uround) {
+    if (fabs(h) <= obj->step_size_min) {
       obj->error = true;
       obj->code = ERR_STEP_SIZE_TOO_SMALL;
+      break;
+    } else if (fabs(h) <= fabs(obj->t) * DBL_EPSILON) {
+      obj->error = true;
+      obj->code = ERR_STEP_SIZE_VANISHED;
       break;
     }
     if ((obj->t + 1.01 * h - t_end) * obj->sign > 0.0) {
@@ -258,6 +260,7 @@ void dopri_integrate(dopri_data *obj, double *y,
     //   else if ((t + 1.8 * h - t_end) * sign > 0) {
     //     h = (t_end - t) * 0.55
     //   }
+    //
     obj->n_step++;
 
     // TODO: In the Fortran there is an option here to check the irtrn

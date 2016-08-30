@@ -24,8 +24,9 @@ typedef enum return_code {
   ERR_INCONSISTENT=-1,
   ERR_TOO_MANY_STEPS=-2,
   ERR_STEP_SIZE_TOO_SMALL=-3,
-  ERR_STIFF=-4,      // TODO: never used
-  ERR_YLAG_ERROR=-5, // TODO: never used!
+  ERR_STEP_SIZE_VANISHED=-4,
+  ERR_STIFF=-5,      // TODO: never used
+  ERR_YLAG_ERROR=-6, // TODO: never used!
   NOT_SET=0,
   OK_COMPLETE = 1,
   OK_INTERRUPTED = 2 // TODO: never used!
@@ -118,6 +119,7 @@ typedef struct {
   double step_factor_safe;
   double step_factor_min;
   double step_factor_max;
+  double step_size_min;
   double step_size_max;
   double step_size_initial;
   size_t step_max_n; // max number of steps (100000)
