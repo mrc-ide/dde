@@ -403,3 +403,47 @@ test_that("negative time", {
   ## OK, this is bizarre; all the history storage is entirely correct:
   expect_equal(h1[1:20,], h2[1:20,], tolerance=1e-16)
 })
+
+test_that("negative time with tcrit", {
+  ## TODO: To be a really good test, this would need to test the case
+  ## with more than one critical time, as there are a couple of places
+  ## where the critical time gets advanced.
+  target1 <- function(t, y, p) {
+    if (t <= 1) y else -5 * y
+  }
+  target2 <- function(t, y, p) {
+    if (t >= -1) -y else 5 * y
+  }
+
+  ## Here's our system.  It's very silly again.
+  tt <- seq(0, 2, length.out = 200)
+  y0 <- 1
+  y1 <- deSolve::lsoda(y0, tt, function(...) list(target1(...)), numeric())
+  y2 <- deSolve::lsoda(y0, -tt, function(...) list(target2(...)), numeric())
+  expect_equal(y1[, 2], y2[, 2], tolerance=1e-16)
+
+  res1a <- dopri(y0, tt,  target1, numeric(0),
+                 return_statistics = TRUE, return_initial=TRUE)
+  res2a <- dopri(y0, -tt, target2, numeric(0),
+                 return_statistics = TRUE, return_initial=TRUE)
+
+  ## Not terribly accurate because of the nasty discontinuity
+  expect_equal(res1a[1, ], y1[, 2], tolerance=1e-4)
+  ## As above, the dopri solutions should agree well
+  expect_equal(res1a[1, ], res2a[1, ], tolerance=1e-16)
+
+  ## Add the critical time in:
+  res1b <- dopri(y0, tt,  target1, numeric(0), tcrit = 1,
+                 return_statistics = TRUE, return_initial = TRUE)
+  res2b <- dopri(y0, -tt, target2, numeric(0), tcrit = -1,
+                 return_statistics = TRUE, return_initial = TRUE)
+  expect_equal(res1b[1, ], res2b[1, ], tolerance=1e-16)
+
+  s1a <- attr(res1a, "statistics")
+  s2a <- attr(res2a, "statistics")
+  s1b <- attr(res1b, "statistics")
+  s2b <- attr(res2b, "statistics")
+  expect_equal(s1a, s2a)
+  expect_equal(s1b, s2b)
+  expect_lt(s2b[["n_step"]], s2a[["n_step"]])
+})

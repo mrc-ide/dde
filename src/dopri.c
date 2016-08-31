@@ -118,7 +118,8 @@ void dopri_data_reset(dopri_data *obj, double *y,
   memcpy(obj->tcrit, tcrit, n_tcrit * sizeof(double));
   obj->tcrit_idx = 0;
   if (n_tcrit > 0) {
-    while (tcrit[obj->tcrit_idx] < obj->t0 && obj->tcrit_idx < n_tcrit) {
+    while (obj->sign * tcrit[obj->tcrit_idx] < obj->sign * obj->t0 &&
+           obj->tcrit_idx < n_tcrit) {
       obj->tcrit_idx++;
     }
   }
@@ -214,7 +215,7 @@ void dopri_integrate(dopri_data *obj, double *y,
   double t_end = times[n_times - 1];
   double t_stop = t_end;
   if (obj->tcrit_idx < obj->n_tcrit &&
-      obj->tcrit[obj->tcrit_idx] < t_end) {
+      obj->sign * obj->tcrit[obj->tcrit_idx] < obj->sign * t_end) {
     t_stop = obj->tcrit[obj->tcrit_idx];
   } else {
     t_stop = t_end;
@@ -333,7 +334,7 @@ void dopri_integrate(dopri_data *obj, double *y,
       if (stop) {
         obj->tcrit_idx++;
         if (obj->tcrit_idx < obj->n_tcrit &&
-            obj->tcrit[obj->tcrit_idx] < t_end) {
+            obj->sign * obj->tcrit[obj->tcrit_idx] < obj->sign * t_end) {
           t_stop = obj->tcrit[obj->tcrit_idx];
         } else {
           t_stop = t_end;
