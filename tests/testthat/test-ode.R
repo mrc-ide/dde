@@ -359,3 +359,47 @@ test_that("always return history when asked", {
     dopri(y0, tt, growth, r, return_statistics = TRUE,
           return_time=TRUE)))
 })
+
+test_that("negative time", {
+  growth <- function(t, y, p) {
+    y * p
+  }
+
+  set.seed(1)
+  y0 <- runif(4)
+  r <- runif(4)
+
+  ## True solution is:
+  ##
+  ##   exp(r * t) * y0
+  ##
+  ## which we can compute easily enough foe this problem:
+  tt <- seq(0, -2, length.out = 11)
+  real <- t(y0 * outer(r, tt, function(t, r) exp(r * t)))
+  real_fwd <- t(y0 * outer(-r, -tt, function(t, r) exp(r * t)))
+  expect_identical(real, real_fwd)
+
+  ## Then solve the system using deSolve (sanity check for the above)
+  cmp <- deSolve::ode(y0, tt, function(...) list(growth(...)), r)
+  cmp_fwd <- deSolve::ode(y0, -tt, function(...) list(growth(...)), -r)
+  expect_equal(unname(cmp[, -1]), real, 5e-6)
+  expect_equal(cmp[, -1], cmp_fwd[, -1], tolerance=1e-16)
+
+  ## and dde:
+  res <- dopri(y0, tt, growth, r, deSolve_compatible = TRUE,
+               n_history = 100)
+  res_fwd <- dopri(y0, -tt, growth, -r, deSolve_compatible = TRUE,
+                   n_history = 100)
+
+  expect_equal(res[, -1], res_fwd[, -1], tolerance=1e-16)
+
+  ## Interestingly, we do stop at the same points here, so the error
+  ## calculation and underlying stepping is probably OK.
+  t_idx <- length(y0) * 5 + 1
+  h1 <- attr(res, "history")
+  h2 <- attr(res_fwd, "history")
+  expect_equal(-h1[t_idx, ], h2[t_idx, ], tolerance=1e-16)
+  expect_equal(-h1[t_idx + 1, ], h2[t_idx + 1, ], tolerance=1e-16)
+  ## OK, this is bizarre; all the history storage is entirely correct:
+  expect_equal(h1[1:20,], h2[1:20,], tolerance=1e-16)
+})

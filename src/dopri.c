@@ -296,7 +296,7 @@ void dopri_integrate(dopri_data *obj, double *y,
       obj->t += h;
 
       while (obj->times_idx < obj->n_times &&
-             obj->times[obj->times_idx] <= obj->t) {
+             obj->sign * obj->times[obj->times_idx] <= obj->sign * obj->t) {
         // Here, it might be nice to allow transposed output or not;
         // that would be an argument to interpolate_all.  That's a bit
         // of a faff.
