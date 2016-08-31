@@ -21,12 +21,13 @@
 // sample to fill in the output variables, but that's not the end of
 // the world.
 typedef enum return_code {
-  ERR_INCONSISTENT=-1,
-  ERR_TOO_MANY_STEPS=-2,
-  ERR_STEP_SIZE_TOO_SMALL=-3,
-  ERR_STEP_SIZE_VANISHED=-4,
-  ERR_STIFF=-5,      // TODO: never used
-  ERR_YLAG_ERROR=-6, // TODO: never used!
+  ERR_ZERO_TIME_DIFFERENCE =-1,
+  ERR_INCONSISTENT_TIME = -2,
+  ERR_TOO_MANY_STEPS=-3,
+  ERR_STEP_SIZE_TOO_SMALL=-4,
+  ERR_STEP_SIZE_VANISHED=-5,
+  ERR_STIFF=-6,      // TODO: never used
+  ERR_YLAG_ERROR=-7, // TODO: never used!
   NOT_SET=0,
   OK_COMPLETE = 1,
   OK_INTERRUPTED = 2 // TODO: never used!

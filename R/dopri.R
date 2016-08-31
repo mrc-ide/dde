@@ -240,7 +240,7 @@ dopri <- function(y, times, func, parms, ...,
     output <- NULL
   }
 
-  ret <- .Call(Cdopri, y, times, func, parms,
+  ret <- .Call(Cdopri, y, as.numeric(times), func, parms,
                as.integer(n_out), output, parms_are_real,
                ## Tolerance:
                rtol, atol,

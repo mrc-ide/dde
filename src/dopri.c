@@ -106,6 +106,25 @@ void dopri_data_reset(dopri_data *obj, double *y,
   memcpy(obj->times, times, n_times * sizeof(double));
   obj->times_idx = 1; // skipping the first time!
 
+  // TODO: I don't check that there is at least one time anywhere in
+  // *this* routine, but it is checked in r_dopri which calls this.
+  if (times[n_times - 1] == times[0]) {
+    obj->error = true;
+    obj->code = ERR_ZERO_TIME_DIFFERENCE;
+    return;
+  }
+  obj->sign = copysign(1.0, times[n_times - 1] - times[0]);
+  for (size_t i = 0; i < n_times - 1; ++i) {
+    double t0 = times[i], t1 = times[i + 1];
+    bool err = (obj->sign > 0 && t1 < t0) || (obj->sign < 0 && t1 > t0);
+    // perhaps (obj->sign) * (t1 < t0) < 0
+    if (err) {
+      obj->error = true;
+      obj->code = ERR_INCONSISTENT_TIME;
+      return;
+    }
+  }
+
   if (obj->n_tcrit != n_tcrit) {
     R_Free(obj->tcrit); // consider realloc?
     if (n_tcrit > 0) {
@@ -124,7 +143,6 @@ void dopri_data_reset(dopri_data *obj, double *y,
     }
   }
 
-  obj->sign = copysign(1.0, times[1] - times[0]);
   obj->n_eval = 0;
   obj->n_step = 0;
   obj->n_accept = 0;
@@ -208,6 +226,9 @@ void dopri_integrate(dopri_data *obj, double *y,
                       double *y_out, double *out) {
   // TODO: check that t is strictly sorted and n_times >= 2 (in R)
   dopri_data_reset(obj, y, times, n_times, tcrit, n_tcrit);
+  if (obj->error) {
+    return;
+  }
 
   double fac_old = 1e-4;
   bool stop = false, last = false, reject = false;

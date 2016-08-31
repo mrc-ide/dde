@@ -33,6 +33,10 @@ SEXP r_dopri(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
   size_t n_times = LENGTH(r_times);
   double *times = REAL(r_times);
 
+  if (n_times < 2) {
+    Rf_error("At least two times must be given");
+  }
+
   size_t n_tcrit = 0;
   double *tcrit = NULL;
   if (r_tcrit != R_NilValue) {
@@ -151,8 +155,11 @@ void r_integration_error(dopri_data* obj) {
   double t = obj->t;
   dopri_data_free(obj);
   switch (code) {
-  case ERR_INCONSISTENT:
-    Rf_error("Integration failure: input is not consistent (code: %d)", code);
+  case ERR_ZERO_TIME_DIFFERENCE:
+    Rf_error("Initialisation failure: Beginning and end times are the same");
+    break;
+  case ERR_INCONSISTENT_TIME:
+    Rf_error("Initialisation failure: Times have inconsistent sign");
     break;
   case ERR_TOO_MANY_STEPS:
     Rf_error("Integration failure: too many steps (at t = %2.5f)", t);

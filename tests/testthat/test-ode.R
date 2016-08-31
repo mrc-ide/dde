@@ -13,6 +13,19 @@ test_that("ode interface", {
   expect_identical(m3, t(m2))
 })
 
+test_that("integer time input", {
+  tt <- seq(0, 10, by=1)
+  expect_identical(run_lorenz_dde(as.integer(tt)),
+                   run_lorenz_dde(tt))
+})
+
+test_that("zero time difference", {
+  tt <- c(0, 0, 1, 1, 2, 2, 2, 3, 3, 3)
+  res1 <- run_lorenz_dde(tt, return_initial=TRUE)
+  res2 <- run_lorenz_dde(unique(tt), return_initial=TRUE)
+  expect_identical(res1, res2[, tapply(tt, tt)])
+})
+
 test_that("ode, 873 stepper", {
   tt <- seq(0, 1, length.out = 200)
   m5 <- run_lorenz_dde(tt)
@@ -446,4 +459,14 @@ test_that("negative time with tcrit", {
   expect_equal(s1a, s2a)
   expect_equal(s1b, s2b)
   expect_lt(s2b[["n_step"]], s2a[["n_step"]])
+})
+
+test_that("time validation", {
+  expect_error(run_lorenz_dde(numeric(0)), "At least two times must be given")
+  expect_error(run_lorenz_dde(0), "At least two times must be given")
+
+  expect_error(run_lorenz_dde(c(0, 0)),
+               "Beginning and end times are the same")
+  expect_error(run_lorenz_dde(c(0, 2, 1)),
+               "Times have inconsistent sign")
 })
