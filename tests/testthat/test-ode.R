@@ -314,3 +314,48 @@ test_that("NULL pointer safety", {
   expect_error(dopri(y, times, "lorenz", p, output = func, n_out = 2L),
                "null pointer")
 })
+
+test_that("always return history when asked", {
+  has_history <- function(x) {
+    "history" %in% names(attributes(x))
+  }
+  has_statistics <- function(x) {
+    "statistics" %in% names(attributes(x))
+  }
+
+  growth <- function(t, y, p) {
+    y * p
+  }
+  y0 <- runif(1)
+  r <- runif(1)
+  tt <- seq(0, 2, length.out = 101)
+
+  expect_false(has_history(dopri(y0, tt, growth, r)))
+  expect_true(has_history(dopri(y0, tt, growth, r, n_history = 100)))
+
+  expect_true(has_history(
+    dopri(y0, tt, growth, r, n_history = 100, deSolve_compatible=TRUE)))
+  expect_true(has_history(
+    dopri(y0, tt, growth, r, n_history = 100, by_column=TRUE)))
+  expect_true(has_history(
+    dopri(y0, tt, growth, r, n_history = 100, return_initial=TRUE)))
+  expect_true(has_history(
+    dopri(y0, tt, growth, r, n_history = 100, return_time=TRUE)))
+
+  expect_false(has_statistics(dopri(y0, tt, growth, r)))
+  expect_true(has_statistics(dopri(y0, tt, growth, r,
+                                   return_statistics = TRUE)))
+
+  expect_true(has_statistics(
+    dopri(y0, tt, growth, r, return_statistics = TRUE,
+          deSolve_compatible=TRUE)))
+  expect_true(has_statistics(
+    dopri(y0, tt, growth, r, return_statistics = TRUE,
+          by_column=TRUE)))
+  expect_true(has_statistics(
+    dopri(y0, tt, growth, r, return_statistics = TRUE,
+          return_initial=TRUE)))
+  expect_true(has_statistics(
+    dopri(y0, tt, growth, r, return_statistics = TRUE,
+          return_time=TRUE)))
+})

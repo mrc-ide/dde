@@ -254,8 +254,16 @@ dopri <- function(y, times, func, parms, ...,
                return_initial, return_statistics)
 
   if (return_time) {
+    at <- attributes(ret)
     ret <- rbind(if (return_initial) times else times[-1],
                  ret, deparse.level = 0)
+    ## This is a real pain, but we need to include any attributes set
+    ## on the output by Cdopri; this is going to be "statistics" and
+    ## "history", but it's always possible that additional attributes
+    ## will be added.
+    for (x in setdiff(names(at), "dim")) {
+      attr(ret, x) <- at[[x]]
+    }
   }
 
   if (!is.null(ynames)) {
