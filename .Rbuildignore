@@ -9,3 +9,4 @@
 ^dde_.*\.tar\.gz$
 ^ignore$
 ^\.valgrind_ignore$
+^src/dde\.so\.dSYM$
