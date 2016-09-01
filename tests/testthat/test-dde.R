@@ -138,5 +138,34 @@ test_that("R interface", {
   expect_identical(res4, res2)
 })
 
+test_that("R interface with output", {
+  growth <- function(t, y, p) {
+    tau <- t - 2.0
+    c(y[[1L]], ylag(tau, 2L)) * p
+  }
+  output <- function(t, y, p) {
+    tau <- t - 2.0
+    ylag(tau, 1L)
+  }
+  tt <- seq(0, 20, length.out=501)
+  p <- 0.1
+  y0 <- c(.1, .1)
+  res <- dopri(y0, tt, growth, p,
+               n_out = 1, output = output,
+               n_history = 1000L, return_initial=TRUE,
+               atol = 1e-8, rtol = 1e-8, tcrit = 2)
+
+  i <- tt <= 2.0
+  ## The first entry is easy:
+  expect_equal(res[1, ], y0[1] * exp(p * tt), tolerance=1e-7)
+  ## The second entry is in two parts, and only the first part is easy
+  ## (for me) to compute:
+  expect_equal(res[2, i], y0[2] + y0[2] * p * tt[i], tolerance=1e-7)
+  ## The output:
+  out <- drop(attr(res, "output"))
+  expect_equal(out[i], rep(y0[2], sum(i)))
+  expect_equal(out[!i], y0[1] * exp(p * (tt[!i] - 2.0)), tolerance=1e-7)
+})
+
 ## Next, try a restart; we'll run a system with some history and save
 ## everything, then modify the system and do a restart.
