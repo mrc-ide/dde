@@ -147,9 +147,10 @@ void dopri_data_reset(dopri_data *obj, double *y,
                       double *tcrit, size_t n_tcrit);
 void dopri_data_free(dopri_data *obj);
 void dopri_integrate(dopri_data *obj, double *y,
-                      double *times, size_t n_times,
-                      double *tcrit, size_t n_tcrit,
-                      double *y_out, double *out);
+                     double *times, size_t n_times,
+                     double *tcrit, size_t n_tcrit,
+                     double *y_out, double *out,
+                     bool return_initial);
 
 // Wrappers around the two methods:
 void dopri_step(dopri_data *obj, double h);

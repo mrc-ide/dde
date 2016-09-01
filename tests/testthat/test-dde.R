@@ -72,6 +72,16 @@ test_that("output", {
 
   attr(res2, "output") <- NULL
   expect_identical(res1, res2)
+
+  ## Corner case with the first output entry
+  res3 <- dopri(y0, tt, "seir", p, n_history = 1000L,
+                n_out = 1L, output = "seir_output",
+                dllname = "seir", return_history = FALSE,
+                return_initial = TRUE)
+  expect_identical(res3[, -1], res1[])
+  out3 <- attr(res3, "output")
+  expect_identical(out3[, -1, drop=FALSE], output)
+  expect_identical(out3[, 1], output[, 1])
 })
 
 test_that("R interface", {

@@ -236,8 +236,8 @@ dopri <- function(y, times, func, parms, ...,
       }
     }
     ## Here, if fun is an R function we need to be careful...
-  } else {
-    output <- NULL
+  } else if (!is.null(output)) {
+    stop("If 'output' is given, then n_out must be specified")
   }
 
   ret <- .Call(Cdopri, y, as.numeric(times), func, parms,

@@ -97,16 +97,8 @@ SEXP r_dopri(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
   SEXP r_y = PROTECT(allocMatrix(REALSXP, n, nt));
 
   double *y = REAL(r_y);
-  if (return_initial) {
-    memcpy(y, y_initial, n * sizeof(double));
-    y += n;
-    if (n_out > 0) {
-      obj->output(obj->n, times[0], y_initial, obj->n_out, out, obj->data);
-      out += n_out;
-    }
-  }
-
-  dopri_integrate(obj, y_initial, times, n_times, tcrit, n_tcrit, y, out);
+  dopri_integrate(obj, y_initial, times, n_times, tcrit, n_tcrit, y, out,
+                  return_initial);
 
   if (obj->error) {
     r_integration_error(obj); // will error

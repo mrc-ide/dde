@@ -221,9 +221,10 @@ void dopri_save_history(dopri_data *obj, double h) {
 // Integration is going to be over a set of times 't', of which there
 // are 'n_t'.
 void dopri_integrate(dopri_data *obj, double *y,
-                      double *times, size_t n_times,
-                      double *tcrit, size_t n_tcrit,
-                      double *y_out, double *out) {
+                     double *times, size_t n_times,
+                     double *tcrit, size_t n_tcrit,
+                     double *y_out, double *out,
+                     bool return_initial) {
   // TODO: check that t is strictly sorted and n_times >= 2 (in R)
   dopri_data_reset(obj, y, times, n_times, tcrit, n_tcrit);
   if (obj->error) {
@@ -245,6 +246,16 @@ void dopri_integrate(dopri_data *obj, double *y,
   // Possibly only set this if the number of history variables is
   // nonzero?  Needs to be set before any calls to target() though.
   dde_global_obj = obj;
+
+  // If requuested, copy initial conditions into the output space
+  if (return_initial) {
+    memcpy(y_out, y, obj->n * sizeof(double));
+    y_out += obj->n;
+    if (obj->n_out > 0) {
+      obj->output(obj->n, times[0], y, obj->n_out, out, obj->data);
+      out += obj->n_out;
+    }
+  }
 
   obj->target(obj->n, obj->t, obj->y, obj->k[0], obj->data); // y => k1
   obj->n_eval++;
