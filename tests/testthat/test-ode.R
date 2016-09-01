@@ -413,7 +413,6 @@ test_that("negative time", {
   h2 <- attr(res_fwd, "history")
   expect_equal(-h1[t_idx, ], h2[t_idx, ], tolerance=1e-16)
   expect_equal(-h1[t_idx + 1, ], h2[t_idx + 1, ], tolerance=1e-16)
-  ## OK, this is bizarre; all the history storage is entirely correct:
   expect_equal(h1[1:20,], h2[1:20,], tolerance=1e-16)
 })
 

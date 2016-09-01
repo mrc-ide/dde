@@ -583,10 +583,15 @@ struct dopri_find_time_pred_data {
   double time;
 };
 
-bool dopri_find_time_pred(const void *x, void *data) {
+bool dopri_find_time_forward(const void *x, void *data) {
   const struct dopri_find_time_pred_data *d =
     (struct dopri_find_time_pred_data *) data;
   return ((double*) x)[d->idx] <= d->time;
+}
+bool dopri_find_time_backward(const void *x, void *data) {
+  const struct dopri_find_time_pred_data *d =
+    (struct dopri_find_time_pred_data *) data;
+  return ((double*) x)[d->idx] >= d->time;
 }
 
 const double* dopri_find_time(dopri_data *obj, double t) {
@@ -605,9 +610,12 @@ const double* dopri_find_time(dopri_data *obj, double t) {
   } else {
     idx0 = 0;
   }
-  const void *h = ring_buffer_search_bisect(obj->history, idx0,
-                                            &dopri_find_time_pred,
-                                            &data);
+  const void *h =
+    ring_buffer_search_bisect(obj->history, idx0,
+                              obj->sign > 0 ?
+                              &dopri_find_time_forward :
+                              &dopri_find_time_backward,
+                              &data);
   if (h == NULL) {
     Rf_error("Cannot find time within buffer");
   }
@@ -620,7 +628,7 @@ const double* dopri_find_time(dopri_data *obj, double t) {
 // going to seem weird and also means that the same function can't be
 // easily used for dde and non dde use).
 double ylag_1(double t, size_t i) {
-  if (t <= dde_global_obj->t0) {
+  if (dde_global_obj->sign * t <= dde_global_obj->sign * dde_global_obj->t0) {
     return dde_global_obj->y0[i];
   } else {
     const double * h = dopri_find_time(dde_global_obj, t);
@@ -630,7 +638,7 @@ double ylag_1(double t, size_t i) {
 }
 
 void ylag_all(double t, double *y) {
-  if (t <= dde_global_obj->t0) {
+  if (dde_global_obj->sign * t <= dde_global_obj->sign * dde_global_obj->t0) {
     memcpy(y, dde_global_obj->y0, dde_global_obj->n * sizeof(double));
   } else {
     const double * h = dopri_find_time(dde_global_obj, t);
@@ -639,7 +647,7 @@ void ylag_all(double t, double *y) {
 }
 
 void ylag_vec(double t, size_t *idx, size_t nidx, double *y) {
-  if (t <= dde_global_obj->t0) {
+  if (dde_global_obj->sign * t <= dde_global_obj->sign * dde_global_obj->t0) {
     for (size_t i = 0; i < nidx; ++i) {
       y[i] = dde_global_obj->y0[idx[i]];
     }
@@ -651,7 +659,7 @@ void ylag_vec(double t, size_t *idx, size_t nidx, double *y) {
 }
 
 void ylag_vec_int(double t, int *idx, size_t nidx, double *y) {
-  if (t <= dde_global_obj->t0) {
+  if (dde_global_obj->sign * t <= dde_global_obj->sign * dde_global_obj->t0) {
     for (size_t i = 0; i < nidx; ++i) {
       y[i] = dde_global_obj->y0[idx[i]];
     }

@@ -167,5 +167,61 @@ test_that("R interface with output", {
   expect_equal(out[!i], y0[1] * exp(p * (tt[!i] - 2.0)), tolerance=1e-7)
 })
 
+## There's a lot of really nasty bits here, so I'll build this test up
+## in pieces.  Eventually we want to show that running a DDE with
+## negative time gives the same result as an equivalent DDE with
+## positive time.
+test_that("delay, negative time", {
+  growth0 <- function(t, y, p) {
+    y * p
+  }
+  output0 <- function(t, y, p) {
+    ylag(t - sign(p[1]) * 2)
+  }
+
+  set.seed(1)
+  tt <- seq(0, 5, length.out=501)
+  r <- runif(2)
+  y0 <- runif(2)
+  ih <- seq_len(length(y0) * 5)
+
+  real_fwd <- t(y0 * exp(outer(-r, -tt)))
+  real_back <- t(y0 * exp(outer(r, tt)))
+  expect_equal(real_fwd, real_back)
+
+  ## First, the simplest case; running with no output
+  res_fwd <- dopri(y0, tt, growth0, r,
+                   n_history = 1000L, return_initial=TRUE,
+                   atol = 1e-8, rtol = 1e-8)
+  res_back <- dopri(y0, -tt, growth0, -r,
+                   n_history = 1000L, return_initial=TRUE,
+                   atol = 1e-8, rtol = 1e-8)
+
+  expect_true(all.equal(t(res_fwd[]), real_fwd, check.attributes=FALSE))
+  expect_true(all.equal(t(res_back[]), real_back, check.attributes=FALSE))
+  expect_identical(attr(res_fwd, "history")[ih, ],
+                   attr(res_back, "history")[ih, ])
+
+  res_fwd <- dopri(y0, tt, growth0, r,
+                   output = output0, n_out = 2L,
+                   n_history = 1000L, return_initial=TRUE,
+                   atol = 1e-8, rtol = 1e-8)
+  res_back <- dopri(y0, -tt, growth0, -r,
+                    output = output0, n_out = 2L,
+                    n_history = 1000L, return_initial=TRUE,
+                    atol = 1e-8, rtol = 1e-8)
+
+  ## After this, the output agrees:
+  real_output <- matrix(rep(y0, length(tt)), length(y0))
+  i <- tt > 2
+  real_output[, i] <- y0 * exp(outer(r, tt[i] - 2))
+
+  out_fwd <- attr(res_fwd, "output")
+  out_back <- attr(res_back, "output")
+
+  expect_true(all.equal(out_fwd, real_output))
+  expect_equal(out_fwd, out_back)
+})
+
 ## Next, try a restart; we'll run a system with some history and save
 ## everything, then modify the system and do a restart.
