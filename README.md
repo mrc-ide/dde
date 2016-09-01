@@ -2,6 +2,8 @@
 
 [![Project Status: WIP - Initial development is in progress, but there has not yet been a stable, usable release suitable for the public.](http://www.repostatus.org/badges/latest/wip.svg)](http://www.repostatus.org/#wip)
 [![Travis-CI Build Status](https://travis-ci.org/richfitz/dde.svg?branch=master)](https://travis-ci.org/richfitz/dde)
+[![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/richfitz/dde?branch=master&svg=true)](https://ci.appveyor.com/project/richfitz/dde)
+[![codecov.io](https://codecov.io/github/richfitz/dde/coverage.svg?branch=master)](https://codecov.io/github/richfitz/dde?branch=master)
 
 An R package that implements the `DOPRI5` solver of [Ernst Hairer](http://www.unige.ch/~hairer/software.html), along with the delay differential equation (DDE) form (originally called `RETARD`).
 
