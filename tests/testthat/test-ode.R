@@ -481,3 +481,27 @@ test_that("time validation", {
   expect_error(run_lorenz_dde(c(0, 2, 1)),
                "Times have inconsistent sign")
 })
+
+test_that("non-real input", {
+  tt <- seq(0, 10, length.out = 101)
+  cmp <- run_lorenz_dde(tt)
+  p <- c(10, 28, 8 / 3)
+  y <- c(10, 1, 1)
+  res <- dopri(y, tt, "lorenz", p, atol = 1e-7, rtol = 1e-7,
+               parms_are_real = FALSE,
+               dllname = "lorenz2")
+  expect_identical(res, cmp)
+})
+
+test_that("externalptr input", {
+  tt <- seq(0, 10, length.out = 101)
+  cmp <- run_lorenz_dde(tt)
+
+  ptr <- .Call("lorenz_init",  c(10, 28, 8 / 3), PACKAGE = "lorenz3")
+  expect_is(ptr, "externalptr")
+  y <- c(10, 1, 1)
+  res <- dopri(y, tt, "lorenz", ptr, atol = 1e-7, rtol = 1e-7,
+               parms_are_real = FALSE,
+               dllname = "lorenz3")
+  expect_identical(res, cmp)
+})
