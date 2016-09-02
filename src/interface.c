@@ -159,20 +159,21 @@ void r_integration_error(dopri_data* obj) {
   case ERR_STEP_SIZE_TOO_SMALL:
     Rf_error("Integration failure: step size too small (at t = %2.5f)", t);
     break;
-  case ERR_STEP_SIZE_VANISHED:
-    Rf_error("Integration failure: step size vanished (at t = %2.5f)", t);
-    break;
-  case ERR_STIFF:
     // TODO: never thrown
-    Rf_error("Integration failure: problem became stiff (at t = %2.5f)", t);
-    break;
-  case ERR_YLAG_ERROR:
+    //case ERR_STEP_SIZE_VANISHED:
+    //Rf_error("Integration failure: step size vanished (at t = %2.5f)", t);
+    //break;
+    //case ERR_STIFF:
     // TODO: never thrown
-    Rf_error("Integration failure: error while evaluating lag (at t = %2.5f)",
-             t);
-    break;
+    //Rf_error("Integration failure: problem became stiff (at t = %2.5f)", t);
+    //break;
+    //case ERR_YLAG_ERROR:
+    // TODO: never thrown
+    //Rf_error("Integration failure: error while evaluating lag (at t = %2.5f)",
+    //         t);
+    //break;
   default:
-    Rf_error("Integration failure: unknown (code %d) -- this is a bug", code);
+    Rf_error("Integration failure: (code %d) [dde bug]", code); // nocov
     break;
   }
 }

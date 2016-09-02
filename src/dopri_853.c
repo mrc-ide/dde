@@ -280,9 +280,8 @@ double dopri853_error(dopri_data *obj) {
     err += square(erri / sk);
   }
   double deno = err + 0.01 * err2;
-  if (deno <= 0.0) {
-    deno = 1.0;
-  }
+  // This is some sort of safety catch; it is never triggered in the tests
+  deno = deno < 0 ? 1.0 : deno;
   return obj->sign * err * sqrt(1.0 / (obj->n * deno));
 }
 
