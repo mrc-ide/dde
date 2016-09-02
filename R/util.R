@@ -10,9 +10,16 @@ assert_logical <- function(x, name=deparse(substitute(x))) {
   }
 }
 
+assert_nonmissing <- function(x, name=deparse(substitute(x))) {
+  if (any(is.na(x))) {
+    stop(sprintf("%s must not be NA", name), call.=FALSE)
+  }
+}
+
 assert_scalar_logical <- function(x, name=deparse(substitute(x))) {
   assert_scalar(x, name)
   assert_logical(x, name)
+  assert_nonmissing(x, name)
 }
 
 assert_character <- function(x, name=deparse(substitute(x))) {
@@ -24,11 +31,13 @@ assert_character <- function(x, name=deparse(substitute(x))) {
 assert_scalar_character <- function(x, name=deparse(substitute(x))) {
   assert_scalar(x, name)
   assert_character(x, name)
+  assert_nonmissing(x, name)
 }
 
 assert_size <- function(x, strict=FALSE, name=deparse(substitute(x))) {
   assert_scalar(x, name)
   assert_integer(x, strict, name)
+  assert_nonmissing(x, name)
   assert_nonnegative(x, name)
 }
 
