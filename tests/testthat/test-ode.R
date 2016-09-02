@@ -59,6 +59,18 @@ test_that("dense output", {
     expect_identical(attr(m5, "history"), attr(m2, "history"))
     attr(m5, "history") <- NULL
     expect_identical(m5, t(m4))
+
+    expect_error(dopri_interpolate(h2, tt - 1),
+                 "Time falls outside of range of known history")
+    expect_error(dopri_interpolate(h2, tt + 1),
+                 "Time falls outside of range of known history")
+
+    expect_error(dopri_interpolate(h2[-1,], tt),
+                 "Corrupt history object")
+    h2 <- h2[-1,]
+    attr(h2, "n") <- 3L
+    expect_error(dopri_interpolate(h2, tt),
+                 "Corrupt history object: incorrect number of rows")
   }
 })
 

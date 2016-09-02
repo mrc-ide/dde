@@ -224,6 +224,10 @@ dopri <- function(y, times, func, parms, ...,
 
   if (n_out > 0L) {
     output <- find_function_address(output, dllname)
+    ## NOTE: The same-typedness of output/func is not really
+    ## necessary, but I think it's simplest to think about if we
+    ## enforce it.  We should be able to put anything into a harness
+    ## either way.
     if (is_r_target) {
       if (!is.function(output)) {
         stop("output must be an R function")
@@ -296,15 +300,23 @@ dopri853 <- function(y, times, func, parms, ...) {
 
 dopri_interpolate <- function(h, t) {
   nd <- attr(h, "n") # number of equations
+  if (is.null(nd)) {
+    stop("Corrupt history object: 'n' is missing")
+  }
   nh <- ncol(h)      # number of history entries
   it <- nrow(h) - 1L # time index
   ih <- nrow(h)      # step size index
   order <- (nrow(h) - 2) / nd # order of integration
+  if (!(order == 5 || order == 8)) {
+    ## This one should really never be triggered but acts as a
+    ## safeguard against real weirdness with subsetting.
+    stop("Corrupt history object: incorrect number of rows")
+  }
 
   tr <- c(h[it, 1L], h[it, nh] + h[ih, nh])
   if (min(t) < tr[[1L]] || max(t) > tr[[2L]]) {
-    stop("Time falls outside of range of known history [%s, %s]",
-         tr[[1L]], tr[[2L]])
+    stop(sprintf("Time falls outside of range of known history [%s, %s]",
+                 tr[[1L]], tr[[2L]]))
   }
 
   idx <- findInterval(t, h[it, ])
@@ -329,7 +341,7 @@ dopri_interpolate <- function(h, t) {
           (h4[i, idx] + theta1 *
            h5[i, idx])))
     }
-  } else if (order == 8) {
+  } else { # order == 8
     h6 <- history[, 6L, ]
     h7 <- history[, 7L, ]
     h8 <- history[, 8L, ]
@@ -344,8 +356,6 @@ dopri_interpolate <- function(h, t) {
           (h4[i, idx] + theta1 *
            tmp)))
     }
-  } else {
-    stop("Corrupt history object")
   }
 
   ret
