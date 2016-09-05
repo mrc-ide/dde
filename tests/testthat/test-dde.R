@@ -129,13 +129,19 @@ test_that("R interface", {
       sigma * I - b * R - delta * R)
   }
 
-  res2 <- dopri(y0, tt, seir, "one", n_history = 1000L, return_history = FALSE)
-  res3 <- dopri(y0, tt, seir, "idx", n_history = 1000L, return_history = FALSE)
-  res4 <- dopri(y0, tt, seir, "all", n_history = 1000L, return_history = FALSE)
+  for (method in dopri_methods()) {
+    res2 <- dopri(y0, tt, seir, "one", n_history = 1000L,
+                  return_history = FALSE, method = method)
+    res3 <- dopri(y0, tt, seir, "idx", n_history = 1000L,
+                  return_history = FALSE, method = method)
+    res4 <- dopri(y0, tt, seir, "all", n_history = 1000L,
+                  return_history = FALSE, method = method)
 
-  expect_equal(res2, res1, tolerance = 1e-14)
-  expect_identical(res3, res2)
-  expect_identical(res4, res2)
+    expect_equal(res2, res1,
+                 tolerance = if (method == "dopri5") 1e-14 else 1e-5)
+    expect_identical(res3, res2)
+    expect_identical(res4, res2)
+  }
 })
 
 test_that("R interface with output", {
