@@ -26,8 +26,8 @@ typedef enum return_code {
   ERR_TOO_MANY_STEPS=-3,
   ERR_STEP_SIZE_TOO_SMALL=-4,
   ERR_STEP_SIZE_VANISHED=-5,
+  ERR_YLAG_FAIL=-6,
   ERR_STIFF=-6,      // TODO: never used
-  ERR_YLAG_ERROR=-7, // TODO: never used!
   NOT_SET=0,
   OK_COMPLETE = 1,
   OK_INTERRUPTED = 2 // TODO: never used!

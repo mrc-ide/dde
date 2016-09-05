@@ -252,5 +252,11 @@ test_that("delay, negative time", {
   expect_equal(out_fwd, out_back)
 })
 
+test_that("failure to fetch history", {
+  tt <- seq(0, 30, length.out=301)
+  expect_error(run_seir_dde(tt, n_history = 2L),
+               "Integration failure: did not find time")
+})
+
 ## Next, try a restart; we'll run a system with some history and save
 ## everything, then modify the system and do a restart.

@@ -242,7 +242,7 @@ void dopri_integrate(dopri_data *obj, double *y,
   // nonzero?  Needs to be set before any calls to target() though.
   dde_global_obj = obj;
 
-  // If requuested, copy initial conditions into the output space
+  // If requested, copy initial conditions into the output space
   if (return_initial) {
     memcpy(y_out, y, obj->n * sizeof(double));
     y_out += obj->n;
@@ -297,6 +297,9 @@ void dopri_integrate(dopri_data *obj, double *y,
     // variables are being calculated so might want to put this back
     // in once the signalling is done.
     dopri_step(obj, h);
+    if (obj->error) {
+      return;
+    }
 
     // Error estimation:
     double err = dopri_error(obj);
@@ -612,7 +615,8 @@ const double* dopri_find_time(dopri_data *obj, double t) {
                               &dopri_find_time_backward,
                               &data);
   if (h == NULL) {
-    Rf_error("Cannot find time within buffer");
+    obj->error = true;
+    obj->code = ERR_YLAG_FAIL;
   }
   return (double*) h;
 }
@@ -627,8 +631,12 @@ double ylag_1(double t, size_t i) {
     return dde_global_obj->y0[i];
   } else {
     const double * h = dopri_find_time(dde_global_obj, t);
-    return dopri_interpolate_1(h, dde_global_obj->method,
-                               dde_global_obj->n, t, i);
+    if (h == NULL) {
+      return NA_REAL;
+    } else {
+      return dopri_interpolate_1(h, dde_global_obj->method,
+                                 dde_global_obj->n, t, i);
+    }
   }
 }
 
@@ -637,7 +645,9 @@ void ylag_all(double t, double *y) {
     memcpy(y, dde_global_obj->y0, dde_global_obj->n * sizeof(double));
   } else {
     const double * h = dopri_find_time(dde_global_obj, t);
-    dopri_interpolate_all(h, dde_global_obj->method, dde_global_obj->n, t, y);
+    if (h != NULL) {
+      dopri_interpolate_all(h, dde_global_obj->method, dde_global_obj->n, t, y);
+    }
   }
 }
 
@@ -648,8 +658,10 @@ void ylag_vec(double t, size_t *idx, size_t nidx, double *y) {
     }
   } else {
     const double * h = dopri_find_time(dde_global_obj, t);
-    dopri_interpolate_idx(h, dde_global_obj->method,
-                          dde_global_obj->n, t, idx, nidx, y);
+    if (h != NULL) {
+      dopri_interpolate_idx(h, dde_global_obj->method,
+                            dde_global_obj->n, t, idx, nidx, y);
+    }
   }
 }
 
@@ -660,8 +672,10 @@ void ylag_vec_int(double t, int *idx, size_t nidx, double *y) {
     }
   } else {
     const double * h = dopri_find_time(dde_global_obj, t);
-    dopri_interpolate_idx_int(h, dde_global_obj->method,
-                              dde_global_obj->n, t, idx, nidx, y);
+    if (h != NULL) {
+      dopri_interpolate_idx_int(h, dde_global_obj->method,
+                                dde_global_obj->n, t, idx, nidx, y);
+    }
   }
 }
 
