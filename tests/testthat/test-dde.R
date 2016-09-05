@@ -267,5 +267,17 @@ test_that("ylag_vec_int", {
   expect_identical(cmp, res)
 })
 
+test_that("Zero lag time", {
+  ## Oops; this is not good; delay is too short
+  growth <- function(t, y, p) {
+    c(y[[1L]], ylag(t, 2L)) * p
+  }
+  tt <- seq(0, 20, length.out=501)
+  p <- 0.1
+  y0 <- c(.1, .1)
+  expect_error(dopri(y0, tt, growth, p, n_history = 1000L),
+               "did not find time in history")
+})
+
 ## Next, try a restart; we'll run a system with some history and save
 ## everything, then modify the system and do a restart.
