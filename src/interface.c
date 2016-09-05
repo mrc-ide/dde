@@ -102,7 +102,6 @@ SEXP r_dopri(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
 
   if (obj->error) {
     r_integration_error(obj); // will error
-    return R_NilValue; // never gets here
   }
 
   if (return_history) {
