@@ -258,5 +258,14 @@ test_that("failure to fetch history", {
                "Integration failure: did not find time")
 })
 
+test_that("ylag_vec_int", {
+  times <- seq(0, 20, length.out = 101)
+  p <- numeric(0)
+  y0 <- c(1e7 - 1, 0, 1, 0)
+  cmp <- dopri(y0, times, "seir", p, n_history = 1000L, dllname = "seir")
+  res <- dopri(y0, times, "seir", p, n_history = 1000L, dllname = "seir_int")
+  expect_identical(cmp, res)
+})
+
 ## Next, try a restart; we'll run a system with some history and save
 ## everything, then modify the system and do a restart.
