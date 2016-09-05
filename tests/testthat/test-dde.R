@@ -262,9 +262,13 @@ test_that("ylag_vec_int", {
   times <- seq(0, 20, length.out = 101)
   p <- numeric(0)
   y0 <- c(1e7 - 1, 0, 1, 0)
-  cmp <- dopri(y0, times, "seir", p, n_history = 1000L, dllname = "seir")
-  res <- dopri(y0, times, "seir", p, n_history = 1000L, dllname = "seir_int")
-  expect_identical(cmp, res)
+  for (method in dopri_methods()) {
+    cmp <- dopri(y0, times, "seir", p, n_history = 1000L, method = method,
+                 dllname = "seir")
+    res <- dopri(y0, times, "seir", p, n_history = 1000L, method = method,
+                 dllname = "seir_int")
+    expect_identical(cmp, res)
+  }
 })
 
 test_that("Zero lag time", {
