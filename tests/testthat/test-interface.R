@@ -88,3 +88,7 @@ test_that("invalid function input", {
   expect_error(dopri(y, times, 1, p),
                "Invalid input for 'fun'")
 })
+
+test_that("don't call ylag improperly", {
+  expect_error(ylag(10), "Can't call this without being in an integration")
+})
