@@ -138,7 +138,7 @@ test_that("R interface", {
                   return_history = FALSE, method = method)
 
     expect_equal(res2, res1,
-                 tolerance = if (method == "dopri5") 1e-14 else 1e-5)
+                 tolerance = if (method == "dopri5") 1e-8 else 1e-5)
     expect_identical(res3, res2)
     expect_identical(res4, res2)
   }
@@ -267,7 +267,7 @@ test_that("ylag_vec_int", {
                  dllname = "seir")
     res <- dopri(y0, times, "seir", p, n_history = 1000L, method = method,
                  dllname = "seir_int")
-    expect_identical(cmp, res)
+    expect_equal(cmp, res, tolerance = 1e-8)
   }
 })
 

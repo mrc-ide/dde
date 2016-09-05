@@ -51,7 +51,7 @@ test_that("dense output", {
     m3 <- dopri_interpolate(h2, tt)
     m4 <- run_lorenz_dde(tt, method = method)
 
-    expect_identical(m3[-1,], t(m4))
+    expect_equal(m3[-1,], t(m4), tolerance=1e-10)
     expect_equal(m3, m1, tolerance=1e-6)
 
     ## Check column output:
@@ -152,12 +152,12 @@ test_that("R interface", {
   tt <- seq(0, 1, length.out = 200)
   res1 <- dopri(y0, tt, "lorenz", p, dllname = "lorenz")
   res2 <- dopri(y0, tt, lorenz, p)
-  expect_identical(res1, res2)
+  expect_equal(res1, res2, tolerance = 1e-10)
 
   res3 <- dopri(y0, tt, "lorenz", p, dllname = "lorenz",
                 n_out = 2L, output = "lorenz_output")
   res4 <- dopri(y0, tt, lorenz, p, n_out = 2L, output = lorenz_output)
-  expect_identical(res3, res4)
+  expect_equal(res3, res4, tolerance = 1e-10)
 })
 
 test_that("critical times", {
