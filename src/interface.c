@@ -172,10 +172,10 @@ void r_integration_error(dopri_data* obj) {
     //         t);
     //break;
   default:
-    Rf_error("Integration failure: (code %d) [dde bug]", code); // nocov
+    Rf_error("Integration failure: (code %d) [dde bug]", code); // #nocov
     break;
   }
-}
+}  // #nocov
 
 SEXP r_ylag(SEXP r_t, SEXP r_idx) {
   size_t n = get_current_problem_size();
