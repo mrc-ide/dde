@@ -11,3 +11,4 @@
 ^\.valgrind_ignore$
 ^src/dde\.so\.dSYM$
 ^appveyor\.yml$
+^tests/testthat/.*\.so\.dSYM$
