@@ -159,10 +159,9 @@ void r_integration_error(dopri_data* obj) {
   case ERR_STEP_SIZE_TOO_SMALL:
     Rf_error("Integration failure: step size too small (at t = %2.5f)", t);
     break;
-    // TODO: never thrown
-    //case ERR_STEP_SIZE_VANISHED:
-    //Rf_error("Integration failure: step size vanished (at t = %2.5f)", t);
-    //break;
+  case ERR_STEP_SIZE_VANISHED:
+    Rf_error("Integration failure: step size vanished (at t = %2.5f)", t);
+    break;
     //case ERR_STIFF:
     // TODO: never thrown
     //Rf_error("Integration failure: problem became stiff (at t = %2.5f)", t);

@@ -150,21 +150,44 @@ test_that("R interface with output", {
   tt <- seq(0, 20, length.out=501)
   p <- 0.1
   y0 <- c(.1, .1)
-  res <- dopri(y0, tt, growth, p,
-               n_out = 1, output = output,
-               n_history = 1000L, return_initial=TRUE,
-               atol = 1e-8, rtol = 1e-8, tcrit = 2)
+  method <- dopri_methods()[[2]]
+  for (method in dopri_methods()) {
+    if (method == "dopri5") {
+      res <- dopri(y0, tt, growth, p,
+                   n_out = 1, output = output,
+                   n_history = 1000L, return_initial = TRUE,
+                   atol = 1e-8, rtol = 1e-8,
+                   tcrit = 2, method = method)
+    } else {
+      expect_error(dopri(y0, tt, growth, p,
+                         n_out = 1, output = output,
+                         n_history = 1000L, return_initial = TRUE,
+                         tcrit = 2, method = method),
+                   "step size vanished")
+      ## The fix here is to include a number of multiples of the delay
+      ## time that causes the discontinutites in the solution and all
+      ## the bits that the integration relies on; this should be dealt
+      ## with using some sort of discontinuty pruning approach I think.
+      tcrit <- seq(2, 20, by=2)
+      res <- dopri(y0, tt, growth, p,
+                   n_out = 1, output = output,
+                   n_history = 1000L, return_initial = TRUE,
+                   atol = 1e-8, rtol = 1e-8,
+                   tcrit = tcrit, method = method)
+    }
 
-  i <- tt <= 2.0
-  ## The first entry is easy:
-  expect_equal(res[1, ], y0[1] * exp(p * tt), tolerance=1e-7)
-  ## The second entry is in two parts, and only the first part is easy
-  ## (for me) to compute:
-  expect_equal(res[2, i], y0[2] + y0[2] * p * tt[i], tolerance=1e-7)
-  ## The output:
-  out <- drop(attr(res, "output"))
-  expect_equal(out[i], rep(y0[2], sum(i)))
-  expect_equal(out[!i], y0[1] * exp(p * (tt[!i] - 2.0)), tolerance=1e-7)
+    tol <- 1e-7
+    i <- tt <= 2.0
+    ## The first entry is easy:
+    expect_equal(res[1, ], y0[1] * exp(p * tt), tolerance=tol)
+    ## The second entry is in two parts, and only the first part is easy
+    ## (for me) to compute:
+    expect_equal(res[2, i], y0[2] + y0[2] * p * tt[i], tolerance=tol)
+    ## The output:
+    out <- drop(attr(res, "output"))
+    expect_equal(out[i], rep(y0[2], sum(i)))
+    expect_equal(out[!i], y0[1] * exp(p * (tt[!i] - 2.0)), tolerance=tol)
+  }
 })
 
 ## There's a lot of really nasty bits here, so I'll build this test up
