@@ -498,7 +498,7 @@ void dopri_interpolate_all(const double *history, dopri_method method,
 }
 
 void dopri_interpolate_idx(const double *history, dopri_method method,
-                           size_t n, double t, size_t * idx, size_t nidx,
+                           size_t n, double t, const size_t * idx, size_t nidx,
                            double *y) {
   const size_t idx_t = (method == DOPRI_5 ? 5 : 8) * n;
   const double t_old = history[idx_t], h = history[idx_t + 1];
@@ -525,7 +525,7 @@ void dopri_interpolate_idx(const double *history, dopri_method method,
 // cast the plain data arguments.  This affects only this function as
 // it's the only one that takes size_t*
 void dopri_interpolate_idx_int(const double *history, dopri_method method,
-                               size_t n, double t, int *idx, size_t nidx,
+                               size_t n, double t, const int *idx, size_t nidx,
                                double *y) {
   const size_t idx_t = (method == DOPRI_5 ? 5 : 8) * n;
   const double t_old = history[idx_t], h = history[idx_t + 1];
@@ -649,7 +649,7 @@ void ylag_all(double t, double *y) {
   }
 }
 
-void ylag_vec(double t, size_t *idx, size_t nidx, double *y) {
+void ylag_vec(double t, const size_t *idx, size_t nidx, double *y) {
   if (dde_global_obj->sign * t <= dde_global_obj->sign * dde_global_obj->t0) {
     for (size_t i = 0; i < nidx; ++i) {
       y[i] = dde_global_obj->y0[idx[i]];
@@ -663,7 +663,7 @@ void ylag_vec(double t, size_t *idx, size_t nidx, double *y) {
   }
 }
 
-void ylag_vec_int(double t, int *idx, size_t nidx, double *y) {
+void ylag_vec_int(double t, const int *idx, size_t nidx, double *y) {
   if (dde_global_obj->sign * t <= dde_global_obj->sign * dde_global_obj->t0) {
     for (size_t i = 0; i < nidx; ++i) {
       y[i] = dde_global_obj->y0[idx[i]];

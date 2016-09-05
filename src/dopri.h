@@ -165,10 +165,10 @@ double dopri_interpolate_1(const double *history, dopri_method method,
 void dopri_interpolate_all(const double *history, dopri_method method,
                            size_t n, double t, double *y);
 void dopri_interpolate_idx(const double *history, dopri_method method,
-                           size_t n, double t, size_t * idx, size_t nidx,
+                           size_t n, double t, const size_t * idx, size_t nidx,
                            double *y);
 void dopri_interpolate_idx_int(const double *history, dopri_method method,
-                               size_t n, double t, int *idx, size_t nidx,
+                               size_t n, double t, const int *idx, size_t nidx,
                                double *y);
 
 // Helper
