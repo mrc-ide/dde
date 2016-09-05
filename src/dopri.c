@@ -195,7 +195,7 @@ void dopri_step(dopri_data *obj, double h) {
 }
 
 double dopri_error(dopri_data *obj) {
-  double ret;
+  double ret = 0; // avoids a compiler warning
   switch (obj->method) {
   case DOPRI_5:
     ret = dopri5_error(obj);
