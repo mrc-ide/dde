@@ -600,13 +600,17 @@ const double* dopri_find_time(dopri_data *obj, double t) {
   // without having to have a really long search time.
   const size_t n = ring_buffer_used(obj->history, 0);
   size_t idx0;
-  if (n > 0) {
+  if (n == 0) {
+    // This line here should never be hit because we never pass off to
+    // the ring buffer; this is definitely a bug, and bad things willl
+    // happen.
+    REprintf("Using ring buffer while empty [dde bug]"); // #nocov
+    idx0 = 0; // #nocov
+  } else {
     const double
       t0 = ((double*) ring_buffer_tail(obj->history))[idx_t],
       t1 = ((double*) ring_buffer_tail_offset(obj->history, n - 1))[idx_t];
     idx0 = (t1 - t0) / (n - 1);
-  } else {
-    idx0 = 0;
   }
   const void *h =
     ring_buffer_search_bisect(obj->history, idx0,
