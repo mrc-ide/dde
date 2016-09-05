@@ -20,7 +20,7 @@ dopri_data* dopri_data_alloc(deriv_func* target, size_t n,
 
   ret->n_times = 0;
   ret->times = NULL;
-  // ret->times_idx -- set in reset
+  ret->tcrit = NULL;
 
   // tcrit variables are set in reset
 
@@ -76,6 +76,9 @@ dopri_data* dopri_data_alloc(deriv_func* target, size_t n,
 
 // We'll need a different reset when we're providing history, because
 // then we won't end up resetting t0/y0 the same way.
+//
+// NOTE: By using realloc, this is designed to be able to be called
+// multiple times from C without leaking.
 void dopri_data_reset(dopri_data *obj, double *y,
                       double *times, size_t n_times,
                       double *tcrit, size_t n_tcrit) {
@@ -98,11 +101,9 @@ void dopri_data_reset(dopri_data *obj, double *y,
   memcpy(obj->y, y, obj->n * sizeof(double));
   obj->t0 = times[0];
   obj->t = times[0];
-  if (obj->n_times != n_times) {
-    R_Free(obj->times); // consider realloc?
-    obj->times = R_Calloc(n_times, double);
-    obj->n_times = n_times;
-  }
+
+  obj->n_times = n_times;
+  obj->times = (double*) R_Realloc(obj->times, n_times, double);
   memcpy(obj->times, times, n_times * sizeof(double));
   obj->times_idx = 1; // skipping the first time!
 
@@ -125,16 +126,10 @@ void dopri_data_reset(dopri_data *obj, double *y,
     }
   }
 
-  if (obj->n_tcrit != n_tcrit) {
-    R_Free(obj->tcrit); // consider realloc?
-    if (n_tcrit > 0) {
-      obj->tcrit = R_Calloc(n_tcrit, double);
-    } else {
-      obj->tcrit = NULL;
-    }
-    obj->n_tcrit = n_tcrit;
-  }
+  obj->n_tcrit = n_tcrit;
+  obj->tcrit = (double*) R_Realloc(obj->tcrit, n_tcrit, double);
   memcpy(obj->tcrit, tcrit, n_tcrit * sizeof(double));
+
   obj->tcrit_idx = 0;
   if (n_tcrit > 0) {
     while (obj->sign * tcrit[obj->tcrit_idx] < obj->sign * obj->t0 &&
