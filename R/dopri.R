@@ -11,7 +11,7 @@
 ##' @param func Function to integrate.  Can be an R function of
 ##'   arguments \code{t, y, parms}, returning a numeric vector, or it
 ##'   can be the name or address of a C function with arguments
-##'   \code{size_t n, double t, double *y, double *dydt, void *data}.
+##'   \code{size_t n, double t, const double *y, double *dydt, void *data}.
 ##'
 ##' @param parms Parameters to pass through to the derivatives.
 ##'
@@ -137,7 +137,6 @@
 ##'   deSolve.  This might change in future.
 ##'
 ##' @export
-##' @useDynLib dde, .registration = TRUE
 dopri <- function(y, times, func, parms, ...,
                   n_out = 0L, output = NULL,
                   rtol = 1e-6, atol = 1e-6,

@@ -28,7 +28,7 @@ back to get the result.}
 \item{func}{Function to integrate.  Can be an R function of
 arguments \code{t, y, parms}, returning a numeric vector, or it
 can be the name or address of a C function with arguments
-\code{size_t n, double t, double *y, double *dydt, void *data}.}
+\code{size_t n, double t, const double *y, double *dydt, void *data}.}
 
 \item{parms}{Parameters to pass through to the derivatives.}
 

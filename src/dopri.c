@@ -172,8 +172,8 @@ void dopri_data_free(dopri_data *obj) {
 // of achiving this.  Might change later though.
 static dopri_data *dde_global_obj;
 
-// Used to query the problem size safely from the interface.c file
-size_t get_current_problem_size() {
+// Used to query the problem size safely from the r_dopri.c file
+size_t get_current_problem_size_dde() {
   return dde_global_obj == NULL ? 0 : dde_global_obj->n;
 }
 

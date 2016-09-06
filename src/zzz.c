@@ -1,5 +1,5 @@
 #include <dde/dde.h>
-#include "interface.h"
+#include "r_dopri.h"
 
 #include <R.h>
 #include <Rinternals.h>

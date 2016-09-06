@@ -1,3 +1,4 @@
+#include "r_dopri.h"
 #include "dopri.h"
 #include <R.h>
 #include <Rinternals.h>
@@ -176,7 +177,7 @@ void r_integration_error(dopri_data* obj) {
 }  // #nocov
 
 SEXP r_ylag(SEXP r_t, SEXP r_idx) {
-  size_t n = get_current_problem_size();
+  size_t n = get_current_problem_size_dde();
   if (n == 0) {
     Rf_error("Can't call this without being in an integration");
   }

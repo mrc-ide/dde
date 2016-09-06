@@ -172,7 +172,7 @@ void dopri_interpolate_idx_int(const double *history, dopri_method method,
                                double *y);
 
 // Helper
-size_t get_current_problem_size();
+size_t get_current_problem_size_dde();
 double square(double x);
 
 #endif
