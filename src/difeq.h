@@ -50,7 +50,7 @@ typedef struct {
 
   // History (if needed)
   //
-  // laid out as {idx, (t), y, out}
+  // laid out as {idx, t, y, out}
   size_t history_n; // number of elements
   size_t history_len; // element length
   ring_buffer *history;

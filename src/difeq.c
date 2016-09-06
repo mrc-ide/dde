@@ -22,15 +22,9 @@ difeq_data* difeq_data_alloc(difeq_target* target,
   // State vectors
   ret->y0 = R_Calloc(n, double); // initial
 
-  // TODO: are sizeof(double) and sizeof(size_t) the same - probably
-  // not in general.  All we really need is sizeof(size_t) <=
-  // sizeof(double) though, which is probably reasonable.
   ret->history_n = n_history;
   if (n_history > 0) {
-    if (sizeof(size_t) > sizeof(double)) {
-      Rf_error("difeq bug"); // should never trigger
-    }
-    ret->history_len = 2 + n + n_out;
+    ret->history_len = 2 + n;
     ret->history =
       ring_buffer_create(n_history, ret->history_len * sizeof(double));
     ret->history_idx_step = 0;
@@ -117,7 +111,10 @@ void difeq_run(difeq_data *obj, double *y,
   }
 
   double *y_next, *out_next;
+  double *write_y = y_out, *write_out = out;
 
+  bool has_output = obj->n_out > 0;
+  bool store_next_output = false;
   bool store_y_in_history = obj->history_len > 0;
 
   // Possibly only set this if the number of history variables is
@@ -130,20 +127,19 @@ void difeq_run(difeq_data *obj, double *y,
     fill_na(h + obj->history_idx_out, obj->n_out);
     h = ring_buffer_head_advance(obj->history);
     y_next   = h + obj->history_idx_y;
-    out_next = h + obj->history_idx_out;
+    out_next = y_next + obj->n; // cheeky
   }
 
   // If requested, copy initial conditions into the output space
   if (return_initial) {
-    memcpy(y_out, y, obj->n * sizeof(double));
-    fill_na(out, obj->n_out);
-    y_out += obj->n;
-    out += obj->n_out;
+    memcpy(write_y, y, obj->n * sizeof(double));
+    store_next_output = true;
+    write_y += obj->n;
   }
 
   if (!store_y_in_history) {
-    y_next = y_out;
-    out_next = out;
+    y_next = write_y;
+    out_next = write_out;
   }
 
   while (true) {
@@ -156,24 +152,37 @@ void difeq_run(difeq_data *obj, double *y,
     //
     // Otherwise we'll use the final output array as a place to store
     // things.
+    //
+    // There is a *huge* bit of fencepost/off by one drama with
+    // output; does output computed against variables y(i) go with
+    // y(i) or with y(i + 1).  Hopefully this does not need to be
+    // configurable because it's a real headache.
     obj->target(obj->n, obj->step, obj->t, y, y_next, obj->n_out, out_next,
                 obj->data);
     obj->step++;
     obj->t += obj->dt;
     y = y_next;
 
-    if (obj->step == obj->steps[obj->steps_idx]) {
+    if (has_output && store_next_output) {
       if (store_y_in_history) {
-        memcpy(y_out, y_next,   obj->n     * sizeof(double));
-        memcpy(out,   out_next, obj->n_out * sizeof(double));
-        y_next   = ((double*) obj->history->head) + obj->history_idx_y;
-        out_next = ((double*) obj->history->head) + obj->history_idx_out;
+        memcpy(write_out, out_next, obj->n_out * sizeof(double));
+        out_next = y_next + obj->n;
       } else {
-        y_next += obj->n;
         out_next += obj->n_out;
       }
-      y_out += obj->n;
-      out += obj->n_out;
+      write_out += obj->n_out;
+      store_next_output = false;
+    }
+
+    if (obj->step == obj->steps[obj->steps_idx]) {
+      if (store_y_in_history) {
+        memcpy(write_y, y_next, obj->n * sizeof(double));
+        y_next = ((double*) obj->history->head) + obj->history_idx_y;
+      } else {
+        y_next += obj->n;
+      }
+      write_y += obj->n;
+      store_next_output = true;
       obj->steps_idx++;
     }
 
@@ -181,12 +190,19 @@ void difeq_run(difeq_data *obj, double *y,
       difeq_store_time(obj);
       double* h = (double*) ring_buffer_head_advance(obj->history);
       y_next = h + obj->history_idx_y;
-      out_next = h + obj->history_idx_out;
     }
 
-    if (obj->step == obj->step1) {
+    if (obj->step == obj->step1) { // or obj->error
       break;
     }
+  }
+
+  if (store_next_output) { // and not obj->error
+    // NOTE: Destructive to y0, which is not pretty.  It might be
+    // nicer to have some scratch space or even to allocate a little
+    // memory here.
+    obj->target(obj->n, obj->step, obj->t, y, obj->y0, obj->n_out, write_out,
+                obj->data);
   }
 
   difeq_global_obj = NULL;
