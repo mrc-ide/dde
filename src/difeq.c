@@ -56,9 +56,9 @@ void difeq_data_reset(difeq_data *obj, double *y,
   obj->code = NOT_SET;
   memcpy(obj->y0, y, obj->n * sizeof(double));
 
-  obj->i0 = steps[0];
-  obj->i  = steps[0];
-  obj->i1 = steps[n_steps - 1];
+  obj->step0 = steps[0];
+  obj->step  = steps[0];
+  obj->step1 = steps[n_steps - 1];
 
   obj->t0 = t0;
   obj->dt = dt;
@@ -156,13 +156,13 @@ void difeq_run(difeq_data *obj, double *y,
     //
     // Otherwise we'll use the final output array as a place to store
     // things.
-    obj->target(obj->n, obj->i, obj->t, y, y_next, obj->n_out, out_next,
+    obj->target(obj->n, obj->step, obj->t, y, y_next, obj->n_out, out_next,
                 obj->data);
-    obj->i++;
+    obj->step++;
     obj->t += obj->dt;
     y = y_next;
 
-    if (obj->i == obj->steps[obj->steps_idx]) {
+    if (obj->step == obj->steps[obj->steps_idx]) {
       if (store_y_in_history) {
         memcpy(y_out, y_next,   obj->n     * sizeof(double));
         memcpy(out,   out_next, obj->n_out * sizeof(double));
@@ -184,7 +184,7 @@ void difeq_run(difeq_data *obj, double *y,
       out_next = h + obj->history_idx_out;
     }
 
-    if (obj->i == obj->i1) {
+    if (obj->step == obj->step1) {
       break;
     }
   }
@@ -194,7 +194,7 @@ void difeq_run(difeq_data *obj, double *y,
 
 // These bits are all nice and don't use any globals
 const double* difeq_find_step(difeq_data *obj, size_t step) {
-  int offset = obj->i < step;
+  int offset = obj->step < step;
   const void *h = NULL;
   if (obj->history != NULL && offset >= 0) {
     h = ring_buffer_head_offset(obj->history, (size_t) offset);
@@ -207,7 +207,7 @@ const double* difeq_find_step(difeq_data *obj, size_t step) {
 }
 
 double yprev_1(size_t step, size_t i) {
-  if (step <= difeq_global_obj->i0) {
+  if (step <= difeq_global_obj->step0) {
     return difeq_global_obj->y0[i];
   } else {
     const double * h = difeq_find_step(difeq_global_obj, step);
@@ -220,7 +220,7 @@ double yprev_1(size_t step, size_t i) {
 }
 
 void yprev_all(size_t step, double *y) {
-  if (step <= difeq_global_obj->i0) {
+  if (step <= difeq_global_obj->step0) {
     memcpy(y, difeq_global_obj->y0, difeq_global_obj->n * sizeof(double));
   } else {
     const double * h = difeq_find_step(difeq_global_obj, step);
@@ -231,7 +231,7 @@ void yprev_all(size_t step, double *y) {
 }
 
 void yprev_vec(size_t step, const size_t *idx, size_t nidx, double *y) {
-  if (step <= difeq_global_obj->i0) {
+  if (step <= difeq_global_obj->step0) {
     for (size_t i = 0; i < nidx; ++i) {
       y[i] = difeq_global_obj->y0[idx[i]];
     }
@@ -246,7 +246,7 @@ void yprev_vec(size_t step, const size_t *idx, size_t nidx, double *y) {
 }
 
 void yprev_vec_int(size_t step, const int *idx, size_t nidx, double *y) {
-  if (step <= difeq_global_obj->i0) {
+  if (step <= difeq_global_obj->step0) {
     for (size_t i = 0; i < nidx; ++i) {
       y[i] = difeq_global_obj->y0[idx[i]];
     }
@@ -263,7 +263,7 @@ void yprev_vec_int(size_t step, const int *idx, size_t nidx, double *y) {
 // Utility
 void difeq_store_time(difeq_data *obj) {
   double *h = (double*) obj->history->head;
-  h[obj->history_idx_step] = obj->i;
+  h[obj->history_idx_step] = obj->step;
   h[obj->history_idx_time] = obj->t;
 }
 

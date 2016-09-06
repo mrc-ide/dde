@@ -33,9 +33,9 @@ typedef struct {
   size_t n;     // number of equations
   size_t n_out; // number of output variables (possibly zero)
 
-  size_t i0; // initial step number (always zero?)
-  size_t i;  // current step number
-  size_t i1; // final step number
+  size_t step0; // initial step number (always zero?)
+  size_t step;  // current step number
+  size_t step1; // final step number
 
   double t0;
   double dt;
