@@ -1,5 +1,6 @@
 #include <dde/dde.h>
 #include "r_dopri.h"
+#include "r_difeq.h"
 
 #include <R.h>
 #include <Rinternals.h>
@@ -8,6 +9,9 @@
 static const R_CallMethodDef call_methods[] = {
   {"Cdopri",  (DL_FUNC) &r_dopri,  19},
   {"Cylag",   (DL_FUNC) &r_ylag,    2},
+
+  {"Cdifeq",  (DL_FUNC) &r_difeq,  11},
+
   {NULL,      NULL,                 0}
 };
 
