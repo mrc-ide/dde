@@ -73,6 +73,14 @@
 ##'   Alternatively, use the functions \code{dopri5} or
 ##'   \code{dopri853} which simply sets this argument.
 ##'
+##' @param stiff_check How often to check that the problem has become
+##'   stiff.  If zero, then the problem is never checked, and if
+##'   positive then the problem is checked every \code{stiff_check}
+##'   accepted steps.  The actual check is based off the algorithm in
+##'   Hairer's implementation of the solvers and may be overly strict,
+##'   especially for delay equations with the 853 method (in my
+##'   limited experience with it).
+##'
 ##' @param n_history Number of history points to retain.  This needs
 ##'   to be greater than zero for delay differential equations to
 ##'   work.  Alternatively, this may be greater than zero to return
@@ -162,6 +170,7 @@ dopri <- function(y, times, func, parms, ...,
                   step_size_initial = 0, step_max_n = 100000L,
                   tcrit = NULL,
                   method = "dopri5",
+                  stiff_check = 0,
                   n_history = 0, return_history = n_history > 0, dllname = "",
                   parms_are_real = TRUE,
                   ynames = TRUE, outnames = NULL,
@@ -212,6 +221,7 @@ dopri <- function(y, times, func, parms, ...,
   assert_scalar_logical(return_time)
   assert_scalar_logical(return_output_with_y)
   assert_scalar_logical(restartable)
+  assert_size(stiff_check)
 
   ynames <- check_ynames(y, ynames, deSolve_compatible)
 
@@ -248,7 +258,7 @@ dopri <- function(y, times, func, parms, ...,
                step_size_min, step_size_max,
                step_size_initial, as.integer(step_max_n),
                ## Other:
-               tcrit, use_853,
+               tcrit, use_853, as.integer(stiff_check),
                ## Return information:
                as.integer(n_history), return_history,
                return_initial, return_statistics, restartable)

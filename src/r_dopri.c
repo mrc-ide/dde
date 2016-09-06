@@ -26,6 +26,7 @@ SEXP r_dopri(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
              // Other:
              SEXP r_tcrit,
              SEXP r_use_853,
+             SEXP r_stiff_check,
              // Return information:
              SEXP r_n_history, SEXP r_return_history,
              SEXP r_return_initial, SEXP r_return_statistics,
@@ -97,6 +98,8 @@ SEXP r_dopri(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
   obj->step_size_max = fmin(fabs(REAL(r_step_size_max)[0]), DBL_MAX);
   obj->step_size_initial = REAL(r_step_size_initial)[0];
   obj->step_max_n = INTEGER(r_step_max_n)[0];
+
+  obj->stiff_check = INTEGER(r_stiff_check)[0];
 
   SEXP r_y = PROTECT(allocMatrix(REALSXP, n, nt));
 
@@ -204,10 +207,9 @@ void r_dopri_error(dopri_data* obj) {
       Rf_error("Integration failure: did not find time in history (at t = %2.5f)", t);
     }
     break;
-    //case ERR_STIFF:
-    // TODO: never thrown
-    //Rf_error("Integration failure: problem became stiff (at t = %2.5f)", t);
-    //break;
+  case ERR_STIFF:
+    Rf_error("Integration failure: problem became stiff (at t = %2.5f)", t);
+    break;
   default:
     Rf_error("Integration failure: (code %d) [dde bug]", code); // #nocov
     break;

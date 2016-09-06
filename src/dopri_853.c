@@ -382,3 +382,17 @@ double dopri853_interpolate(size_t n, double theta, double theta1,
       (history[3 * n] + theta1 *
        tmp)));
 }
+
+bool dopri853_test_stiff(dopri_data *obj, double h) {
+  double
+    *k3 = obj->k[2],
+    *k4 = obj->k[3],
+    *k5 = obj->k[4];
+  double *y1 = obj->y1;
+  double stnum = 0, stden = 0;
+  for (size_t i = 0; i < obj->n; ++i) {
+    stnum += square(k4[i] - k3[i]);
+    stden += square(k5[i] - y1[i]);
+  }
+  return stden > 0 && fabs(h) * sqrt(stnum / stden) > 6.1;
+}

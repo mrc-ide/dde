@@ -27,7 +27,7 @@ typedef enum return_code {
   ERR_STEP_SIZE_TOO_SMALL=-4,
   ERR_STEP_SIZE_VANISHED=-5,
   ERR_YLAG_FAIL=-6,
-  ERR_STIFF=-6,      // TODO: never used
+  ERR_STIFF=-7,
   NOT_SET=0,
   OK_COMPLETE = 1,
   OK_INTERRUPTED = 2 // TODO: never used!
@@ -135,6 +135,11 @@ typedef struct {
   size_t n_step;
   size_t n_accept;
   size_t n_reject;
+
+  // Stiffness detection
+  size_t stiff_check;
+  size_t stiff_n_stiff;
+  size_t stiff_n_nonstiff;
 } dopri_data;
 
 dopri_data* dopri_data_alloc(deriv_func* target, size_t n,
@@ -156,6 +161,7 @@ void dopri_integrate(dopri_data *obj, const double *y,
 void dopri_step(dopri_data *obj, double h);
 double dopri_error(dopri_data *obj);
 void dopri_save_history(dopri_data *obj, double h);
+bool dopri_test_stiff(dopri_data *obj, double h);
 
 double dopri_h_new(dopri_data *obj, double fac_old, double h, double err);
 double dopri_h_init(dopri_data *obj);

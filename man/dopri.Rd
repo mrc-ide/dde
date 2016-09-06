@@ -11,10 +11,11 @@
 dopri(y, times, func, parms, ..., n_out = 0L, output = NULL, rtol = 1e-06,
   atol = 1e-06, step_size_min = 0, step_size_max = Inf,
   step_size_initial = 0, step_max_n = 100000L, tcrit = NULL,
-  method = "dopri5", n_history = 0, return_history = n_history > 0,
-  dllname = "", parms_are_real = TRUE, ynames = TRUE, outnames = NULL,
-  by_column = FALSE, return_initial = FALSE, return_statistics = FALSE,
-  return_time = FALSE, return_output_with_y = FALSE, restartable = FALSE,
+  method = "dopri5", stiff_check = 0, n_history = 0,
+  return_history = n_history > 0, dllname = "", parms_are_real = TRUE,
+  ynames = TRUE, outnames = NULL, by_column = FALSE,
+  return_initial = FALSE, return_statistics = FALSE, return_time = FALSE,
+  return_output_with_y = FALSE, restartable = FALSE,
   deSolve_compatible = FALSE)
 
 dopri5(y, times, func, parms, ...)
@@ -99,6 +100,14 @@ order dense output) and \code{"dopri853"} (8th order method with
 7th order output and embedded 5th and 3rd order schemes).
 Alternatively, use the functions \code{dopri5} or
 \code{dopri853} which simply sets this argument.}
+
+\item{stiff_check}{How often to check that the problem has become
+stiff.  If zero, then the problem is never checked, and if
+positive then the problem is checked every \code{stiff_check}
+accepted steps.  The actual check is based off the algorithm in
+Hairer's implementation of the solvers and may be overly strict,
+especially for delay equations with the 853 method (in my
+limited experience with it).}
 
 \item{n_history}{Number of history points to retain.  This needs
 to be greater than zero for delay differential equations to

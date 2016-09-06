@@ -71,6 +71,9 @@ dopri_data* dopri_data_alloc(deriv_func* target, size_t n,
   ret->step_max_n = 100000;    // from dopri5.f:212
   ret->step_factor_safe = 0.9; // from dopri5.f:265
 
+  // How often to check for stiffness?
+  ret->stiff_check = 0;
+
   return ret;
 }
 
@@ -187,6 +190,13 @@ void dopri_data_reset(dopri_data *obj, const double *y,
   obj->n_step = 0;
   obj->n_accept = 0;
   obj->n_reject = 0;
+
+  if (obj->stiff_check == 0) {
+    obj->stiff_check = SIZE_MAX;
+  }
+
+  obj->stiff_n_stiff = 0;
+  obj->stiff_n_nonstiff = 0;
 }
 
 void dopri_data_free(dopri_data *obj) {
@@ -351,7 +361,17 @@ void dopri_integrate(dopri_data *obj, const double *y,
       // Step is accepted :)
       fac_old = fmax(err, 1e-4);
       obj->n_accept++;
-      // TODO: Stiffness detection, once done.
+      if (obj->method == DOPRI_853) {
+        double *k4 = obj->k[3], *k5 = obj->k[4];
+        obj->target(obj->n, obj->t, k5, k4, obj->data);
+        obj->n_eval++;
+      }
+      if (dopri_test_stiff(obj, h)) {
+        obj->error = true;
+        obj->code = ERR_STIFF;
+        return;
+      }
+
       dopri_save_history(obj, h);
 
       // TODO: it's quite possible that we can swap the pointers here
@@ -588,6 +608,33 @@ void dopri_interpolate_idx_int(const double *history, dopri_method method,
     }
     break;
   }
+}
+
+bool dopri_test_stiff(dopri_data *obj, double h) {
+  bool ret = false;
+  if (obj->stiff_n_stiff > 0 || obj->n_accept % obj->stiff_check == 0) {
+    bool stiff = false;
+    switch (obj->method) {
+    case DOPRI_5:
+      stiff = dopri5_test_stiff(obj, h);
+      break;
+    case DOPRI_853:
+      stiff = dopri853_test_stiff(obj, h);
+      break;
+    }
+
+    if (stiff) {
+      obj->stiff_n_nonstiff = 0;
+      if (obj->stiff_n_stiff++ >= 15) {
+        ret = true;
+      }
+    } else if (obj->stiff_n_nonstiff > 0) {
+      if (obj->stiff_n_nonstiff++ >= 6) {
+        obj->stiff_n_stiff = 0;
+      }
+    }
+  }
+  return ret;
 }
 
 // history searching:
