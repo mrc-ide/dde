@@ -21,4 +21,10 @@ test_that("assertions work", {
 
   expect_error(match_value("a", c("b", "c")),
                "must be one of {b, c}", fixed=TRUE)
+
+  expect_error(assert_numeric("a"), "must be numeric")
+  expect_error(assert_numeric(TRUE), "must be numeric")
+  expect_error(assert_scalar_numeric(NA_real_), "must not be NA")
+  expect_error(assert_scalar_numeric(c(1, 2)), "must be a scalar")
+  expect_silent(assert_numeric(1L))
 })
