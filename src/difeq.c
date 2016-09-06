@@ -1,5 +1,6 @@
 #include "difeq.h"
 #include <R.h>
+#include <stddef.h>
 
 // internal functions:
 void difeq_store_time(difeq_data *obj);
@@ -191,6 +192,75 @@ void difeq_run(difeq_data *obj, double *y,
   difeq_global_obj = NULL;
 }
 
+// These bits are all nice and don't use any globals
+const double* difeq_find_step(difeq_data *obj, size_t step) {
+  int offset = obj->i < step;
+  const void *h = NULL;
+  if (obj->history != NULL && offset >= 0) {
+    h = ring_buffer_head_offset(obj->history, (size_t) offset);
+  }
+  if (h == NULL) {
+    obj->error = true;
+    obj->code = ERR_YLAG_FAIL;
+  }
+  return (double*) h;
+}
+
+double yprev_1(size_t step, size_t i) {
+  if (step <= difeq_global_obj->i0) {
+    return difeq_global_obj->y0[i];
+  } else {
+    const double * h = difeq_find_step(difeq_global_obj, step);
+    if (h == NULL) {
+      return NA_REAL;
+    } else {
+      return h[i];
+    }
+  }
+}
+
+void yprev_all(size_t step, double *y) {
+  if (step <= difeq_global_obj->i0) {
+    memcpy(y, difeq_global_obj->y0, difeq_global_obj->n * sizeof(double));
+  } else {
+    const double * h = difeq_find_step(difeq_global_obj, step);
+    if (h != NULL) {
+      memcpy(y, h, difeq_global_obj->n * sizeof(double));
+    }
+  }
+}
+
+void yprev_vec(size_t step, const size_t *idx, size_t nidx, double *y) {
+  if (step <= difeq_global_obj->i0) {
+    for (size_t i = 0; i < nidx; ++i) {
+      y[i] = difeq_global_obj->y0[idx[i]];
+    }
+  } else {
+    const double * h = difeq_find_step(difeq_global_obj, step);
+    if (h != NULL) {
+      for (size_t i = 0; i < nidx; ++i) {
+        y[i] = h[idx[i]];
+      }
+    }
+  }
+}
+
+void yprev_vec_int(size_t step, const int *idx, size_t nidx, double *y) {
+  if (step <= difeq_global_obj->i0) {
+    for (size_t i = 0; i < nidx; ++i) {
+      y[i] = difeq_global_obj->y0[idx[i]];
+    }
+  } else {
+    const double * h = difeq_find_step(difeq_global_obj, step);
+    if (h != NULL) {
+      for (size_t i = 0; i < nidx; ++i) {
+        y[i] = h[idx[i]];
+      }
+    }
+  }
+}
+
+// Utility
 void difeq_store_time(difeq_data *obj) {
   double *h = (double*) obj->history->head;
   h[obj->history_idx_step] = obj->i;

@@ -1,7 +1,7 @@
 #ifndef _DIFEQ_H_
 #define _DIFEQ_H_
 
-// #include <difeq/difeq.h>
+#include <dde/dde.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <ring/ring.h>

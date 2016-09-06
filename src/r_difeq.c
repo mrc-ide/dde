@@ -80,6 +80,34 @@ SEXP r_difeq(SEXP r_y_initial, SEXP r_steps, SEXP r_target, SEXP r_data,
   return r_y;
 }
 
+SEXP r_yprev(SEXP r_t, SEXP r_idx) {
+  size_t n = get_current_problem_size_difeq();
+  if (n == 0) {
+    Rf_error("Can't call this without being in an integration");
+  }
+  size_t step = INTEGER(r_t)[0];
+  SEXP r_y;
+  if (r_idx == R_NilValue) {
+    r_y = PROTECT(allocVector(REALSXP, n));
+    yprev_all(step, REAL(r_y));
+  } else {
+    const size_t ni = length(r_idx);
+    r_y = PROTECT(allocVector(REALSXP, ni));
+    if (ni == 1) {
+      REAL(r_y)[0] = yprev_1(step, INTEGER(r_idx)[0] - 1);
+    } else {
+      r_y = allocVector(REALSXP, ni);
+      size_t *idx = (size_t*) R_alloc(ni, sizeof(size_t));
+      for (size_t i = 0; i < ni; ++i) {
+        idx[i] = (size_t)INTEGER(r_idx)[i] - 1;
+      }
+      yprev_vec(step, idx, ni, REAL(r_y));
+    }
+  }
+  UNPROTECT(1);
+  return r_y;
+}
+
 void r_difeq_throw_error(difeq_data *obj) {
   int code = obj->code;
   double t = obj->t;
