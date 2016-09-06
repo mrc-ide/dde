@@ -99,8 +99,6 @@ void dopri_data_reset(dopri_data *obj, double *y,
 
   memcpy(obj->y0, y, obj->n * sizeof(double));
   memcpy(obj->y, y, obj->n * sizeof(double));
-  obj->t0 = times[0];
-  obj->t = times[0];
 
   obj->n_times = n_times;
   obj->times = (double*) R_Realloc(obj->times, n_times, double);
@@ -126,13 +124,16 @@ void dopri_data_reset(dopri_data *obj, double *y,
     }
   }
 
+  obj->t0 = obj->sign * times[0];
+  obj->t = times[0];
+
   obj->n_tcrit = n_tcrit;
   obj->tcrit = (double*) R_Realloc(obj->tcrit, n_tcrit, double);
   memcpy(obj->tcrit, tcrit, n_tcrit * sizeof(double));
 
   obj->tcrit_idx = 0;
   if (n_tcrit > 0) {
-    while (obj->sign * tcrit[obj->tcrit_idx] < obj->sign * obj->t0 &&
+    while (obj->sign * tcrit[obj->tcrit_idx] < obj->t0 &&
            obj->tcrit_idx < n_tcrit) {
       obj->tcrit_idx++;
     }
@@ -170,11 +171,11 @@ void dopri_data_free(dopri_data *obj) {
 // with deSolve even more and make the interface for the dde and
 // non-dde equations quite different) this seems like a reasonable way
 // of achiving this.  Might change later though.
-static dopri_data *dde_global_obj;
+static dopri_data *dopri_global_obj;
 
 // Used to query the problem size safely from the r_dopri.c file
 size_t get_current_problem_size_dde() {
-  return dde_global_obj == NULL ? 0 : dde_global_obj->n;
+  return dopri_global_obj == NULL ? 0 : dopri_global_obj->n;
 }
 
 // Wrappers around the two methods:
@@ -240,7 +241,7 @@ void dopri_integrate(dopri_data *obj, double *y,
 
   // Possibly only set this if the number of history variables is
   // nonzero?  Needs to be set before any calls to target() though.
-  dde_global_obj = obj;
+  dopri_global_obj = obj;
 
   // If requested, copy initial conditions into the output space
   if (return_initial) {
@@ -391,7 +392,7 @@ void dopri_integrate(dopri_data *obj, double *y,
   }
 
   // Reset the global state
-  dde_global_obj = NULL;
+  dopri_global_obj = NULL;
 }
 
 double dopri_h_new(dopri_data *obj, double fac_old, double h, double err) {
@@ -625,54 +626,55 @@ const double* dopri_find_time(dopri_data *obj, double t) {
 // going to seem weird and also means that the same function can't be
 // easily used for dde and non dde use).
 double ylag_1(double t, size_t i) {
-  if (dde_global_obj->sign * t <= dde_global_obj->sign * dde_global_obj->t0) {
-    return dde_global_obj->y0[i];
+  if (dopri_global_obj->sign * t <= dopri_global_obj->t0) {
+    return dopri_global_obj->y0[i];
   } else {
-    const double * h = dopri_find_time(dde_global_obj, t);
+    const double * h = dopri_find_time(dopri_global_obj, t);
     if (h == NULL) {
       return NA_REAL;
     } else {
-      return dopri_interpolate_1(h, dde_global_obj->method,
-                                 dde_global_obj->n, t, i);
+      return dopri_interpolate_1(h, dopri_global_obj->method,
+                                 dopri_global_obj->n, t, i);
     }
   }
 }
 
 void ylag_all(double t, double *y) {
-  if (dde_global_obj->sign * t <= dde_global_obj->sign * dde_global_obj->t0) {
-    memcpy(y, dde_global_obj->y0, dde_global_obj->n * sizeof(double));
+  if (dopri_global_obj->sign * t <= dopri_global_obj->t0) {
+    memcpy(y, dopri_global_obj->y0, dopri_global_obj->n * sizeof(double));
   } else {
-    const double * h = dopri_find_time(dde_global_obj, t);
+    const double * h = dopri_find_time(dopri_global_obj, t);
     if (h != NULL) {
-      dopri_interpolate_all(h, dde_global_obj->method, dde_global_obj->n, t, y);
+      dopri_interpolate_all(h, dopri_global_obj->method,
+                            dopri_global_obj->n, t, y);
     }
   }
 }
 
 void ylag_vec(double t, const size_t *idx, size_t nidx, double *y) {
-  if (dde_global_obj->sign * t <= dde_global_obj->sign * dde_global_obj->t0) {
+  if (dopri_global_obj->sign * t <= dopri_global_obj->t0) {
     for (size_t i = 0; i < nidx; ++i) {
-      y[i] = dde_global_obj->y0[idx[i]];
+      y[i] = dopri_global_obj->y0[idx[i]];
     }
   } else {
-    const double * h = dopri_find_time(dde_global_obj, t);
+    const double * h = dopri_find_time(dopri_global_obj, t);
     if (h != NULL) {
-      dopri_interpolate_idx(h, dde_global_obj->method,
-                            dde_global_obj->n, t, idx, nidx, y);
+      dopri_interpolate_idx(h, dopri_global_obj->method,
+                            dopri_global_obj->n, t, idx, nidx, y);
     }
   }
 }
 
 void ylag_vec_int(double t, const int *idx, size_t nidx, double *y) {
-  if (dde_global_obj->sign * t <= dde_global_obj->sign * dde_global_obj->t0) {
+  if (dopri_global_obj->sign * t <= dopri_global_obj->t0) {
     for (size_t i = 0; i < nidx; ++i) {
-      y[i] = dde_global_obj->y0[idx[i]];
+      y[i] = dopri_global_obj->y0[idx[i]];
     }
   } else {
-    const double * h = dopri_find_time(dde_global_obj, t);
+    const double * h = dopri_find_time(dopri_global_obj, t);
     if (h != NULL) {
-      dopri_interpolate_idx_int(h, dde_global_obj->method,
-                                dde_global_obj->n, t, idx, nidx, y);
+      dopri_interpolate_idx_int(h, dopri_global_obj->method,
+                                dopri_global_obj->n, t, idx, nidx, y);
     }
   }
 }
