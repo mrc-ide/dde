@@ -71,7 +71,7 @@ void difeq_data_reset(difeq_data *obj, double *y,
   // TODO: I don't check that there is at least one time anywhere in
   // *this* routine, but it is checked in r_difeq which calls
   // this.
-  if (steps[n_steps - 1] <= steps[0]) {
+  if (steps[n_steps - 1] == steps[0]) {
     obj->error = true;
     obj->code = ERR_ZERO_STEP_DIFFERENCE;
     return;

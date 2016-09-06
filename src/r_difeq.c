@@ -14,12 +14,8 @@ SEXP r_difeq(SEXP r_y_initial, SEXP r_steps, SEXP r_target, SEXP r_data,
 
   size_t n_steps = LENGTH(r_steps);
   size_t *steps = (size_t*) R_alloc(n_steps, sizeof(size_t));
-  // TODO: check no r_steps are negative!
   int* tmp = INTEGER(r_steps);
   for (size_t i = 0; i < n_steps; ++i) {
-    if (tmp[i] < 0) {
-      Rf_error("Step %d is negative (%d)", i, tmp[i]);
-    }
     steps[i] = (size_t) tmp[i];
   }
 

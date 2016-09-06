@@ -35,6 +35,15 @@ test_that("increase", {
   attr(res, "history") <- NULL
   expect_equal(res, cmp)
 
+  ## And again, but using the shortcut:
+  res2 <- difeq(y0, max(i), rhs, p,
+                return_initial = TRUE,
+                n_history = length(i),
+                t0 = t0, dt = dt)
+  expect_equal(attr(res2, "history"), h)
+  attr(res2, "history") <- NULL
+  expect_equal(res2, res)
+
   ## And again, but with only a few history times:
   i2 <- seq(0, 10, by = 2)
   res <- difeq(y0, i2, rhs, p,
@@ -59,4 +68,38 @@ test_that("logistic", {
   res <- difeq(y0, i, "logistic", r, dllname = "logistic",
                deSolve_compatible = TRUE)
   expect_equal(res, cmp)
+})
+
+test_that("error conditions", {
+  rhs <- function(i, t, y, p) {
+    y + p
+  }
+  y0 <- as.numeric(1:5)
+  p <- 1
+  i <- 0:10
+
+  ## Beginning and end times are the same:
+  expect_error(difeq(y0, 0, rhs, p),
+               "Beginning and end times are the same")
+  expect_error(difeq(y0, c(0, 0), rhs, p),
+               "Beginning and end times are the same")
+  expect_error(difeq(y0, c(i, 0), rhs, p),
+               "Beginning and end times are the same")
+
+  ## Incorrect order:
+  expect_error(difeq(y0, rev(i), rhs, p),
+               "Times not strictly increasing")
+  expect_error(difeq(y0, c(0, 1, 1, 2), rhs, p),
+               "Times not strictly increasing")
+  expect_error(difeq(y0, c(0, 2, 1), rhs, p),
+               "Times not strictly increasing")
+
+  expect_error(difeq(y0, i, rhs, p, unknown = TRUE),
+               "Invalid dot arguments")
+
+  expect_error(difeq(y0, i, rhs, p, dllname = "logistic"),
+               "dllname must not be given")
+
+  expect_error(difeq(y0, (-5):(-1), rhs, p),
+               "steps must be positive")
 })
