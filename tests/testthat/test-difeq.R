@@ -68,36 +68,105 @@ test_that("output (R)", {
   i2 <- seq(0, 10, by = 2)
 
   cmp <- y0 + outer(p, i)
-  cmp2 <- y0 + outer(p, i2)
+  cmp2 <- cmp[, i2 + 1L]
 
-  res <- difeq(y0, i, rhs, p, return_initial = TRUE, n_out = 1)
-  resh <- difeq(y0, i, rhs, p, return_initial = TRUE, n_out = 1,
-                n_history = length(i))
-
-  expect_equal(res, cmp, check.attributes = FALSE)
-  expect_equal(resh, cmp, check.attributes = FALSE)
-
-  output <- attr(res, "output")
-  expect_is(res, "matrix")
-  expect_equal(dim(output), c(1, length(i)))
-  expect_equal(drop(output), colSums(res))
-  expect_equal(attr(resh, "output"), output)
-
-  res2 <- difeq(y0, i2, rhs, p, return_initial = TRUE, n_out = 1)
-  resh2 <- difeq(y0, i2, rhs, p, return_initial = TRUE, n_out = 1,
+  ## We run this three times:
+  ##   * res_o: coming off the output storage
+  ##   * res_h: coming off history
+  ##   * res_n: coming off of short history
+  res_o <- difeq(y0, i, rhs, p, return_initial = TRUE, n_out = 1)
+  res_h <- difeq(y0, i, rhs, p, return_initial = TRUE, n_out = 1,
                  n_history = length(i))
+  res_n <- difeq(y0, i, rhs, p, return_initial = TRUE, n_out = 1,
+                 n_history = 2L)
 
-  expect_equal(res2, cmp2, check.attributes = FALSE)
-  expect_equal(resh2, cmp2, check.attributes = FALSE)
+  expect_equal(res_o, cmp, check.attributes = FALSE)
+  expect_equal(res_h, cmp, check.attributes = FALSE)
+  expect_equal(res_n, cmp, check.attributes = FALSE)
 
-  output2 <- attr(res2, "output")
-  expect_is(res2, "matrix")
-  expect_equal(dim(output2), c(1, length(i2)))
-  expect_equal(drop(output2), colSums(res2))
-  expect_equal(attr(resh2, "output"), output2)
+  output <- attr(res_o, "output")
+  expect_is(output, "matrix")
+  expect_equal(dim(output), c(1, length(i)))
+  ## This checks off-by-one errors
+  expect_equal(drop(output), colSums(res_o))
+  expect_equal(drop(attr(res_h, "output")), colSums(res_h))
+  expect_equal(drop(attr(res_n, "output")), colSums(res_n))
 
-  expect_equal(res, resh, check.attributes = FALSE)
-  expect_equal(res2, resh2, check.attributes = FALSE)
+  ## Also check with no initial condition; this changes things around
+  ## a bit.
+  res_o <- difeq(y0, i, rhs, p, return_initial = FALSE, n_out = 1)
+  res_h <- difeq(y0, i, rhs, p, return_initial = FALSE, n_out = 1,
+                 n_history = length(i))
+  res_n <- difeq(y0, i, rhs, p, return_initial = FALSE, n_out = 1,
+                 n_history = 2L)
+
+  expect_equal(res_o, cmp[, -1], check.attributes = FALSE)
+  expect_equal(res_h, cmp[, -1], check.attributes = FALSE)
+  expect_equal(res_n, cmp[, -1], check.attributes = FALSE)
+
+  expect_equal(drop(attr(res_o, "output")), colSums(res_o))
+  expect_equal(drop(attr(res_h, "output")), colSums(res_h))
+  expect_equal(drop(attr(res_n, "output")), colSums(res_n))
+
+  ## There's another huge class of bugs that turns up when output is
+  ## filtered, so try that too.
+  res_o <- difeq(y0, i2, rhs, p, return_initial = TRUE, n_out = 1)
+  res_h <- difeq(y0, i2, rhs, p, return_initial = TRUE, n_out = 1,
+                 n_history = length(i))
+  res_n <- difeq(y0, i2, rhs, p, return_initial = TRUE, n_out = 1,
+                 n_history = 2L)
+
+  expect_equal(res_o, cmp2, check.attributes = FALSE)
+  expect_equal(res_h, cmp2, check.attributes = FALSE)
+  expect_equal(res_n, cmp2, check.attributes = FALSE)
+
+  output <- attr(res_o, "output")
+  expect_is(output, "matrix")
+  expect_equal(dim(output), c(1, length(i2)))
+  expect_equal(drop(output), colSums(res_o))
+  expect_equal(drop(output), colSums(res_o))
+  expect_equal(drop(attr(res_h, "output")), colSums(res_h))
+  expect_equal(drop(attr(res_n, "output")), colSums(res_n))
+
+  ## And while dropping initial conditions:
+  res_o <- difeq(y0, i2, rhs, p, return_initial = FALSE, n_out = 1)
+  res_h <- difeq(y0, i2, rhs, p, return_initial = FALSE, n_out = 1,
+                 n_history = length(i))
+  res_n <- difeq(y0, i2, rhs, p, return_initial = FALSE, n_out = 1,
+                 n_history = 2L)
+
+  expect_equal(res_o, cmp2[, -1], check.attributes = FALSE)
+  expect_equal(res_h, cmp2[, -1], check.attributes = FALSE)
+  expect_equal(res_n, cmp2[, -1], check.attributes = FALSE)
+
+  expect_equal(drop(attr(res_o, "output")), colSums(res_h))
+  expect_equal(drop(attr(res_h, "output")), colSums(res_h))
+  expect_equal(drop(attr(res_n, "output")), colSums(res_n))
+})
+
+test_that("incorrect output", {
+  f <- function(i, t, y, p) {
+    structure(y, output = p)
+  }
+  y0 <- runif(5)
+  i <- 0:10
+
+  ## Check that things generally work:
+  expect_equal(difeq(y0, i, f, NULL),
+               matrix(y0, length(y0), length(i) - 1L))
+
+  ## These are going to cause leaks for now, but I need to handle
+  ## errors in the calling function too.
+  ##
+  ## The options for doing this are going to be either wrapping every
+  ## call to an R objective function in tryCatch (which is quite slow;
+  ## being ~3us rather than a few seconds) or smart pointers.
+  expect_error(difeq(y0, i, f, NULL, n_out = 1),
+               "Missing output")
+  expect_error(difeq(y0, i, f, c(1, 2), n_out = 1),
+               "Incorrect length")
+  expect_error(difeq(y0, i, f, 1L, n_out = 1),
+               "Incorrect type")
 })
 
 test_that("logistic", {
@@ -112,6 +181,44 @@ test_that("logistic", {
   res <- difeq(y0, i, "logistic", r, dllname = "logistic",
                deSolve_compatible = TRUE)
   expect_equal(res, cmp)
+})
+
+test_that("vector output (R)", {
+  growth <- function(i, t, y, p) {
+    structure(y + p, output = y + 1)
+  }
+
+  y0 <- runif(5)
+  p <- runif(5)
+  i <- 0:10
+  i2 <- seq(0, 10, by = 2)
+
+  cmp <- y0 + outer(p, i)
+  cmp2 <- y0 + outer(p, i2)
+
+  ## TODO: The NA in history here looks very fixable to me.
+  res <- difeq(y0, i, growth, p, return_initial = TRUE, n_out = 5L,
+               n_history = length(i))
+  expect_equal(res, cmp, check.attributes = FALSE)
+  expect_equal(attr(res, "output"), cmp + 1)
+  h <- attr(res, "history")
+  expect_equal(h[1, ], i)
+  expect_equal(h[2, ], i)
+  expect_equal(h[seq_along(y0) + 2, ], cmp)
+  expect_equal(h[seq_along(y0) + 2 + length(y0), ],
+               cbind(NA, cmp[, -1], deparse.level = 0) + 1)
+
+  res2 <- difeq(y0, i2, growth, p, return_initial = TRUE, n_out = 5L,
+                n_history = length(i))
+  j <- seq_len(length(y0) + 2)
+  expect_equal(attr(res2, "history")[j, ], h[j, ])
+
+  expect_equal(res2, cmp2, check.attributes=FALSE)
+  expect_equal(attr(res2, "output"), cmp2 + 1)
+
+  ## NOTE: At the moment the status of output within history is a bit
+  ## of a mess; nobody should rely on it being there, or use it for
+  ## anything.
 })
 
 test_that("error conditions", {

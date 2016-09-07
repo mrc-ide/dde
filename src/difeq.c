@@ -24,7 +24,7 @@ difeq_data* difeq_data_alloc(difeq_target* target,
 
   ret->history_n = n_history;
   if (n_history > 0) {
-    ret->history_len = 2 + n;
+    ret->history_len = 2 + n + n_out;
     ret->history =
       ring_buffer_create(n_history, ret->history_len * sizeof(double));
     ret->history_idx_step = 0;
@@ -206,6 +206,9 @@ void difeq_run(difeq_data *obj, double *y,
     // memory here.
     obj->target(obj->n, obj->step, obj->t, y, obj->y0, obj->n_out, write_out,
                 obj->data);
+    if (store_y_in_history) { // NOTE: opposite direction to usual.
+      memcpy(out_next, write_out, obj->n_out * sizeof(double));
+    }
   }
 
   difeq_global_obj = NULL;
