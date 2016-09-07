@@ -63,7 +63,9 @@ SEXP r_difeq(SEXP r_y_initial, SEXP r_steps, SEXP r_target, SEXP r_data,
   SEXP r_y = PROTECT(allocMatrix(REALSXP, n, nt));
   double *y = REAL(r_y);
 
+  GetRNGstate();
   difeq_run(obj, y_initial, steps, n_steps, t0, dt, y, out, return_initial);
+  PutRNGstate();
 
   if (return_history) {
     size_t nh = ring_buffer_used(obj->history, 0);
