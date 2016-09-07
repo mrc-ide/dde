@@ -253,4 +253,9 @@ test_that("error conditions", {
 
   expect_error(difeq(y0, (-5):(-1), rhs, p),
                "steps must be positive")
+
+  expect_error(difeq(y0, i, rhs, p, n_history = 1L),
+               "n_history must be at least 2")
+  expect_error(difeq(y0, i, rhs, p, n_history = -1L),
+               "n_history must be nonnegative")
 })

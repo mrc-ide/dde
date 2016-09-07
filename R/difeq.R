@@ -97,6 +97,10 @@ difeq <- function(y, steps, target, parms, ...,
   if (length(steps) == 1L) {
     steps <- 0:steps
   }
+  ## Avoid a class of issues
+  if (n_history > 0 && n_history < 2L) {
+    stop("If given, n_history must be at least 2")
+  }
 
   ret <- .Call(Cdifeq, y, as.integer(steps), target, parms,
                as.integer(n_out), as.numeric(t0), as.numeric(dt),
