@@ -218,24 +218,18 @@ test_that("names", {
   ## Similar for output names:
   onms <- LETTERS[1:2]
   ocmp <- list(onms, NULL)
-  expect_null(dimnames(attr(dopri(y0, tt, lorenz, p, n_out = 2L,
-                                  output = lorenz_output), "output")))
-  expect_null(dimnames(attr(dopri(y0, tt, lorenz, p, n_out = 2L,
-                                  output = lorenz_output, outnames = NULL),
-                            "output")))
-  expect_equal(dimnames(attr(dopri(y0, tt, lorenz, p, n_out = 2L,
-                                   output = lorenz_output, outnames = onms),
-                             "output")), ocmp)
-  expect_error(dopri(y0, tt, lorenz, p, n_out = 2L,
-                     output = lorenz_output, outnames = nms),
-               "outnames must have length n_out")
-  expect_error(dopri(y0, tt, lorenz, p, n_out = 2L,
-                     output = lorenz_output, outnames = 1),
-               "Invalid value for outnames")
+
+  f <- function(...) {
+    dopri(y0, tt, lorenz, p, n_out = 2L, output = lorenz_output, ...)
+  }
+  expect_null(dimnames(attr(f(), "output")))
+  expect_null(dimnames(attr(f(outnames = NULL), "output")))
+  expect_equal(dimnames(attr(f(outnames = onms), "output")), ocmp)
+  expect_error(f(outnames = nms), "outnames must have length n_out")
+  expect_error(f(outnames = 1), "Invalid value for outnames")
 
   ## Check both together:
-  res <- dopri(y0, tt, lorenz, p, n_out = 2L,
-               output = lorenz_output, ynames = nms, outnames = onms)
+  res <- f(ynames = nms, outnames = onms)
   expect_equal(dimnames(res), cmp)
   expect_equal(dimnames(attr(res, "output")), ocmp)
 })

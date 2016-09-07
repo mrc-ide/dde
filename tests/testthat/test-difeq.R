@@ -259,3 +259,45 @@ test_that("error conditions", {
   expect_error(difeq(y0, i, rhs, p, n_history = -1L),
                "n_history must be nonnegative")
 })
+
+test_that("names", {
+  p <- c(10, 28, 8 / 3)
+  y0 <- c(10, 1, 1)
+
+  rhs <- function(i, t, y, p) {
+    structure(y + p$x, output = p$output)
+  }
+
+  y0 <- as.numeric(1:5)
+  p <- list(x = 1, output = NULL)
+  i <- 0:10
+
+  nms <- letters[seq_along(y0)]
+  cmp <- list(nms, NULL)
+
+  ## These are duplicated from ode:
+  expect_null(dimnames(difeq(y0, i, rhs, p)))
+  expect_equal(dimnames(difeq(y0, i, rhs, p, ynames = nms)), cmp)
+  expect_equal(dimnames(difeq(setNames(y0, nms), i, rhs, p)), cmp)
+  expect_null(dimnames(difeq(setNames(y0, nms), i, rhs, p, ynames = FALSE)),
+              cmp)
+
+  p$output <- runif(3)
+  onms <- LETTERS[seq_along(p$output)]
+  ocmp <- list(onms, NULL)
+
+  f <- function(...) {
+    difeq(y0, i, rhs, p, n_out = length(p$output), ...)
+  }
+  expect_equal(dim(attr(f(), "output")), c(length(p$output), length(i) - 1))
+  expect_null(dimnames(attr(f(), "output")))
+  expect_null(dimnames(attr(f(outnames = NULL), "output")))
+  expect_equal(dimnames(attr(f(outnames = onms), "output")), ocmp)
+  expect_error(f(outnames = nms), "outnames must have length n_out")
+  expect_error(f(outnames = 1), "Invalid value for outnames")
+
+  ## Check both together:
+  res <- f(ynames = nms, outnames = onms)
+  expect_equal(dimnames(res), cmp)
+  expect_equal(dimnames(attr(res, "output")), ocmp)
+})
