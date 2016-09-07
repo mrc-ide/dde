@@ -91,6 +91,7 @@ test_that("R interface", {
   res1 <- dopri(y0, tt, "seir", p, n_history = 1000L,
                 dllname = "seir", return_history = FALSE)
 
+
   seir <- function(t, y, p) {
     b <- 1.0 / 10.0
     N <- 1e7
@@ -106,7 +107,16 @@ test_that("R interface", {
     I <- y[[3L]]
     R <- y[[4L]]
 
-    tau <- t - lat_hum
+    if (p == "nonnumeric") {
+      tau <- p
+    } else {
+      tau <- t - lat_hum
+      if (p == "as.integer" && abs(tau - as.integer(tau)) < 1e-6) {
+        tau <- as.integer(tau)
+      } else if (p == "nonscalar") {
+        tau <- rep(tau, 2)
+      }
+    }
     if (p == "one") {
       S_lag <- ylag(tau, 1L)
       I_lag <- ylag(tau, 3L)
@@ -142,6 +152,17 @@ test_that("R interface", {
     expect_identical(res3, res2)
     expect_identical(res4, res2)
   }
+
+  ## Check some invalid input here too
+  expect_error(dopri(y0, tt, seir, "nonnumeric", n_history = 1000L,
+                     return_history = FALSE, method = method),
+               "Expected a double")
+  expect_error(dopri(y0, tt, seir, "nonscalar", n_history = 1000L,
+                     return_history = FALSE, method = method),
+               "Expected a scalar")
+  res <- dopri(y0, tt, seir, "as.integer", n_history = 1000L,
+               return_history = FALSE, method = method)
+  expect_equal(res, res2)
 })
 
 test_that("R interface with output", {

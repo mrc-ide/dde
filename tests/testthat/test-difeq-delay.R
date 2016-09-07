@@ -51,7 +51,7 @@ test_that("prev and output", {
   expect_equal(output2, output[, i2 + 1])
 })
 
-test_that("ylag permutations", {
+test_that("yprev permutations", {
   rhs <- function(i, t, y, p) {
     iprev <- i - 1
     if (p == "one") {
@@ -82,7 +82,7 @@ test_that("ylag permutations", {
   expect_equal(res3, res1)
 })
 
-test_that("ylag invalid input", {
+test_that("yprev invalid input", {
   rhs <- function(i, t, y, p) {
     type <- p$type
     lag <- p$lag

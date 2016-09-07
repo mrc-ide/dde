@@ -2,6 +2,7 @@
 #include "dopri.h"
 #include <R.h>
 #include <Rinternals.h>
+#include "util.h"
 
 SEXP dopri_ptr_create(dopri_data *obj);
 void dopri_ptr_finalizer(SEXP extPtr);
@@ -192,7 +193,7 @@ SEXP r_ylag(SEXP r_t, SEXP r_idx) {
   if (n == 0) {
     Rf_error("Can't call this without being in an integration");
   }
-  double t = REAL(r_t)[0];
+  double t = scalar_double(r_t);
   SEXP r_y;
   if (r_idx == R_NilValue) {
     r_y = PROTECT(allocVector(REALSXP, n));
@@ -201,14 +202,10 @@ SEXP r_ylag(SEXP r_t, SEXP r_idx) {
     const size_t ni = length(r_idx);
     r_y = PROTECT(allocVector(REALSXP, ni));
     if (ni == 1) {
-      REAL(r_y)[0] = ylag_1(t, INTEGER(r_idx)[0] - 1);
+      REAL(r_y)[0] = ylag_1(t, r_index(r_idx, n));
     } else {
       r_y = allocVector(REALSXP, ni);
-      size_t *idx = (size_t*) R_alloc(ni, sizeof(size_t));
-      for (size_t i = 0; i < ni; ++i) {
-        idx[i] = (size_t)INTEGER(r_idx)[i] - 1;
-      }
-      ylag_vec(t, idx, ni, REAL(r_y));
+      ylag_vec(t, r_indices(r_idx, n), ni, REAL(r_y));
     }
   }
   UNPROTECT(1);
