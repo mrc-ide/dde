@@ -302,6 +302,10 @@ test_that("names", {
   expect_equal(dimnames(attr(res, "output")), ocmp)
 })
 
+test_that("don't call yprev improperly", {
+  expect_error(yprev(10), "Can't call this without being in an integration")
+})
+
 test_that("externalptr input", {
   y0 <- runif(5)
   r <- runif(length(y0))
