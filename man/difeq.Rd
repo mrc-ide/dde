@@ -39,8 +39,10 @@ basis too (e.g., if each step corresponds to 1/365 of a year)}
 
 \item{dt}{The continuous time step size}
 
-\item{n_out}{Number of "output" variables (not differential
-equation variables) to compute via the routine \code{output}.}
+\item{n_out}{The number of output variables (in addition to the
+difference equation variables).  If given, then an R function
+must return an \emph{attribute} \code{output} with the output
+variables.}
 
 \item{n_history}{The number of iterations of history to save
 during the simulation.  By default, no history is saved.}
@@ -82,6 +84,9 @@ set this to \code{FALSE}.}
 \item{return_initial}{Logical, indicating if the output should
 include the initial conditions (like deSolve).}
 
+\item{return_step}{Logical, indicating if a row (or column if
+\code{by_column} is \code{TRUE}) representing step is included.}
+
 \item{deSolve_compatible}{Logical, indicating if we should run in
 "deSolve compatible" output mode.  This enables the options
 \code{by_column}, \code{return_initial} and \code{return_time}.
@@ -96,11 +101,6 @@ things like \code{yprev(step - 1)} to get the previous step.}
 index here is R-style base-1 indexing, so pass \code{1} in to
 access the first element.  This can be left \code{NULL} to
 return all the elements or a vector longer than one.}
-
-\item{n_out}{The number of output variables (in addition to the
-difference equation variables).  If given, then an R function
-must return an \emph{attribute} \code{output} with the output
-variables.}
 }
 \description{
 Solve a difference (or recurrence) equation by iterating it a

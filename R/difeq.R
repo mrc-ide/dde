@@ -19,9 +19,6 @@
 ##
 ##' @param parms Parameters to pass through to the difference function
 ##'
-##' @param n_out Number of "output" variables (not differential
-##'   equation variables) to compute via the routine \code{output}.
-##'
 ##' @param t0 The initial time, if your problem has a continuous time
 ##'   basis too (e.g., if each step corresponds to 1/365 of a year)
 ##'
@@ -42,6 +39,9 @@
 ##' @param dllname Name of the shared library (without extension) to
 ##'   find the function \code{func} in the case where \code{func}
 ##'   refers to compiled function.
+##'
+##' @param return_step Logical, indicating if a row (or column if
+##'   \code{by_column} is \code{TRUE}) representing step is included.
 ##'
 ##' @inheritParams dopri
 ##' @export
