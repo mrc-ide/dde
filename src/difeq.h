@@ -7,14 +7,6 @@
 #include <ring/ring.h>
 #define R_NO_REMAP 1
 
-typedef enum return_code {
-  ERR_ZERO_STEP_DIFFERENCE = -1,
-  ERR_INCONSISTENT_STEP = -2,
-  ERR_YPREV_FAIL = -4,
-  NOT_SET = 0,
-  OK_COMPLETE = 1
-} return_code;
-
 // This is *very* similar to the format used by deSolve and dopri, but
 // with a couple of differences:
 //
@@ -58,10 +50,6 @@ typedef struct {
   size_t history_idx_time;
   size_t history_idx_y;
   size_t history_idx_out;
-
-  // Error reporting
-  bool error;
-  return_code code;
 } difeq_data;
 
 difeq_data* difeq_data_alloc(difeq_target * target,

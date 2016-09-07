@@ -1,7 +1,6 @@
 #include "r_difeq.h"
 #include "difeq.h"
 
-void r_difeq_throw_error(difeq_data *obj);
 SEXP difeq_ptr_create(difeq_data *obj);
 void difeq_ptr_finalizer(SEXP extPtr);
 
@@ -66,10 +65,6 @@ SEXP r_difeq(SEXP r_y_initial, SEXP r_steps, SEXP r_target, SEXP r_data,
 
   difeq_run(obj, y_initial, steps, n_steps, t0, dt, y, out, return_initial);
 
-  if (obj->error) {
-    r_difeq_throw_error(obj);
-  }
-
   if (return_history) {
     size_t nh = ring_buffer_used(obj->history, 0);
     SEXP history = PROTECT(allocMatrix(REALSXP, obj->history_len, nh));
@@ -125,27 +120,6 @@ SEXP r_yprev(SEXP r_i, SEXP r_idx) {
   }
   UNPROTECT(1);
   return r_y;
-}
-
-void r_difeq_throw_error(difeq_data *obj) {
-  int code = obj->code;
-  double t = obj->t;
-  size_t step = obj->step;
-
-  switch(code) {
-  case ERR_ZERO_STEP_DIFFERENCE:
-    Rf_error("Initialisation failure: Beginning and end times are the same");
-    break;
-  case ERR_INCONSISTENT_STEP:
-    Rf_error("Initialisation failure: Times not strictly increasing");
-    break;
-  case ERR_YPREV_FAIL:
-    Rf_error("difeq failure: did not find step in history (at step %d, t = %2.5f)", step, t);
-    break;
-  default:
-    Rf_error("difeq failure: (code %d) [dde bug]", code); // #nocov
-    break;
-  }
 }
 
 void difeq_r_harness(size_t n, size_t i, double t,

@@ -46,8 +46,6 @@ difeq_data* difeq_data_alloc(difeq_target* target,
 void difeq_data_reset(difeq_data *obj, double *y,
                       size_t *steps, size_t n_steps,
                       double t0, double dt) {
-  obj->error = false;
-  obj->code = NOT_SET;
   memcpy(obj->y0, y, obj->n * sizeof(double));
 
   obj->step0 = steps[0];
@@ -67,16 +65,12 @@ void difeq_data_reset(difeq_data *obj, double *y,
   // *this* routine, but it is checked in r_difeq which calls
   // this.
   if (steps[n_steps - 1] == steps[0]) {
-    obj->error = true;
-    obj->code = ERR_ZERO_STEP_DIFFERENCE;
-    return;
+    Rf_error("Initialisation failure: Beginning and end times are the same");
   }
 
   for (size_t i = 0; i < n_steps - 1; ++i) {
     if (steps[i + 1] <= steps[i]) { // NOTE: Disallows ties
-      obj->error = true;
-      obj->code = ERR_INCONSISTENT_STEP;
-      return;
+      Rf_error("Initialisation failure: Times not strictly increasing");
     }
   }
 }
@@ -106,9 +100,6 @@ void difeq_run(difeq_data *obj, double *y,
                double *y_out, double *out,
                bool return_initial) {
   difeq_data_reset(obj, y, steps, n_steps, t0, dt);
-  if (obj->error) {
-    return;
-  }
 
   double *y_next, *out_next;
   double *write_y = y_out, *write_out = out;
@@ -159,9 +150,6 @@ void difeq_run(difeq_data *obj, double *y,
     // configurable because it's a real headache.
     obj->target(obj->n, obj->step, obj->t, y, y_next, obj->n_out, out_next,
                 obj->data);
-    if (obj->error) {
-      break;
-    }
     obj->step++;
     obj->t += obj->dt;
     y = y_next;
@@ -200,7 +188,7 @@ void difeq_run(difeq_data *obj, double *y,
     }
   }
 
-  if (store_next_output) { // and not obj->error
+  if (store_next_output) {
     // NOTE: Destructive to y0, which is not pretty.  It might be
     // nicer to have some scratch space or even to allocate a little
     // memory here.
@@ -222,12 +210,9 @@ const double* difeq_find_step(difeq_data *obj, int step) {
     h = ring_buffer_head_offset(obj->history, (size_t) offset);
   }
   if (h == NULL) {
-    obj->error = true;
-    obj->code = ERR_YPREV_FAIL;
-  } else {
-    h = ((double*) h) + obj->history_idx_y;
+    Rf_error("difeq failure: did not find step in history (at step %d, t = %2.5f)", obj->step, obj->t);
   }
-  return (double*) h;
+  return ((double*) h) + obj->history_idx_y;
 }
 
 double yprev_1(int step, size_t i) {
