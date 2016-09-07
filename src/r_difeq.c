@@ -2,6 +2,8 @@
 #include "difeq.h"
 
 void r_difeq_throw_error(difeq_data *obj);
+SEXP difeq_ptr_create(difeq_data *obj);
+void difeq_ptr_finalizer(SEXP extPtr);
 
 SEXP r_difeq(SEXP r_y_initial, SEXP r_steps, SEXP r_target, SEXP r_data,
              SEXP r_n_out,
@@ -51,6 +53,14 @@ SEXP r_difeq(SEXP r_y_initial, SEXP r_steps, SEXP r_target, SEXP r_data,
   // n.  We do have to run the output functions once more though.
   difeq_data* obj = difeq_data_alloc(target, n, n_out, data, n_history);
 
+  // This is to prevent leaks in case of early exit.  If we don't make
+  // it to the end of the function (for any reason, including an error
+  // call in a user function, etc) R will clean up for us once it
+  // garbage collects ptr.  Because R resets the protection stack on
+  // early exit it is guaranteed to get collected at some point.
+  SEXP ptr = PROTECT(difeq_ptr_create(obj));
+
+  // Then solve things:
   SEXP r_y = PROTECT(allocMatrix(REALSXP, n, nt));
   double *y = REAL(r_y);
 
@@ -74,9 +84,11 @@ SEXP r_difeq(SEXP r_y_initial, SEXP r_steps, SEXP r_target, SEXP r_data,
     UNPROTECT(1);
   }
 
+  // Deterministically clean up if we can, otherwise we clean up by R
+  // running the finaliser for us when it garbage collects ptr above.
   difeq_data_free(obj);
-
-  UNPROTECT(1);
+  R_ClearExternalPtr(ptr);
+  UNPROTECT(2);
   return r_y;
 }
 
@@ -91,7 +103,6 @@ SEXP r_yprev(SEXP r_i, SEXP r_idx) {
   } else if (TYPEOF(r_i) == REALSXP) {
     step = REAL(r_i)[0];
   } else {
-    // TODO: this will cause a leak
     Rf_error("Invalid type in lag");
   }
   SEXP r_y;
@@ -121,7 +132,6 @@ void r_difeq_throw_error(difeq_data *obj) {
   double t = obj->t;
   size_t step = obj->step;
 
-  difeq_data_free(obj);
   switch(code) {
   case ERR_ZERO_STEP_DIFFERENCE:
     Rf_error("Initialisation failure: Beginning and end times are the same");
@@ -166,4 +176,19 @@ void difeq_r_harness(size_t n, size_t i, double t,
     memcpy(output, REAL(r_output), n_out * sizeof(double));
   }
   UNPROTECT(5);
+}
+
+void difeq_ptr_finalizer(SEXP r_ptr) {
+  void *obj = R_ExternalPtrAddr(r_ptr);
+  if (obj) {
+    difeq_data_free((difeq_data*) obj);
+    R_ClearExternalPtr(r_ptr);
+  }
+}
+
+SEXP difeq_ptr_create(difeq_data *obj) {
+  SEXP r_ptr = PROTECT(R_MakeExternalPtr(obj, R_NilValue, R_NilValue));
+  R_RegisterCFinalizer(r_ptr, difeq_ptr_finalizer);
+  UNPROTECT(1);
+  return r_ptr;
 }
