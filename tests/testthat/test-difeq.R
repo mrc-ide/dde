@@ -301,3 +301,19 @@ test_that("names", {
   expect_equal(dimnames(res), cmp)
   expect_equal(dimnames(attr(res, "output")), ocmp)
 })
+
+test_that("externalptr input", {
+  y0 <- runif(5)
+  r <- runif(length(y0))
+  i <- 0:11
+
+  cmp <- difeq(y0, i, "logistic", r, dllname = "logistic",
+               deSolve_compatible = TRUE)
+
+  ptr <- .Call("logistic_init",  r, PACKAGE = "logistic2")
+  expect_is(ptr, "externalptr")
+  res <- difeq(y0, i, "logistic", ptr, parms_are_real = FALSE,
+               dllname = "logistic2", deSolve_compatible = TRUE)
+
+  expect_identical(res, cmp)
+})
