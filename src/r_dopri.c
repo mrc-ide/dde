@@ -3,6 +3,9 @@
 #include <R.h>
 #include <Rinternals.h>
 
+SEXP dopri_ptr_create(dopri_data *obj);
+void dopri_ptr_finalizer(SEXP extPtr);
+
 // There are more arguments from lsoda not implemented here that will
 // be needed:
 //
@@ -88,6 +91,13 @@ SEXP r_dopri(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
   // n.  We do have to run the output functions once more though.
   dopri_data* obj = dopri_data_alloc(func, n, output, n_out, data,
                                      method, n_history);
+  // This is to prevent leaks in case of early exit.  If we don't make
+  // it to the end of the function (for any reason, including an error
+  // call in a user function, etc) R will clean up for us once it
+  // garbage collects ptr.  Because R resets the protection stack on
+  // early exit it is guaranteed to get collected at some point.
+  SEXP ptr = PROTECT(dopri_ptr_create(obj));
+
   obj->rtol = REAL(r_rtol)[0];
   obj->atol = REAL(r_atol)[0];
   obj->step_size_min = fmax(fabs(REAL(r_step_size_min)[0]), DBL_EPSILON);
@@ -136,16 +146,17 @@ SEXP r_dopri(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
     UNPROTECT(2);
   }
 
+  // Deterministically clean up if we can, otherwise we clean up by R
+  // running the finaliser for us when it garbage collects ptr above.
   dopri_data_free(obj);
-
-  UNPROTECT(1);
+  R_ClearExternalPtr(ptr);
+  UNPROTECT(2);
   return r_y;
 }
 
 void r_integration_error(dopri_data* obj) {
   int code = obj->code;
   double t = obj->t;
-  dopri_data_free(obj);
   switch (code) {
   case ERR_ZERO_TIME_DIFFERENCE:
     Rf_error("Initialisation failure: Beginning and end times are the same");
@@ -233,4 +244,19 @@ void dde_r_output_harness(size_t n, double t, double *y,
   SEXP ans = PROTECT(eval(call, rho));
   memcpy(out, REAL(ans), n_out * sizeof(double));
   UNPROTECT(4);
+}
+
+void dopri_ptr_finalizer(SEXP r_ptr) {
+  void *obj = R_ExternalPtrAddr(r_ptr);
+  if (obj) {
+    dopri_data_free((dopri_data*) obj);
+    R_ClearExternalPtr(r_ptr);
+  }
+}
+
+SEXP dopri_ptr_create(dopri_data *obj) {
+  SEXP r_ptr = PROTECT(R_MakeExternalPtr(obj, R_NilValue, R_NilValue));
+  R_RegisterCFinalizer(r_ptr, dopri_ptr_finalizer);
+  UNPROTECT(1);
+  return r_ptr;
 }
