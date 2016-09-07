@@ -40,12 +40,12 @@ void ylag_vec_int(double t, const int *idx, size_t nidx, double *y) {
 }
 
 // difeq
-typedef double t_yprev_1(size_t, size_t);
-typedef void t_yprev_all(size_t, double *);
-typedef void t_yprev_vec(size_t, const size_t *, size_t, double *);
-typedef void t_yprev_vec_int(size_t, const int *, size_t, double *);
+typedef double t_yprev_1(int, size_t);
+typedef void t_yprev_all(int, double *);
+typedef void t_yprev_vec(int, const size_t *, size_t, double *);
+typedef void t_yprev_vec_int(int, const int *, size_t, double *);
 
-double yprev_1(size_t step, size_t i) {
+double yprev_1(int step, size_t i) {
   static t_yprev_1 *fun;
   if (fun == NULL) {
     fun = (t_yprev_1*) R_GetCCallable("dde", "yprev_1");
@@ -53,7 +53,7 @@ double yprev_1(size_t step, size_t i) {
   return fun(step, i);
 }
 
-void yprev_all(size_t step, double *y) {
+void yprev_all(int step, double *y) {
   static t_yprev_all *fun;
   if (fun == NULL) {
     fun = (t_yprev_all*) R_GetCCallable("dde", "yprev_all");
@@ -61,7 +61,7 @@ void yprev_all(size_t step, double *y) {
   fun(step, y);
 }
 
-void yprev_vec(size_t step, const size_t *idx, size_t nidx, double *y) {
+void yprev_vec(int step, const size_t *idx, size_t nidx, double *y) {
   static t_yprev_vec *fun;
   if (fun == NULL) {
     fun = (t_yprev_vec*) R_GetCCallable("dde", "yprev_vec");
@@ -69,7 +69,7 @@ void yprev_vec(size_t step, const size_t *idx, size_t nidx, double *y) {
   fun(step, idx, nidx, y);
 }
 
-void yprev_vec_int(size_t step, const int *idx, size_t nidx, double *y) {
+void yprev_vec_int(int step, const int *idx, size_t nidx, double *y) {
   static t_yprev_vec_int *fun;
   if (fun == NULL) {
     fun = (t_yprev_vec_int*) R_GetCCallable("dde", "yprev_vec_int");

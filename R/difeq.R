@@ -134,3 +134,8 @@ difeq <- function(y, steps, target, parms, ...,
 
   ret
 }
+
+## TODO: export this!
+yprev <- function(t, i = NULL) {
+  .Call(Cyprev, t, i)
+}

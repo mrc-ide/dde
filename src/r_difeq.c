@@ -74,18 +74,26 @@ SEXP r_difeq(SEXP r_y_initial, SEXP r_steps, SEXP r_target, SEXP r_data,
     UNPROTECT(1);
   }
 
-  difeq_data_free(obj);
+  //difeq_data_free(obj);
 
   UNPROTECT(1);
   return r_y;
 }
 
-SEXP r_yprev(SEXP r_t, SEXP r_idx) {
+SEXP r_yprev(SEXP r_i, SEXP r_idx) {
   size_t n = get_current_problem_size_difeq();
   if (n == 0) {
     Rf_error("Can't call this without being in an integration");
   }
-  size_t step = INTEGER(r_t)[0];
+  int step;
+  if (TYPEOF(r_i) == INTSXP) {
+    step = INTEGER(r_i)[0];
+  } else if (TYPEOF(r_i) == REALSXP) {
+    step = REAL(r_i)[0];
+  } else {
+    // TODO: this will cause a leak
+    Rf_error("Invalid type in lag");
+  }
   SEXP r_y;
   if (r_idx == R_NilValue) {
     r_y = PROTECT(allocVector(REALSXP, n));
@@ -111,6 +119,7 @@ SEXP r_yprev(SEXP r_t, SEXP r_idx) {
 void r_difeq_throw_error(difeq_data *obj) {
   int code = obj->code;
   double t = obj->t;
+  size_t step = obj->step;
 
   difeq_data_free(obj);
   switch(code) {
@@ -120,8 +129,8 @@ void r_difeq_throw_error(difeq_data *obj) {
   case ERR_INCONSISTENT_STEP:
     Rf_error("Initialisation failure: Times not strictly increasing");
     break;
-  case ERR_YLAG_FAIL:
-    Rf_error("difeq failure: did not find time in history (at t = %2.5f)", t);
+  case ERR_YPREV_FAIL:
+    Rf_error("difeq failure: did not find step in history (at step %d, t = %2.5f)", step, t);
     break;
   default:
     Rf_error("difeq failure: (code %d) [dde bug]", code); // #nocov
@@ -137,7 +146,7 @@ void difeq_r_harness(size_t n, size_t i, double t,
     target = VECTOR_ELT(d, 0),
     parms = VECTOR_ELT(d, 1),
     rho = VECTOR_ELT(d, 2);
-  SEXP r_i = PROTECT(ScalarReal(i));
+  SEXP r_i = PROTECT(ScalarInteger(i));
   SEXP r_t = PROTECT(ScalarReal(t));
   SEXP r_y = PROTECT(allocVector(REALSXP, n));
   memcpy(REAL(r_y), y, n * sizeof(double));

@@ -10,7 +10,7 @@
 typedef enum return_code {
   ERR_ZERO_STEP_DIFFERENCE = -1,
   ERR_INCONSISTENT_STEP = -2,
-  ERR_YLAG_FAIL = -4,
+  ERR_YPREV_FAIL = -4,
   NOT_SET = 0,
   OK_COMPLETE = 1
 } return_code;

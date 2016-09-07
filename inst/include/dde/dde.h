@@ -7,7 +7,7 @@ void ylag_vec(double t, const size_t *idx, size_t nidx, double *y);
 void ylag_vec_int(double t, const int *idx, size_t nidx, double *y);
 
 // difeq:
-double yprev_1(size_t step, size_t i);
-void yprev_all(size_t step, double *y);
-void yprev_vec(size_t step, const size_t *idx, size_t nidx, double *y);
-void yprev_vec_int(size_t step, const int *idx, size_t nidx, double *y);
+double yprev_1(int step, size_t i);
+void yprev_all(int step, double *y);
+void yprev_vec(int step, const size_t *idx, size_t nidx, double *y);
+void yprev_vec_int(int step, const int *idx, size_t nidx, double *y);
