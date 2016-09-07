@@ -4,6 +4,7 @@
 \alias{dopri}
 \alias{dopri5}
 \alias{dopri853}
+\alias{ylag}
 \title{Integrate ODE/DDE with dopri}
 \usage{
 dopri(y, times, func, parms, ..., n_out = 0L, output = NULL, rtol = 1e-06,
@@ -17,6 +18,8 @@ dopri(y, times, func, parms, ..., n_out = 0L, output = NULL, rtol = 1e-06,
 dopri5(y, times, func, parms, ...)
 
 dopri853(y, times, func, parms, ...)
+
+ylag(t, i = NULL)
 }
 \arguments{
 \item{y}{Initial conditions for the integration}
@@ -149,6 +152,15 @@ named).}
 \code{by_column}, \code{return_initial} and \code{return_time}.
 This affects only some aspects of the output, and not the
 calculations themselves.}
+
+\item{t}{The time to access (not that this is not an offset,
+but the actual time; within your target function you'd write
+things like \code{tlag(t - 1)} to get 1 time unit ago.}
+
+\item{i}{index within the state vector \code{y} to return.  The
+index here is R-style base-1 indexing, so pass \code{1} in to
+access the first element.  This can be left \code{NULL} to
+return all the elements or a vector longer than one.}
 }
 \value{
 At present the return value is transposed relative to

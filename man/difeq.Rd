@@ -2,6 +2,7 @@
 % Please edit documentation in R/difeq.R
 \name{difeq}
 \alias{difeq}
+\alias{yprev}
 \title{Solve difference equation}
 \usage{
 difeq(y, steps, target, parms, ..., t0 = 0, dt = 1, n_out = 0L,
@@ -9,6 +10,8 @@ difeq(y, steps, target, parms, ..., t0 = 0, dt = 1, n_out = 0L,
   parms_are_real = TRUE, ynames = TRUE, outnames = NULL,
   by_column = FALSE, return_initial = FALSE, return_step = FALSE,
   deSolve_compatible = FALSE)
+
+yprev(step, i = NULL)
 }
 \arguments{
 \item{y}{The initial state of the system.  Must be a numeric vector}
@@ -84,6 +87,15 @@ include the initial conditions (like deSolve).}
 \code{by_column}, \code{return_initial} and \code{return_time}.
 This affects only some aspects of the output, and not the
 calculations themselves.}
+
+\item{step}{The step to access (not that this is not an offset,
+but the actual step; within your target function you'd write
+things like \code{yprev(step - 1)} to get the previous step.}
+
+\item{i}{index within the state vector \code{y} to return.  The
+index here is R-style base-1 indexing, so pass \code{1} in to
+access the first element.  This can be left \code{NULL} to
+return all the elements or a vector longer than one.}
 
 \item{n_out}{The number of output variables (in addition to the
 difference equation variables).  If given, then an R function

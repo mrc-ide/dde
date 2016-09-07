@@ -135,7 +135,17 @@ difeq <- function(y, steps, target, parms, ...,
   ret
 }
 
-## TODO: export this!
-yprev <- function(t, i = NULL) {
-  .Call(Cyprev, t, i)
+##' @export
+##' @rdname difeq
+##'
+##' @param step The step to access (not that this is not an offset,
+##'   but the actual step; within your target function you'd write
+##'   things like \code{yprev(step - 1)} to get the previous step.
+##'
+##' @param i index within the state vector \code{y} to return.  The
+##'   index here is R-style base-1 indexing, so pass \code{1} in to
+##'   access the first element.  This can be left \code{NULL} to
+##'   return all the elements or a vector longer than one.
+yprev <- function(step, i = NULL) {
+  .Call(Cyprev, step, i)
 }

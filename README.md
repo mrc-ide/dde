@@ -5,14 +5,26 @@
 [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/richfitz/dde?branch=master&svg=true)](https://ci.appveyor.com/project/richfitz/dde)
 [![codecov.io](https://codecov.io/github/richfitz/dde/coverage.svg?branch=master)](https://codecov.io/github/richfitz/dde?branch=master)
 
-An R package that implements the `DOPRI5` solver of [Ernst Hairer](http://www.unige.ch/~hairer/software.html), along with the delay differential equation (DDE) form (originally called `RETARD`).
+This package solves ordinary differential equations (ODEs), delay differential equations (DDEs) and discrete-time *difference* (or recursion) equations, perhaps involving delays.
+
+For all the solvers, the target function can be an R function or a compiled function.
+
+## Ordinary and delay differential equations
+
+ODEs are solved with `DOPRI5` and `DOP853`; the 5th order and 8th order Dormand Prince methods [Dormand Prince](https://en.wikipedia.org/wiki/Dormand%E2%80%93Prince_method), based off of [Ernst Hairer's Fortran implementations](http://www.unige.ch/~hairer/software.html), but implemented in C.  These integrators support dense output.
+
+To solve DDEs, I use the same approach as Hairer in his `RETARD` algorithm, exploiting the dense output of the Dormand Prince solvers.
 
 This is an alternative approach to fitting delay DDE models to using deSolve.  It exists because I have had problems fitting very large DDE systems in deSolve, possibly because the order of interpolation is lower than the order of integration which can cause problems with the overall accuracy of the solution.
 
-Hairer addressed this problems by implementing the [Dormand Prince](https://en.wikipedia.org/wiki/Dormand%E2%80%93Prince_method) which has "dense output", which means that the solution can be computed at any time point the solver has passed to the same accuracy as the solution itself.  This sidesteps the interpolation problem at the cost of a bit more book-keeping.
+By using the dense output, the solution can be computed at any time point the solver has passed to the same accuracy as the solution itself.  This sidesteps the interpolation problem at the cost of a bit more book-keeping.
 
-I implemented the same integration algorithm and use a [ring buffer](https://github.com/richfitz/ring) to hold the history over time.  This means that the memory required to store the solution does not grow as the total integration length increases (though you still need to pick an amount of memory that scales with the maximum number of steps that span your longest lag at any point in the integration).
+To store the history without using ever-growing (or just huge) amounts of memory, `dde` uses a [ring buffer](https://github.com/richfitz/ring) to hold the history over time.  This means that the memory required to store the solution does not grow as the total integration length increases (though you still need to pick an amount of memory that scales with the maximum number of steps that span your longest lag at any point in the integration).
 
-This solver is suitable only for nonstiff problems.
+These solvers are suitable only for nonstiff problems.
 
-The interface is slightly different to the deSolve interface.  A `deSolve` compatible interface may be provided later.
+The interface is fairly different to the deSolve interface.  A `deSolve` compatible interface may be provided later (see [this issue](https://github.com/richfitz/dde/issues/2)).
+
+## Discrete time models
+
+Solving discrete time equations is much simpler; you don't have much choice but just to iterate the model.  The package implements this efficiently for compiled models, and also allows models to reference their previous history.

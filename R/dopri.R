@@ -348,6 +348,17 @@ find_function_address <- function(fun, dllname = "") {
   fun
 }
 
+##' @export
+##' @rdname dopri
+##'
+##' @param t The time to access (not that this is not an offset,
+##'   but the actual time; within your target function you'd write
+##'   things like \code{tlag(t - 1)} to get 1 time unit ago.
+##'
+##' @param i index within the state vector \code{y} to return.  The
+##'   index here is R-style base-1 indexing, so pass \code{1} in to
+##'   access the first element.  This can be left \code{NULL} to
+##'   return all the elements or a vector longer than one.
 ylag <- function(t, i = NULL) {
   .Call(Cylag, t, i)
 }
