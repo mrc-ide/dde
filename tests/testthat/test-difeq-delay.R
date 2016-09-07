@@ -50,3 +50,128 @@ test_that("prev and output", {
   output2 <- attr(res2, "output")
   expect_equal(output2, output[, i2 + 1])
 })
+
+test_that("ylag permutations", {
+  rhs <- function(i, t, y, p) {
+    iprev <- i - 1
+    if (p == "one") {
+      for (i in seq_along(y)) {
+        y[i] <- y[i] + yprev(iprev, i)
+      }
+    } else if (p == "idx") {
+      y <- y + yprev(iprev, seq_along(y))
+    } else { # all
+      y <- y + yprev(iprev)
+    }
+    y
+  }
+
+  i <- seq(0:10)
+  y0 <- runif(5)
+  res1 <- difeq(y0, i, rhs, "one", return_initial = TRUE, n_history = 2L)
+  res2 <- difeq(y0, i, rhs, "idx", return_initial = TRUE, n_history = 2L)
+  res3 <- difeq(y0, i, rhs, "all", return_initial = TRUE, n_history = 2L)
+
+  cmp <- matrix(y0, length(y0), length(i))
+  for (j in 2:length(i)) {
+    cmp[, j] <- cmp[, j - 1] + cmp[, max(1, j - 2)]
+  }
+
+  expect_equal(res1, cmp, check.attributes = FALSE)
+  expect_equal(res2, res1)
+  expect_equal(res3, res1)
+})
+
+test_that("ylag invalid input", {
+  rhs <- function(i, t, y, p) {
+    type <- p$type
+    lag <- p$lag
+    idx <- p$idx
+    iprev <- if (is.numeric(lag)) i - lag else lag
+    if (type == "one") {
+      for (i in seq_along(idx)) {
+        j <- idx[[i]]
+        yp <- yprev(iprev, j)
+        y[j] <- y[j] + yp
+      }
+    } else if (type == "idx") {
+      yp <- yprev(iprev, idx)
+      y[idx] <- y[idx] + yp
+    } else { # all
+      y <- y + yprev(iprev)
+    }
+    y
+  }
+
+  i <- seq(0:10)
+  y0 <- runif(5)
+  cmp <- matrix(y0, length(y0), length(i))
+  for (j in 2:length(i)) {
+    cmp[, j] <- cmp[, j - 1] + cmp[, max(1, j - 2)]
+  }
+
+  p <- list(lag = 1.0, idx = as.numeric(seq_along(y0)), type = "one")
+  res1 <- difeq(y0, i, rhs, p, n_history = 2L, return_initial = TRUE)
+  expect_equal(res1, cmp, check.attributes = FALSE)
+
+  p <- list(lag = 1.0, idx = as.numeric(seq_along(y0)), type = "idx")
+  res1 <- difeq(y0, i, rhs, p, n_history = 2L, return_initial = TRUE)
+  expect_equal(res1, cmp, check.attributes = FALSE)
+
+  p <- list(lag = 1.0, idx = as.numeric(seq_along(y0) + 1), type = "one")
+  expect_error(difeq(y0, i, rhs, p, n_history = 2L, return_initial = TRUE),
+               "out of bounds")
+  p <- list(lag = 1.0, idx = as.integer(seq_along(y0) + 1L), type = "one")
+  expect_error(difeq(y0, i, rhs, p, n_history = 2L, return_initial = TRUE),
+               "out of bounds")
+
+  p <- list(lag = 1.0, idx = "one", type = "one")
+  expect_error(difeq(y0, i, rhs, p, n_history = 2L, return_initial = TRUE),
+               "Invalid type")
+  p <- list(lag = 1.0, idx = c("one", "two"), type = "idx")
+  expect_error(difeq(y0, i, rhs, p, n_history = 2L, return_initial = TRUE),
+               "Invalid type")
+
+  p <- list(lag = - 1.0, type = "one", idx = 1L)
+  expect_error(difeq(y0, i, rhs, p, n_history = 2L, return_initial = TRUE),
+               "did not find step")
+  p <- list(lag = - 1.0, type = "idx", idx = 1L)
+  expect_error(difeq(y0, i, rhs, p, n_history = 2L, return_initial = TRUE),
+               "did not find step")
+  p <- list(lag = - 1.0, type = "all")
+  expect_error(difeq(y0, i, rhs, p, n_history = 2L, return_initial = TRUE),
+               "did not find step")
+
+  p <- list(lag = NULL, type = "all")
+  expect_error(difeq(y0, i, rhs, p, n_history = 2L, return_initial = TRUE),
+               "Expected a scalar")
+  p <- list(lag = c(1L, 2L), type = "all")
+  expect_error(difeq(y0, i, rhs, p, n_history = 2L, return_initial = TRUE),
+               "Expected a scalar")
+  p <- list(lag = "one", type = "all")
+  expect_error(difeq(y0, i, rhs, p, n_history = 2L, return_initial = TRUE),
+               "Expected an integer")
+})
+
+test_that("integer lag", {
+  growth <- function(i, t, y, p) {
+    y + yprev(i - 1L)
+  }
+
+  i <- seq(0:10)
+  y0 <- runif(5)
+  p <- numeric(0) # no parameters
+
+  cmp <- matrix(y0, length(y0), length(i))
+  for (j in 2:length(i)) {
+    cmp[, j] <- cmp[, j - 1] + cmp[, max(1, j - 2)]
+  }
+
+  res <- difeq(y0, i, growth, p, n_history = 2L,
+               return_history = FALSE, return_initial = TRUE)
+  expect_equal(res, cmp)
+
+  res <- difeq(y0, i, "growth", p, n_history = 2L, dllname = "growth_int",
+               return_history = FALSE, return_initial = TRUE)
+  expect_equal(res, cmp)
+})

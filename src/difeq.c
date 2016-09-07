@@ -220,11 +220,9 @@ double yprev_1(int step, size_t i) {
     return difeq_global_obj->y0[i];
   } else {
     const double * h = difeq_find_step(difeq_global_obj, step);
-    if (h == NULL) {
-      return NA_REAL;
-    } else {
-      return h[i];
-    }
+    // NOTE: not checking for non-null h because that's done above in
+    // find_step
+    return h[i];
   }
 }
 

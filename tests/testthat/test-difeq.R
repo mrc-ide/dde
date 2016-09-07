@@ -144,6 +144,38 @@ test_that("output (R)", {
   expect_equal(drop(attr(res_n, "output")), colSums(res_n))
 })
 
+test_that("transpose output", {
+  rhs <- function(i, t, y, p) {
+    ret <- y + p
+    attr(ret, "output") <- sum(y)
+    ret
+  }
+  y0 <- runif(5)
+  p <- runif(5)
+  i <- 0:10
+  i2 <- seq(0, 10, by = 2)
+
+  cmp <- y0 + outer(p, i)
+  cmp2 <- cmp[, i2 + 1L]
+
+  ## We run this three times:
+  ##   * res_o: coming off the output storage
+  ##   * res_h: coming off history
+  ##   * res_n: coming off of short history
+  res_o <- difeq(y0, i, rhs, p, deSolve_compatible = TRUE, n_out = 1)
+  res_h <- difeq(y0, i, rhs, p, deSolve_compatible = TRUE, n_out = 1,
+                 n_history = length(i), return_history = FALSE)
+
+  expect_equal(colnames(res_o), c("step", as.character(seq_along(y0))))
+  expect_equal(res_o[, 1], i)
+  expect_equal(res_o[, -1], t(cmp), check.attributes = FALSE)
+
+  output <- attr(res_o, "output")
+  expect_equal(drop(output), colSums(cmp))
+
+  expect_equal(res_o, res_h)
+})
+
 test_that("incorrect output", {
   f <- function(i, t, y, p) {
     structure(y, output = p)
