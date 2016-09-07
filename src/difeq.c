@@ -159,6 +159,9 @@ void difeq_run(difeq_data *obj, double *y,
     // configurable because it's a real headache.
     obj->target(obj->n, obj->step, obj->t, y, y_next, obj->n_out, out_next,
                 obj->data);
+    if (obj->error) {
+      break;
+    }
     obj->step++;
     obj->t += obj->dt;
     y = y_next;
@@ -192,7 +195,7 @@ void difeq_run(difeq_data *obj, double *y,
       y_next = h + obj->history_idx_y;
     }
 
-    if (obj->step == obj->step1) { // or obj->error
+    if (obj->step == obj->step1) {
       break;
     }
   }

@@ -154,8 +154,16 @@ void difeq_r_harness(size_t n, size_t i, double t,
   SEXP ans = PROTECT(eval(call, rho));
   memcpy(ynext, REAL(ans), n * sizeof(double));
   if (n_out > 0) {
-    double *ans_output = REAL(getAttrib(ans, install("output")));
-    memcpy(output, ans_output, n_out * sizeof(double));
+    SEXP output = getAttrib(ans, install("output"));
+    if (output == R_NilValue) {
+      Rf_error("Missing output");
+    } else if ((size_t)length(output) != n_out) {
+      Rf_error("Incorrect length output: expected %d, recieved %d",
+               n_out, length(output));
+    } else if (TYPEOF(output) != REALSXP) {
+      Rf_error("Incorrect type output");
+    }
+    memcpy(output, REAL(output), n_out * sizeof(double));
   }
   UNPROTECT(5);
 }
