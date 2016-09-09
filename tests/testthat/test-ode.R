@@ -34,6 +34,7 @@ test_that("ode, 873 stepper", {
   expect_false(identical(m5, m8))
 })
 
+## TODO: Not exposed yet
 test_that("dense output", {
   tt <- seq(0, 1, length.out = 200)
   m1 <- run_lorenz_deSolve(tt)

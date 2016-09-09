@@ -75,13 +75,13 @@ typedef struct {
   // internal state for the dopri step
   double **k;
 
-  // For the dde version this is going to become a circular buffer,
-  // but we need a place to keep this here now.  This has length:
+  // For the delay equation version this is a circular buffer, with
+  // each element being length:
   //
   //     5 * n + 2 (DOPRI_5)
   //     8 * n + 2 (DOPRI_853)
   //
-  // long, (and for dde there will be mxst of these).
+  // and with n_history elements.
   //
   // The memory layout of each element;
   //

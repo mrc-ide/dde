@@ -195,6 +195,8 @@ SEXP r_ylag(SEXP r_t, SEXP r_idx) {
   }
   double t = scalar_double(r_t);
   SEXP r_y;
+  // TODO: bad things will happen if negative values of ylag are
+  // given!
   if (r_idx == R_NilValue) {
     r_y = PROTECT(allocVector(REALSXP, n));
     ylag_all(t, REAL(r_y));

@@ -221,7 +221,6 @@ void dopri_integrate(dopri_data *obj, double *y,
                      double *tcrit, size_t n_tcrit,
                      double *y_out, double *out,
                      bool return_initial) {
-  // TODO: check that t is strictly sorted and n_times >= 2 (in R)
   dopri_data_reset(obj, y, times, n_times, tcrit, n_tcrit);
   if (obj->error) {
     return;
@@ -299,7 +298,7 @@ void dopri_integrate(dopri_data *obj, double *y,
     // in once the signalling is done.
     dopri_step(obj, h);
     if (obj->error) {
-      return;
+      break;
     }
 
     // Error estimation:
