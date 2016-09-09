@@ -127,11 +127,16 @@
 ##'   \code{by_column} is \code{TRUE}) representing time is included
 ##'   (this matches deSolve).
 ##'
+##' @param return_output_with_y Logical, indicating if the output
+##'   should be bound together with the returned matrix \code{y} (as
+##'   it is with \code{deSolve}).  Otherwise output will be returned
+##'   as the attribute \code{output}.
+##'
 ##' @param deSolve_compatible Logical, indicating if we should run in
 ##'   "deSolve compatible" output mode.  This enables the options
-##'   \code{by_column}, \code{return_initial} and \code{return_time}.
-##'   This affects only some aspects of the output, and not the
-##'   calculations themselves.
+##'   \code{by_column}, \code{return_initial}, \code{return_time} and
+##'   \code{return_output_with_y}.  This affects only some aspects of
+##'   the returned value, and not the calculations themselves.
 ##'
 ##' @return At present the return value is transposed relative to
 ##'   deSolve.  This might change in future.
@@ -148,7 +153,8 @@ dopri <- function(y, times, func, parms, ...,
                   parms_are_real = TRUE,
                   ynames = TRUE, outnames = NULL,
                   by_column = FALSE, return_initial = FALSE,
-                  return_statistics=FALSE, return_time = FALSE,
+                  return_statistics = FALSE, return_time = FALSE,
+                  return_output_with_y = FALSE,
                   deSolve_compatible = FALSE) {
   ## TODO: include "deSolve" mode where we do the transpose, add the
   ## time column too?
@@ -160,6 +166,7 @@ dopri <- function(y, times, func, parms, ...,
     by_column <- TRUE
     return_initial <- TRUE
     return_time <- TRUE
+    return_output_with_y <- TRUE
   }
 
   func <- find_function_address(func, dllname)
@@ -189,11 +196,10 @@ dopri <- function(y, times, func, parms, ...,
   assert_scalar_logical(by_column)
   assert_scalar_logical(return_initial)
   assert_scalar_logical(return_statistics)
+  assert_scalar_logical(return_time)
+  assert_scalar_logical(return_output_with_y)
 
   ynames <- check_ynames(y, ynames, deSolve_compatible)
-  if (return_time && !is.null(ynames)) {
-    ynames <- c("time", ynames)
-  }
 
   assert_size(n_out)
   outnames <- check_outnames(n_out, outnames)
@@ -233,29 +239,48 @@ dopri <- function(y, times, func, parms, ...,
                as.integer(n_history), return_history,
                return_initial, return_statistics)
 
-  if (return_time) {
+  has_output <- n_out > 0L
+  bind_output <- has_output && return_output_with_y
+
+  named <- FALSE
+  if (has_output && !is.null(outnames)) {
+    named <- return_output_with_y
+    rownames(attr(ret, "output")) <- outnames
+  }
+  if (!is.null(ynames)) {
+    named <- TRUE
+    rownames(ret) <- ynames
+  }
+
+  if (return_time || bind_output) {
     at <- attributes(ret)
-    ret <- rbind(if (return_initial) times else times[-1],
-                 ret, deparse.level = 0)
+    if (return_time) {
+      time <- matrix(if (return_initial) times else times[-1L], 1L,
+                     dimnames=if (named) list("time", NULL) else NULL)
+    } else {
+      time <- NULL
+    }
+
+    ret <- rbind(if (return_time) time,
+                 ret,
+                 if (bind_output) at$output,
+                 deparse.level = 0L)
+    if (bind_output) {
+      at$output <- NULL
+      has_output <- FALSE
+    }
     ## This is a real pain, but we need to include any attributes set
     ## on the output by Cdopri; this is going to be "statistics" and
     ## "history", but it's always possible that additional attributes
-    ## will be added.
-    for (x in setdiff(names(at), "dim")) {
+    ## will be added later.
+    for (x in setdiff(names(at), c("dim", "dimnames"))) {
       attr(ret, x) <- at[[x]]
     }
   }
 
-  if (!is.null(ynames)) {
-    rownames(ret) <- ynames
-  }
-  if (n_out > 0L && !is.null(outnames)) {
-    rownames(attr(ret, "output")) <- outnames
-  }
-
   if (by_column) {
     ret <- t.default(ret)
-    if (n_out > 0L) {
+    if (has_output) {
       attr(ret, "output") <- t.default(attr(ret, "output"))
     }
   }

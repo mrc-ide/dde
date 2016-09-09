@@ -99,6 +99,23 @@ test_that("output", {
   expect_equal(attr(res3, "output"), t(output))
   attr(res3, "output") <- NULL
   expect_identical(res3, t(res2))
+
+  res4 <- dopri(y0, tt, "lorenz", p, dllname = "lorenz",
+                n_out = 2L, output = "lorenz_output", by_column = TRUE,
+                return_output_with_y = TRUE)
+  expect_null(attr(res4, "output"))
+  expect_equal(dim(res4), c(length(tt) - 1L, 5))
+  expect_equal(res4[, 1:3], res3, check.attributes = FALSE)
+  expect_equal(res4[, 4:5], t(output), check.attributes = FALSE)
+
+  res5 <- dopri(y0, tt, "lorenz", p, dllname = "lorenz",
+                n_out = 2L, output = "lorenz_output", by_column = TRUE,
+                return_output_with_y = TRUE, return_time = TRUE)
+  expect_null(attr(res5, "output"))
+  expect_equal(dim(res5), c(length(tt) - 1L, 6))
+  expect_equal(res5[, 1], tt[-1])
+  expect_equal(res5[, 2:4], res3, check.attributes = FALSE)
+  expect_equal(res5[, 5:6], t(output), check.attributes = FALSE)
 })
 
 test_that("keep initial", {
@@ -128,10 +145,24 @@ test_that("keep initial", {
   expect_equal(out3[,1], range(y0)) # based on definition of output function
   expect_equal(out3[, -1], out4)
 
+  output <- attr(res3, "output")
   attr(res3, "output") <- attr(res4, "output") <- NULL
   expect_equal(ncol(res3), length(tt))
   expect_identical(res3[, 1], y0)
   expect_identical(res3[, -1], res4)
+
+  res5 <- dopri(y0, tt, "lorenz", p, dllname = "lorenz",
+                n_out = 2L, output = "lorenz_output", return_initial = TRUE,
+                return_output_with_y = TRUE)
+  res6 <- dopri(y0, tt, "lorenz", p, dllname = "lorenz",
+                n_out = 2L, output = "lorenz_output", return_initial = FALSE,
+                return_output_with_y = TRUE)
+  expect_null(attr(res5, "output"))
+  expect_null(attr(res6, "output"))
+  expect_equal(res5[1:3, ], res3)
+  expect_equal(res6[1:3, ], res4)
+  expect_equal(res5[4:5, ], output)
+  expect_equal(res6[4:5, ], output[, -1])
 })
 
 test_that("R interface", {
@@ -233,6 +264,30 @@ test_that("names", {
   res <- f(ynames = nms, outnames = onms)
   expect_equal(dimnames(res), cmp)
   expect_equal(dimnames(attr(res, "output")), ocmp)
+
+  ## And check when output is combined
+  m <- f(ynames = nms, outnames = NULL, return_output_with_y = TRUE)
+  expect_equal(rownames(m), c(nms, rep("", length(onms))))
+  m <- f(ynames = NULL, outnames = onms, return_output_with_y = TRUE)
+  expect_equal(rownames(m), c(rep("", length(nms)), onms))
+  m <- f(ynames = nms, outnames = onms, return_output_with_y = TRUE)
+  expect_equal(rownames(m), c(nms, onms))
+
+  ## And check time
+  expect_null(dimnames(f(return_time = TRUE)))
+  expect_equal(rownames(f(return_time = TRUE, ynames = nms)),
+               c("time", nms))
+  expect_equal(rownames(f(return_time = TRUE, return_output_with_y = TRUE,
+                          ynames = nms)),
+               c("time", nms, rep("", length(onms))))
+  expect_equal(rownames(f(return_time = TRUE, return_output_with_y = TRUE,
+                          ynames = nms, outnames = onms)),
+               c("time", nms, onms))
+  expect_equal(rownames(f(return_time = TRUE, return_output_with_y = TRUE,
+                          ynames = NULL, outnames = onms)),
+               c("time", rep("", length(nms)), onms))
+  expect_null(rownames(f(return_time = TRUE, return_output_with_y = TRUE,
+                         ynames = NULL, outnames = NULL)))
 })
 
 test_that("return_time", {

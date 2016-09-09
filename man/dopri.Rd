@@ -13,7 +13,8 @@ dopri(y, times, func, parms, ..., n_out = 0L, output = NULL, rtol = 1e-06,
   method = "dopri5", n_history = 0, return_history = n_history > 0,
   dllname = "", parms_are_real = TRUE, ynames = TRUE, outnames = NULL,
   by_column = FALSE, return_initial = FALSE, return_statistics = FALSE,
-  return_time = FALSE, deSolve_compatible = FALSE)
+  return_time = FALSE, return_output_with_y = FALSE,
+  deSolve_compatible = FALSE)
 
 dopri5(y, times, func, parms, ...)
 
@@ -147,11 +148,16 @@ named).}
 \code{by_column} is \code{TRUE}) representing time is included
 (this matches deSolve).}
 
+\item{return_output_with_y}{Logical, indicating if the output
+should be bound together with the returned matrix \code{y} (as
+it is with \code{deSolve}).  Otherwise output will be returned
+as the attribute \code{output}.}
+
 \item{deSolve_compatible}{Logical, indicating if we should run in
 "deSolve compatible" output mode.  This enables the options
-\code{by_column}, \code{return_initial} and \code{return_time}.
-This affects only some aspects of the output, and not the
-calculations themselves.}
+\code{by_column}, \code{return_initial}, \code{return_time} and
+\code{return_output_with_y}.  This affects only some aspects of
+the returned value, and not the calculations themselves.}
 
 \item{t}{The time to access (not that this is not an offset,
 but the actual time; within your target function you'd write

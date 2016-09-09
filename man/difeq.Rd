@@ -89,9 +89,9 @@ include the initial conditions (like deSolve).}
 
 \item{deSolve_compatible}{Logical, indicating if we should run in
 "deSolve compatible" output mode.  This enables the options
-\code{by_column}, \code{return_initial} and \code{return_time}.
-This affects only some aspects of the output, and not the
-calculations themselves.}
+\code{by_column}, \code{return_initial}, \code{return_time} and
+\code{return_output_with_y}.  This affects only some aspects of
+the returned value, and not the calculations themselves.}
 
 \item{step}{The step to access (not that this is not an offset,
 but the actual step; within your target function you'd write
