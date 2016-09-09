@@ -18,18 +18,14 @@ test_that("increase", {
   cmp <- y0 + outer(p, i)
   expect_equal(res, cmp)
 
-  t0 <- runif(1)
-  dt <- runif(1)
   res <- difeq(y0, i, rhs, p,
                return_initial = TRUE,
-               n_history = length(i),
-               t0 = t0, dt = dt)
+               n_history = length(i))
 
   ## Check the history buffer:
   h <- attr(res, "history")
   expect_equal(h[1, ], i)
-  expect_equal(h[2, ], t0 + i * dt)
-  expect_equal(h[-(1:2), ], cmp)
+  expect_equal(h[-1, ], cmp)
 
   ## Check the returned values:
   attr(res, "history") <- NULL
@@ -38,8 +34,7 @@ test_that("increase", {
   ## And again, but using the shortcut:
   res2 <- difeq(y0, max(i), rhs, p,
                 return_initial = TRUE,
-                n_history = length(i),
-                t0 = t0, dt = dt)
+                n_history = length(i))
   expect_equal(attr(res2, "history"), h)
   attr(res2, "history") <- NULL
   expect_equal(res2, res)
@@ -48,8 +43,7 @@ test_that("increase", {
   i2 <- seq(0, 10, by = 2)
   res <- difeq(y0, i2, rhs, p,
                return_initial = TRUE,
-               n_history = length(i),
-               t0 = t0, dt = dt)
+               n_history = length(i))
   ## The history length should not change here.
   expect_identical(attr(res, "history"), h)
   attr(res, "history") <- NULL
@@ -235,14 +229,13 @@ test_that("vector output (R)", {
   expect_equal(attr(res, "output"), cmp + 1)
   h <- attr(res, "history")
   expect_equal(h[1, ], i)
-  expect_equal(h[2, ], i)
-  expect_equal(h[seq_along(y0) + 2, ], cmp)
-  expect_equal(h[seq_along(y0) + 2 + length(y0), ],
+  expect_equal(h[seq_along(y0) + 1, ], cmp)
+  expect_equal(h[seq_along(y0) + 1 + length(y0), ],
                cbind(NA, cmp[, -1], deparse.level = 0) + 1)
 
   res2 <- difeq(y0, i2, growth, p, return_initial = TRUE, n_out = 5L,
                 n_history = length(i))
-  j <- seq_len(length(y0) + 2)
+  j <- seq_len(length(y0) + 1)
   expect_equal(attr(res2, "history")[j, ], h[j, ])
 
   expect_equal(res2, cmp2, check.attributes=FALSE)

@@ -23,7 +23,7 @@ SEXP logistic_init(SEXP pars) {
   return extPtr;
 }
 
-void logistic(size_t n, size_t i , double t, double *y, double *y_next,
+void logistic(size_t n, size_t i, double *y, double *y_next,
               size_t n_out, double *output, void *data) {
   double *pars = (double*) data;
   double *r = pars;

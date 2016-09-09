@@ -1,6 +1,6 @@
 #include <dde/dde.h>
 
-void growth(size_t n, size_t i , double t, double *y, double *y_next,
+void growth(size_t n, size_t i, double *y, double *y_next,
             size_t n_out, double *output, void *data) {
   double *pars = (double*) data;
   int idx[5] = {0, 1, 2, 3, 4};

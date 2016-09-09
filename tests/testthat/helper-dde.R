@@ -143,9 +143,16 @@ cleanup_objects <- function() {
   invisible()
 }
 
-prepare_all <- function() {
-  cleanup_objects()
+.first_time <- TRUE
+prepare_all <- function(reload = FALSE) {
+  if (.first_time || reload) {
+    cleanup_objects()
+    .first_time <- FALSE
+  }
   files <- dir(pattern = "\\.c$")
+  if (!reload) {
+    files <- files[!(sub("\\.c$", "", files) %in% names(getLoadedDLLs()))]
+  }
   for (f in files) {
     compile_shlib(f)
   }

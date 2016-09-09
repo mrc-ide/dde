@@ -5,11 +5,10 @@
 \alias{yprev}
 \title{Solve difference equation}
 \usage{
-difeq(y, steps, target, parms, ..., t0 = 0, dt = 1, n_out = 0L,
-  n_history = 0L, return_history = n_history > 0, dllname = "",
-  parms_are_real = TRUE, ynames = TRUE, outnames = NULL,
-  by_column = FALSE, return_initial = FALSE, return_step = FALSE,
-  deSolve_compatible = FALSE)
+difeq(y, steps, target, parms, ..., n_out = 0L, n_history = 0L,
+  return_history = n_history > 0, dllname = "", parms_are_real = TRUE,
+  ynames = TRUE, outnames = NULL, by_column = FALSE,
+  return_initial = FALSE, return_step = FALSE, deSolve_compatible = FALSE)
 
 yprev(step, i = NULL)
 }
@@ -33,11 +32,6 @@ arguments \code{size_t n, size_t step, double time, const double
 \item{...}{Dummy arguments - nothing is allowed here, but this
 means that all further arguments \emph{must} be specified by
 name (not order) so I can easily reorder them later on.}
-
-\item{t0}{The initial time, if your problem has a continuous time
-basis too (e.g., if each step corresponds to 1/365 of a year)}
-
-\item{dt}{The continuous time step size}
 
 \item{n_out}{The number of output variables (in addition to the
 difference equation variables).  If given, then an R function

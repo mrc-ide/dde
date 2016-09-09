@@ -24,18 +24,16 @@ difeq_data* difeq_data_alloc(difeq_target* target,
 
   ret->history_n = n_history;
   if (n_history > 0) {
-    ret->history_len = 2 + n + n_out;
+    ret->history_len = 1 + n + n_out;
     ret->history =
       ring_buffer_create(n_history, ret->history_len * sizeof(double));
     ret->history_idx_step = 0;
-    ret->history_idx_time = 1;
-    ret->history_idx_y = 2;
-    ret->history_idx_out = 2 + n;
+    ret->history_idx_y = 1;
+    ret->history_idx_out = 1 + n;
   } else {
     ret->history = NULL;
     ret->history_len = 0;
     ret->history_idx_step = 0;
-    ret->history_idx_time = 0;
     ret->history_idx_y = 0;
     ret->history_idx_out = 0;
   }
@@ -44,17 +42,12 @@ difeq_data* difeq_data_alloc(difeq_target* target,
 }
 
 void difeq_data_reset(difeq_data *obj, double *y,
-                      size_t *steps, size_t n_steps,
-                      double t0, double dt) {
+                      size_t *steps, size_t n_steps) {
   memcpy(obj->y0, y, obj->n * sizeof(double));
 
   obj->step0 = steps[0];
   obj->step  = steps[0];
   obj->step1 = steps[n_steps - 1];
-
-  obj->t0 = t0;
-  obj->dt = dt;
-  obj->t  = t0;
 
   obj->n_steps = n_steps;
   obj->steps = (size_t*) R_Realloc(obj->steps, n_steps, size_t);
@@ -96,10 +89,10 @@ size_t get_current_problem_size_difeq() {
 }
 
 void difeq_run(difeq_data *obj, double *y,
-               size_t *steps, size_t n_steps, double t0, double dt,
+               size_t *steps, size_t n_steps,
                double *y_out, double *out,
                bool return_initial) {
-  difeq_data_reset(obj, y, steps, n_steps, t0, dt);
+  difeq_data_reset(obj, y, steps, n_steps);
 
   double *y_next, *out_next;
   double *write_y = y_out, *write_out = out;
@@ -148,10 +141,8 @@ void difeq_run(difeq_data *obj, double *y,
     // output; does output computed against variables y(i) go with
     // y(i) or with y(i + 1).  Hopefully this does not need to be
     // configurable because it's a real headache.
-    obj->target(obj->n, obj->step, obj->t, y, y_next, obj->n_out, out_next,
-                obj->data);
+    obj->target(obj->n, obj->step, y, y_next, obj->n_out, out_next, obj->data);
     obj->step++;
-    obj->t += obj->dt;
     y = y_next;
 
     if (has_output && store_next_output) {
@@ -192,7 +183,7 @@ void difeq_run(difeq_data *obj, double *y,
     // NOTE: Destructive to y0, which is not pretty.  It might be
     // nicer to have some scratch space or even to allocate a little
     // memory here.
-    obj->target(obj->n, obj->step, obj->t, y, obj->y0, obj->n_out, write_out,
+    obj->target(obj->n, obj->step, y, obj->y0, obj->n_out, write_out,
                 obj->data);
     if (store_y_in_history) { // NOTE: opposite direction to usual.
       memcpy(out_next, write_out, obj->n_out * sizeof(double));
@@ -210,7 +201,8 @@ const double* difeq_find_step(difeq_data *obj, int step) {
     h = ring_buffer_head_offset(obj->history, (size_t) offset);
   }
   if (h == NULL) {
-    Rf_error("difeq failure: did not find step in history (at step %d, t = %2.5f)", obj->step, obj->t);
+    Rf_error("difeq failure: did not find step in history (at step %d)",
+             obj->step);
   }
   return ((double*) h) + obj->history_idx_y;
 }
@@ -271,7 +263,6 @@ void yprev_vec_int(int step, const int *idx, size_t nidx, double *y) {
 void difeq_store_time(difeq_data *obj) {
   double *h = (double*) obj->history->head;
   h[obj->history_idx_step] = obj->step;
-  h[obj->history_idx_time] = obj->t;
 }
 
 void fill_na(double *x, size_t n) {

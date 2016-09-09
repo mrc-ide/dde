@@ -7,7 +7,6 @@ void difeq_ptr_finalizer(SEXP extPtr);
 
 SEXP r_difeq(SEXP r_y_initial, SEXP r_steps, SEXP r_target, SEXP r_data,
              SEXP r_n_out,
-             SEXP r_t0, SEXP r_dt,
              SEXP r_data_is_real,
              SEXP r_n_history, SEXP r_return_history,
              SEXP r_return_initial) {
@@ -20,8 +19,6 @@ SEXP r_difeq(SEXP r_y_initial, SEXP r_steps, SEXP r_target, SEXP r_data,
   for (size_t i = 0; i < n_steps; ++i) {
     steps[i] = (size_t) tmp[i];
   }
-
-  double t0 = REAL(r_t0)[0], dt = REAL(r_dt)[0];
 
   // TODO: check for NULL function pointers here to avoid crashes;
   // also test type?
@@ -65,7 +62,7 @@ SEXP r_difeq(SEXP r_y_initial, SEXP r_steps, SEXP r_target, SEXP r_data,
   double *y = REAL(r_y);
 
   GetRNGstate();
-  difeq_run(obj, y_initial, steps, n_steps, t0, dt, y, out, return_initial);
+  difeq_run(obj, y_initial, steps, n_steps, y, out, return_initial);
   PutRNGstate();
 
   if (return_history) {

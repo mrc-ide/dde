@@ -15,11 +15,11 @@ test_that("fib", {
 
   h <- attr(res, "history")
   expect_equal(attr(h, "n"), 1L)
-  expect_equal(dim(h), c(3, 2))
+  expect_equal(dim(h), c(2, 2))
 
   res2 <- difeq(y0, i, fib, NULL, return_initial = TRUE, n_history = 20)
   h2 <- attr(res2, "history")
-  expect_equal(dim(h2), c(3, 11))
+  expect_equal(dim(h2), c(2, 11))
   expect_equal(h2[, 10:11], h, check.attributes = FALSE)
 })
 

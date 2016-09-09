@@ -10,11 +10,13 @@
 // This is *very* similar to the format used by deSolve and dopri, but
 // with a couple of differences:
 //
-//   double time has been augmented by size_t step
+//   double time has been replaced by size_t step
 //
-//   const void *data is passed through
+//   const void *data is passed through (vs deSolve)
 //
-typedef void difeq_target(size_t n_eq, size_t step, double time,
+//   output is always passed through (vs dopri)
+//
+typedef void difeq_target(size_t n_eq, size_t step,
                           const double *y, double *ynext,
                           size_t n_out, double *output, const void *data);
 
@@ -28,10 +30,6 @@ typedef struct {
   size_t step0; // initial step number (always zero?)
   size_t step;  // current step number
   size_t step1; // final step number
-
-  double t0;
-  double dt;
-  double t;
 
   // Steps for integration to report at
   size_t *steps; // Set of steps to stop at
@@ -47,7 +45,6 @@ typedef struct {
   size_t history_len; // element length
   ring_buffer *history;
   size_t history_idx_step;
-  size_t history_idx_time;
   size_t history_idx_y;
   size_t history_idx_out;
 } difeq_data;
@@ -56,11 +53,10 @@ difeq_data* difeq_data_alloc(difeq_target * target,
                              size_t n, size_t n_out, void *data,
                              size_t n_history);
 void difeq_data_reset(difeq_data *obj, double *y,
-                      size_t *steps, size_t n_steps,
-                      double t0, double dt);
+                      size_t *steps, size_t n_steps);
 void difeq_data_free(difeq_data *obj);
 void difeq_run(difeq_data *obj, double *y,
-               size_t *steps, size_t n_steps, double t0, double dt,
+               size_t *steps, size_t n_steps,
                double *y_out, double *out,
                bool return_initial);
 
