@@ -91,7 +91,6 @@ test_that("R interface", {
   res1 <- dopri(y0, tt, "seir", p, n_history = 1000L,
                 dllname = "seir", return_history = FALSE)
 
-
   seir <- function(t, y, p) {
     b <- 1.0 / 10.0
     N <- 1e7

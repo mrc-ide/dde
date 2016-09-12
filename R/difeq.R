@@ -45,7 +45,8 @@ difeq <- function(y, steps, target, parms, ...,
                   dllname = "", parms_are_real = TRUE,
                   ynames = TRUE, outnames = NULL,
                   by_column = FALSE, return_initial = FALSE,
-                  return_step = FALSE, deSolve_compatible = FALSE) {
+                  return_step = FALSE, return_output_with_y = FALSE,
+                  deSolve_compatible = FALSE) {
   DOTS <- list(...)
   if (length(DOTS) > 0L) {
     stop("Invalid dot arguments!")
@@ -54,6 +55,7 @@ difeq <- function(y, steps, target, parms, ...,
     by_column <- TRUE
     return_initial <- TRUE
     return_step <- TRUE
+    return_output_with_y <- TRUE
   }
 
   target <- find_function_address(target, dllname)
@@ -74,11 +76,10 @@ difeq <- function(y, steps, target, parms, ...,
   assert_scalar_logical(parms_are_real)
   assert_scalar_logical(by_column)
   assert_scalar_logical(return_initial)
+  assert_scalar_logical(return_step)
+  assert_scalar_logical(return_output_with_y)
 
   ynames <- check_ynames(y, ynames, deSolve_compatible)
-  if (return_step && !is.null(ynames)) {
-    ynames <- c("step", ynames)
-  }
 
   assert_size(n_out)
   outnames <- check_outnames(n_out, outnames)
@@ -99,35 +100,9 @@ difeq <- function(y, steps, target, parms, ...,
                ## Return information:
                as.integer(n_history), return_history,
                return_initial)
-
-  if (return_step) {
-    at <- attributes(ret)
-    ret <- rbind(if (return_initial) steps else steps[-1],
-                 ret, deparse.level = 0)
-    ## This is a real pain, but we need to include any attributes set
-    ## on the output by Cdopri; this is going to be "statistics" and
-    ## "history", but it's always possible that additional attributes
-    ## will be added.
-    for (x in setdiff(names(at), "dim")) {
-      attr(ret, x) <- at[[x]]
-    }
-  }
-
-  if (!is.null(ynames)) {
-    rownames(ret) <- ynames
-  }
-  if (n_out > 0L && !is.null(outnames)) {
-    rownames(attr(ret, "output")) <- outnames
-  }
-
-  if (by_column) {
-    ret <- t.default(ret)
-    if (n_out > 0L) {
-      attr(ret, "output") <- t.default(attr(ret, "output"))
-    }
-  }
-
-  ret
+  prepare_output(ret, steps, ynames, outnames, n_out,
+                 by_column, return_initial, return_step, return_output_with_y,
+                 "step")
 }
 
 ##' @export

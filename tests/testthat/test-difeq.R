@@ -160,12 +160,11 @@ test_that("transpose output", {
   res_h <- difeq(y0, i, rhs, p, deSolve_compatible = TRUE, n_out = 1,
                  n_history = length(i), return_history = FALSE)
 
-  expect_equal(colnames(res_o), c("step", as.character(seq_along(y0))))
+  expect_equal(colnames(res_o), c("step", as.character(seq_along(y0)), ""))
   expect_equal(res_o[, 1], i)
-  expect_equal(res_o[, -1], t(cmp), check.attributes = FALSE)
-
-  output <- attr(res_o, "output")
-  expect_equal(drop(output), colSums(cmp))
+  expect_equal(res_o[, -c(1, ncol(res_o))], t(cmp), check.attributes = FALSE)
+  expect_equal(res_o[, ncol(res_o)], colSums(cmp))
+  expect_null(attr(res_o, "output"))
 
   expect_equal(res_o, res_h)
 })

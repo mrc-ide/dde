@@ -239,53 +239,9 @@ dopri <- function(y, times, func, parms, ...,
                as.integer(n_history), return_history,
                return_initial, return_statistics)
 
-  has_output <- n_out > 0L
-  bind_output <- has_output && return_output_with_y
-
-  named <- FALSE
-  if (has_output && !is.null(outnames)) {
-    named <- return_output_with_y
-    rownames(attr(ret, "output")) <- outnames
-  }
-  if (!is.null(ynames)) {
-    named <- TRUE
-    rownames(ret) <- ynames
-  }
-
-  if (return_time || bind_output) {
-    at <- attributes(ret)
-    if (return_time) {
-      time <- matrix(if (return_initial) times else times[-1L], 1L,
-                     dimnames=if (named) list("time", NULL) else NULL)
-    } else {
-      time <- NULL
-    }
-
-    ret <- rbind(if (return_time) time,
-                 ret,
-                 if (bind_output) at$output,
-                 deparse.level = 0L)
-    if (bind_output) {
-      at$output <- NULL
-      has_output <- FALSE
-    }
-    ## This is a real pain, but we need to include any attributes set
-    ## on the output by Cdopri; this is going to be "statistics" and
-    ## "history", but it's always possible that additional attributes
-    ## will be added later.
-    for (x in setdiff(names(at), c("dim", "dimnames"))) {
-      attr(ret, x) <- at[[x]]
-    }
-  }
-
-  if (by_column) {
-    ret <- t.default(ret)
-    if (has_output) {
-      attr(ret, "output") <- t.default(attr(ret, "output"))
-    }
-  }
-
-  ret
+  prepare_output(ret, times, ynames, outnames, n_out,
+                 by_column, return_initial, return_time, return_output_with_y,
+                 "time")
 }
 
 ##' @export

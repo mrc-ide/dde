@@ -8,7 +8,8 @@
 difeq(y, steps, target, parms, ..., n_out = 0L, n_history = 0L,
   return_history = n_history > 0, dllname = "", parms_are_real = TRUE,
   ynames = TRUE, outnames = NULL, by_column = FALSE,
-  return_initial = FALSE, return_step = FALSE, deSolve_compatible = FALSE)
+  return_initial = FALSE, return_step = FALSE,
+  return_output_with_y = FALSE, deSolve_compatible = FALSE)
 
 yprev(step, i = NULL)
 }
@@ -80,6 +81,11 @@ include the initial conditions (like deSolve).}
 
 \item{return_step}{Logical, indicating if a row (or column if
 \code{by_column} is \code{TRUE}) representing step is included.}
+
+\item{return_output_with_y}{Logical, indicating if the output
+should be bound together with the returned matrix \code{y} (as
+it is with \code{deSolve}).  Otherwise output will be returned
+as the attribute \code{output}.}
 
 \item{deSolve_compatible}{Logical, indicating if we should run in
 "deSolve compatible" output mode.  This enables the options
