@@ -303,5 +303,20 @@ test_that("Zero lag time", {
                "did not find time in history")
 })
 
+test_that("restart", {
+  skip("WIP")
+  tt <- seq(0, 200, length.out=101)
+  tt1 <- tt[tt < 50]
+  tt2 <- tt[tt >= tt1[length(tt1)]]
+
+  cmp <- run_seir_dde(tt1)
+
+  res <- run_seir_dde(tt1, return_pointer = TRUE)
+  ptr <- attr(res, "ptr")
+  expect_is(ptr, "externalptr")
+
+  ## Then start work on the continuation
+})
+
 ## Next, try a restart; we'll run a system with some history and save
 ## everything, then modify the system and do a restart.

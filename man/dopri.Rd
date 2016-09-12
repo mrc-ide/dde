@@ -14,7 +14,7 @@ dopri(y, times, func, parms, ..., n_out = 0L, output = NULL, rtol = 1e-06,
   dllname = "", parms_are_real = TRUE, ynames = TRUE, outnames = NULL,
   by_column = FALSE, return_initial = FALSE, return_statistics = FALSE,
   return_time = FALSE, return_output_with_y = FALSE,
-  deSolve_compatible = FALSE)
+  return_pointer = FALSE, deSolve_compatible = FALSE)
 
 dopri5(y, times, func, parms, ...)
 
@@ -152,6 +152,11 @@ named).}
 should be bound together with the returned matrix \code{y} (as
 it is with \code{deSolve}).  Otherwise output will be returned
 as the attribute \code{output}.}
+
+\item{return_pointer}{Logical, indicating if the underlying
+pointer to the integrator should be returned.  This will make
+the problem continuable, though the interface for this is not
+yet written.}
 
 \item{deSolve_compatible}{Logical, indicating if we should run in
 "deSolve compatible" output mode.  This enables the options

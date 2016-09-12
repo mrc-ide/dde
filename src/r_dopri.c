@@ -6,6 +6,10 @@
 
 SEXP dopri_ptr_create(dopri_data *obj);
 void dopri_ptr_finalizer(SEXP extPtr);
+void r_integration_error(dopri_data* obj);
+void r_cleanup(dopri_data *obj, SEXP r_ptr, SEXP r_y, SEXP r_out,
+               bool return_history, bool return_statistics,
+               bool return_pointer);
 
 // There are more arguments from lsoda not implemented here that will
 // be needed:
@@ -18,7 +22,7 @@ void dopri_ptr_finalizer(SEXP extPtr);
 //
 // Some of these are big issues, some are small!
 //
-void r_integration_error(dopri_data* obj);
+
 SEXP r_dopri(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
              SEXP r_n_out, SEXP r_output, SEXP r_data_is_real,
              // Tolerance:
@@ -31,7 +35,8 @@ SEXP r_dopri(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
              SEXP r_use_853,
              // Return information:
              SEXP r_n_history, SEXP r_return_history,
-             SEXP r_return_initial, SEXP r_return_statistics) {
+             SEXP r_return_initial, SEXP r_return_statistics,
+             SEXP r_return_pointer) {
   double *y_initial = REAL(r_y_initial);
   size_t n = length(r_y_initial);
 
@@ -72,6 +77,7 @@ SEXP r_dopri(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
   bool return_history = INTEGER(r_return_history)[0];
   bool return_initial = INTEGER(r_return_initial)[0];
   bool return_statistics = INTEGER(r_return_statistics)[0];
+  bool return_pointer = INTEGER(r_return_pointer)[0];
   size_t nt = return_initial ? n_times : n_times - 1;
 
   size_t n_out = INTEGER(r_n_out)[0];
@@ -97,7 +103,7 @@ SEXP r_dopri(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
   // call in a user function, etc) R will clean up for us once it
   // garbage collects ptr.  Because R resets the protection stack on
   // early exit it is guaranteed to get collected at some point.
-  SEXP ptr = PROTECT(dopri_ptr_create(obj));
+  SEXP r_ptr = PROTECT(dopri_ptr_create(obj));
 
   obj->rtol = REAL(r_rtol)[0];
   obj->atol = REAL(r_atol)[0];
@@ -112,46 +118,68 @@ SEXP r_dopri(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
   dopri_integrate(obj, y_initial, times, n_times, tcrit, n_tcrit, y, out,
                   return_initial);
 
-  if (obj->error) {
-    r_integration_error(obj); // will error
-  }
-
-  if (return_history) {
-    size_t nh = ring_buffer_used(obj->history, 0);
-    SEXP history = PROTECT(allocMatrix(REALSXP, obj->history_len, nh));
-    ring_buffer_take(obj->history, REAL(history), nh);
-    setAttrib(history, install("n"), ScalarInteger(obj->n));
-    setAttrib(r_y, install("history"), history);
-    UNPROTECT(1);
-  }
-
-  if (n_out > 0) {
-    setAttrib(r_y, install("output"), r_out);
-    UNPROTECT(1);
-  }
-
-  if (return_statistics) {
-    SEXP stats = PROTECT(allocVector(INTSXP, 4));
-    SEXP stats_nms = PROTECT(allocVector(STRSXP, 4));
-    INTEGER(stats)[0] = obj->n_eval;
-    SET_STRING_ELT(stats_nms, 0, mkChar("n_eval"));
-    INTEGER(stats)[1] = obj->n_step;
-    SET_STRING_ELT(stats_nms, 1, mkChar("n_step"));
-    INTEGER(stats)[2] = obj->n_accept;
-    SET_STRING_ELT(stats_nms, 2, mkChar("n_accept"));
-    INTEGER(stats)[3] = obj->n_reject;
-    SET_STRING_ELT(stats_nms, 3, mkChar("n_reject"));
-    setAttrib(stats, R_NamesSymbol, stats_nms);
-    setAttrib(r_y, install("statistics"), stats);
-    setAttrib(r_y, install("step_size"), ScalarReal(obj->step_size_initial));
-    UNPROTECT(2);
-  }
-
-  // Deterministically clean up if we can, otherwise we clean up by R
-  // running the finaliser for us when it garbage collects ptr above.
-  dopri_data_free(obj);
-  R_ClearExternalPtr(ptr);
+  r_cleanup(obj, r_ptr, r_y, r_out,
+            return_history, return_statistics, return_pointer);
   UNPROTECT(2);
+  return r_y;
+}
+
+// Different interface here:
+SEXP r_dopri_continue(SEXP r_y_initial, SEXP r_times, SEXP r_ptr, SEXP r_tcrit,
+                      // Return information:
+                      SEXP r_n_history, SEXP r_return_history,
+                      SEXP r_return_initial, SEXP r_return_statistics) {
+  // TODO: check type here and non-nullness
+  if (TYPEOF(r_ptr) != EXTPTRSXP) {
+    Rf_error("Expected an external pointer");
+  }
+  dopri_data* obj = (dopri_data*)R_ExternalPtrAddr(r_ptr);
+  if (obj == NULL) {
+    Rf_error("pointer has been freed (perhaps serialised?)");
+  }
+
+  size_t n = obj->n, n_out = obj->n_out;
+  if (length(r_y_initial) != n) {
+    Rf_error("Incorrect size on integration restart");
+  }
+
+  double *y_initial = REAL(r_y_initial);
+
+  size_t n_times = LENGTH(r_times);
+  double *times = REAL(r_times);
+  if (n_times < 2) {
+    Rf_error("At least two times must be given");
+  }
+  if (times[0] != obj->t) {
+    Rf_error("Incorrect initial time on integration restart");
+  }
+
+  size_t n_tcrit = 0;
+  double *tcrit = NULL;
+  if (r_tcrit != R_NilValue) {
+    n_tcrit = LENGTH(r_tcrit);
+    tcrit = REAL(r_tcrit);
+  }
+
+  bool return_history = INTEGER(r_return_history)[0];
+  bool return_initial = INTEGER(r_return_initial)[0];
+  bool return_statistics = INTEGER(r_return_statistics)[0];
+  bool return_pointer = true;
+  size_t nt = return_initial ? n_times : n_times - 1;
+
+  SEXP r_y = PROTECT(allocMatrix(REALSXP, n, nt));
+  double *y = REAL(r_y);
+  SEXP r_out = R_NilValue;
+  double *out = NULL;
+  if (n_out > 0) {
+    r_out = PROTECT(allocMatrix(REALSXP, n_out, nt));
+    out = REAL(r_out);
+  }
+
+  dopri_integrate(obj, y_initial, times, n_times, tcrit, n_tcrit, y, out,
+                  return_initial);
+  r_cleanup(obj, r_ptr, r_y, r_out,
+            return_history, return_statistics, return_pointer);
   return r_y;
 }
 
@@ -258,4 +286,52 @@ SEXP dopri_ptr_create(dopri_data *obj) {
   R_RegisterCFinalizer(r_ptr, dopri_ptr_finalizer);
   UNPROTECT(1);
   return r_ptr;
+}
+
+void r_cleanup(dopri_data *obj, SEXP r_ptr, SEXP r_y, SEXP r_out,
+               bool return_history, bool return_statistics,
+               bool return_pointer) {
+  if (obj->error) {
+    r_integration_error(obj); // will error
+  }
+
+  if (return_history) {
+    size_t nh = ring_buffer_used(obj->history, 0);
+    SEXP history = PROTECT(allocMatrix(REALSXP, obj->history_len, nh));
+    ring_buffer_take(obj->history, REAL(history), nh);
+    setAttrib(history, install("n"), ScalarInteger(obj->n));
+    setAttrib(r_y, install("history"), history);
+    UNPROTECT(1);
+  }
+
+  if (obj->n_out > 0) {
+    setAttrib(r_y, install("output"), r_out);
+    UNPROTECT(1);
+  }
+
+  if (return_statistics) {
+    SEXP stats = PROTECT(allocVector(INTSXP, 4));
+    SEXP stats_nms = PROTECT(allocVector(STRSXP, 4));
+    INTEGER(stats)[0] = obj->n_eval;
+    SET_STRING_ELT(stats_nms, 0, mkChar("n_eval"));
+    INTEGER(stats)[1] = obj->n_step;
+    SET_STRING_ELT(stats_nms, 1, mkChar("n_step"));
+    INTEGER(stats)[2] = obj->n_accept;
+    SET_STRING_ELT(stats_nms, 2, mkChar("n_accept"));
+    INTEGER(stats)[3] = obj->n_reject;
+    SET_STRING_ELT(stats_nms, 3, mkChar("n_reject"));
+    setAttrib(stats, R_NamesSymbol, stats_nms);
+    setAttrib(r_y, install("statistics"), stats);
+    setAttrib(r_y, install("step_size"), ScalarReal(obj->step_size_initial));
+    UNPROTECT(2);
+  }
+
+  // Deterministically clean up if we can, otherwise we clean up by R
+  // running the finaliser for us when it garbage collects ptr above.
+  if (return_pointer) {
+    setAttrib(r_y, install("ptr"), r_ptr);
+  } else {
+    dopri_data_free(obj);
+    R_ClearExternalPtr(r_ptr);
+  }
 }

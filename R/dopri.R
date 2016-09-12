@@ -132,6 +132,11 @@
 ##'   it is with \code{deSolve}).  Otherwise output will be returned
 ##'   as the attribute \code{output}.
 ##'
+##' @param return_pointer Logical, indicating if the underlying
+##'   pointer to the integrator should be returned.  This will make
+##'   the problem continuable, though the interface for this is not
+##'   yet written.
+##'
 ##' @param deSolve_compatible Logical, indicating if we should run in
 ##'   "deSolve compatible" output mode.  This enables the options
 ##'   \code{by_column}, \code{return_initial}, \code{return_time} and
@@ -154,7 +159,7 @@ dopri <- function(y, times, func, parms, ...,
                   ynames = TRUE, outnames = NULL,
                   by_column = FALSE, return_initial = FALSE,
                   return_statistics = FALSE, return_time = FALSE,
-                  return_output_with_y = FALSE,
+                  return_output_with_y = FALSE, return_pointer = FALSE,
                   deSolve_compatible = FALSE) {
   ## TODO: include "deSolve" mode where we do the transpose, add the
   ## time column too?
@@ -198,6 +203,7 @@ dopri <- function(y, times, func, parms, ...,
   assert_scalar_logical(return_statistics)
   assert_scalar_logical(return_time)
   assert_scalar_logical(return_output_with_y)
+  assert_scalar_logical(return_pointer)
 
   ynames <- check_ynames(y, ynames, deSolve_compatible)
 
@@ -237,7 +243,7 @@ dopri <- function(y, times, func, parms, ...,
                tcrit, use_853,
                ## Return information:
                as.integer(n_history), return_history,
-               return_initial, return_statistics)
+               return_initial, return_statistics, return_pointer)
 
   prepare_output(ret, times, ynames, outnames, n_out,
                  by_column, return_initial, return_time, return_output_with_y,
