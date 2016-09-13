@@ -4,13 +4,6 @@
 #include <Rinternals.h>
 #include "util.h"
 
-SEXP dopri_ptr_create(dopri_data *obj);
-void dopri_ptr_finalizer(SEXP extPtr);
-void r_integration_error(dopri_data* obj);
-void r_cleanup(dopri_data *obj, SEXP r_ptr, SEXP r_y, SEXP r_out,
-               bool return_history, bool return_statistics,
-               bool return_pointer);
-
 // There are more arguments from lsoda not implemented here that will
 // be needed:
 //
@@ -64,14 +57,7 @@ SEXP r_dopri(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
   if (func == NULL) {
     Rf_error("Was passed null pointer for 'func'");
   }
-  void *data = NULL;
-  if (TYPEOF(r_data) == REALSXP && INTEGER(r_data_is_real)[0]) {
-    data = (void*) REAL(r_data);
-  } else if (TYPEOF(r_data) == EXTPTRSXP) {
-    data = R_ExternalPtrAddr(r_data);
-  } else {
-    data = (void*) r_data;
-  }
+  void *data = data_pointer(r_data, r_data_is_real);
 
   size_t n_history = (size_t)INTEGER(r_n_history)[0];
   bool return_history = INTEGER(r_return_history)[0];
@@ -125,10 +111,11 @@ SEXP r_dopri(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
 }
 
 // Different interface here:
-SEXP r_dopri_continue(SEXP r_y_initial, SEXP r_times, SEXP r_ptr, SEXP r_tcrit,
+SEXP r_dopri_continue(SEXP r_ptr, SEXP r_y_initial, SEXP r_times,
+                      SEXP r_data, SEXP r_data_is_real, SEXP r_tcrit,
                       // Return information:
-                      SEXP r_n_history, SEXP r_return_history,
-                      SEXP r_return_initial, SEXP r_return_statistics) {
+                      SEXP r_return_history, SEXP r_return_initial,
+                      SEXP r_return_statistics, SEXP r_return_pointer) {
   // TODO: check type here and non-nullness
   if (TYPEOF(r_ptr) != EXTPTRSXP) {
     Rf_error("Expected an external pointer");
@@ -139,11 +126,15 @@ SEXP r_dopri_continue(SEXP r_y_initial, SEXP r_times, SEXP r_ptr, SEXP r_tcrit,
   }
 
   size_t n = obj->n, n_out = obj->n_out;
-  if (length(r_y_initial) != n) {
-    Rf_error("Incorrect size on integration restart");
+  double *y_initial;
+  if (r_y_initial == R_NilValue) {
+    y_initial = obj->y;
+  } else {
+    if (length(r_y_initial) != n) {
+      Rf_error("Incorrect size on integration restart");
+    }
+    y_initial = REAL(r_y_initial);
   }
-
-  double *y_initial = REAL(r_y_initial);
 
   size_t n_times = LENGTH(r_times);
   double *times = REAL(r_times);
@@ -154,18 +145,22 @@ SEXP r_dopri_continue(SEXP r_y_initial, SEXP r_times, SEXP r_ptr, SEXP r_tcrit,
     Rf_error("Incorrect initial time on integration restart");
   }
 
+  // Need to freshly set the data pointer because it could have been
+  // garbage collected in the meantime.
+  obj->data = data_pointer(r_data, r_data_is_real);
+
+  bool return_history = INTEGER(r_return_history)[0];
+  bool return_initial = INTEGER(r_return_initial)[0];
+  bool return_statistics = INTEGER(r_return_statistics)[0];
+  bool return_pointer = INTEGER(r_return_pointer)[0];
+  size_t nt = return_initial ? n_times : n_times - 1;
+
   size_t n_tcrit = 0;
   double *tcrit = NULL;
   if (r_tcrit != R_NilValue) {
     n_tcrit = LENGTH(r_tcrit);
     tcrit = REAL(r_tcrit);
   }
-
-  bool return_history = INTEGER(r_return_history)[0];
-  bool return_initial = INTEGER(r_return_initial)[0];
-  bool return_statistics = INTEGER(r_return_statistics)[0];
-  bool return_pointer = true;
-  size_t nt = return_initial ? n_times : n_times - 1;
 
   SEXP r_y = PROTECT(allocMatrix(REALSXP, n, nt));
   double *y = REAL(r_y);
@@ -176,10 +171,11 @@ SEXP r_dopri_continue(SEXP r_y_initial, SEXP r_times, SEXP r_ptr, SEXP r_tcrit,
     out = REAL(r_out);
   }
 
-  dopri_integrate(obj, y_initial, times, n_times, tcrit, n_tcrit, y, out,
-                  return_initial);
+  dopri_integrate(obj, y_initial, times, n_times, tcrit, n_tcrit,
+                  y, out, return_initial);
   r_cleanup(obj, r_ptr, r_y, r_out,
             return_history, return_statistics, return_pointer);
+  UNPROTECT(1);
   return r_y;
 }
 
@@ -334,4 +330,16 @@ void r_cleanup(dopri_data *obj, SEXP r_ptr, SEXP r_y, SEXP r_out,
     dopri_data_free(obj);
     R_ClearExternalPtr(r_ptr);
   }
+}
+
+void * data_pointer(SEXP r_data, SEXP r_data_is_real) {
+  void *data;
+  if (TYPEOF(r_data) == REALSXP && INTEGER(r_data_is_real)[0]) {
+    data = (void*) REAL(r_data);
+  } else if (TYPEOF(r_data) == EXTPTRSXP) {
+    data = R_ExternalPtrAddr(r_data);
+  } else {
+    data = (void*) r_data;
+  }
+  return data;
 }

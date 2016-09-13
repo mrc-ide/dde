@@ -4,6 +4,7 @@
 \alias{dopri}
 \alias{dopri5}
 \alias{dopri853}
+\alias{dopri_continue}
 \alias{ylag}
 \title{Integrate ODE/DDE with dopri}
 \usage{
@@ -13,12 +14,17 @@ dopri(y, times, func, parms, ..., n_out = 0L, output = NULL, rtol = 1e-06,
   method = "dopri5", n_history = 0, return_history = n_history > 0,
   dllname = "", parms_are_real = TRUE, ynames = TRUE, outnames = NULL,
   by_column = FALSE, return_initial = FALSE, return_statistics = FALSE,
-  return_time = FALSE, return_output_with_y = FALSE,
-  return_pointer = FALSE, deSolve_compatible = FALSE)
+  return_time = FALSE, return_output_with_y = FALSE, restartable = FALSE,
+  deSolve_compatible = FALSE)
 
 dopri5(y, times, func, parms, ...)
 
 dopri853(y, times, func, parms, ...)
+
+dopri_continue(obj, times, y = NULL, ..., parms = NULL, tcrit = NULL,
+  return_history = NULL, by_column = NULL, return_initial = NULL,
+  return_statistics = NULL, return_time = NULL,
+  return_output_with_y = NULL, restartable = NULL)
 
 ylag(t, i = NULL)
 }
@@ -153,16 +159,30 @@ should be bound together with the returned matrix \code{y} (as
 it is with \code{deSolve}).  Otherwise output will be returned
 as the attribute \code{output}.}
 
-\item{return_pointer}{Logical, indicating if the underlying
-pointer to the integrator should be returned.  This will make
-the problem continuable, though the interface for this is not
-yet written.}
+\item{restartable}{Logical, indicating if the problem should be
+restartable.  If \code{TRUE}, then the return value of an
+integration can be passed to \code{dopri_restart} to continue
+the integration after arbitrary changes to the state or the
+parameters.  Note that when using delay models, the integrator
+is fairly naive about how abrupt changes in the state space are
+dealt with, and may perform very badly with \code{method =
+"dopri853"} which assumes a fairly smooth problem.  Note that
+this is really only useful for delay differential equations
+where you want to keep the history but make changes to the
+parameters or to the state vector while keeping the history of
+the problem so far.}
 
 \item{deSolve_compatible}{Logical, indicating if we should run in
 "deSolve compatible" output mode.  This enables the options
 \code{by_column}, \code{return_initial}, \code{return_time} and
 \code{return_output_with_y}.  This affects only some aspects of
 the returned value, and not the calculations themselves.}
+
+\item{obj}{An object to continue from; this must be the results of
+running an integration with the option \code{restartable =
+TRUE}.  Note that continuing a problem moves the pointer along
+in time and that the incoming time (\code{times[[1]]}) must
+equal the previous time \emph{exactly}.}
 
 \item{t}{The time to access (not that this is not an offset,
 but the actual time; within your target function you'd write

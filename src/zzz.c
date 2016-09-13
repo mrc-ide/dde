@@ -7,13 +7,14 @@
 #include <R_ext/Rdynload.h>
 
 static const R_CallMethodDef call_methods[] = {
-  {"Cdopri",  (DL_FUNC) &r_dopri,  20},
-  {"Cylag",   (DL_FUNC) &r_ylag,    2},
+  {"Cdopri",          (DL_FUNC) &r_dopri,          20},
+  {"Cdopri_continue", (DL_FUNC) &r_dopri_continue, 10},
+  {"Cylag",           (DL_FUNC) &r_ylag,            2},
 
-  {"Cdifeq",  (DL_FUNC) &r_difeq,   9},
-  {"Cyprev",  (DL_FUNC) &r_yprev,   2},
+  {"Cdifeq",          (DL_FUNC) &r_difeq,           9},
+  {"Cyprev",          (DL_FUNC) &r_yprev,           2},
 
-  {NULL,      NULL,                 0}
+  {NULL,              NULL,                         0}
 };
 
 void R_init_dde(DllInfo *info) {

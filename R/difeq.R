@@ -100,7 +100,7 @@ difeq <- function(y, steps, target, parms, ...,
                ## Return information:
                as.integer(n_history), return_history,
                return_initial)
-  prepare_output(ret, steps, ynames, outnames, n_out,
+  prepare_output(ret, steps, ynames, outnames, n_out > 0L,
                  by_column, return_initial, return_step, return_output_with_y,
                  "step")
 }

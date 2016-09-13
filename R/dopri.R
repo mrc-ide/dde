@@ -132,10 +132,18 @@
 ##'   it is with \code{deSolve}).  Otherwise output will be returned
 ##'   as the attribute \code{output}.
 ##'
-##' @param return_pointer Logical, indicating if the underlying
-##'   pointer to the integrator should be returned.  This will make
-##'   the problem continuable, though the interface for this is not
-##'   yet written.
+##' @param restartable Logical, indicating if the problem should be
+##'   restartable.  If \code{TRUE}, then the return value of an
+##'   integration can be passed to \code{dopri_restart} to continue
+##'   the integration after arbitrary changes to the state or the
+##'   parameters.  Note that when using delay models, the integrator
+##'   is fairly naive about how abrupt changes in the state space are
+##'   dealt with, and may perform very badly with \code{method =
+##'   "dopri853"} which assumes a fairly smooth problem.  Note that
+##'   this is really only useful for delay differential equations
+##'   where you want to keep the history but make changes to the
+##'   parameters or to the state vector while keeping the history of
+##'   the problem so far.
 ##'
 ##' @param deSolve_compatible Logical, indicating if we should run in
 ##'   "deSolve compatible" output mode.  This enables the options
@@ -159,7 +167,7 @@ dopri <- function(y, times, func, parms, ...,
                   ynames = TRUE, outnames = NULL,
                   by_column = FALSE, return_initial = FALSE,
                   return_statistics = FALSE, return_time = FALSE,
-                  return_output_with_y = FALSE, return_pointer = FALSE,
+                  return_output_with_y = FALSE, restartable = FALSE,
                   deSolve_compatible = FALSE) {
   ## TODO: include "deSolve" mode where we do the transpose, add the
   ## time column too?
@@ -203,7 +211,7 @@ dopri <- function(y, times, func, parms, ...,
   assert_scalar_logical(return_statistics)
   assert_scalar_logical(return_time)
   assert_scalar_logical(return_output_with_y)
-  assert_scalar_logical(return_pointer)
+  assert_scalar_logical(restartable)
 
   ynames <- check_ynames(y, ynames, deSolve_compatible)
 
@@ -243,11 +251,27 @@ dopri <- function(y, times, func, parms, ...,
                tcrit, use_853,
                ## Return information:
                as.integer(n_history), return_history,
-               return_initial, return_statistics, return_pointer)
+               return_initial, return_statistics, restartable)
 
-  prepare_output(ret, times, ynames, outnames, n_out,
-                 by_column, return_initial, return_time, return_output_with_y,
-                 "time")
+  has_output <- n_out > 0L
+  ret <- prepare_output(ret, times, ynames, outnames, has_output,
+                        by_column, return_initial, return_time,
+                        return_output_with_y,
+                        "time")
+  if (restartable) {
+    restart_data <- list(parms = parms, parms_are_real = parms_are_real,
+                         ynames = ynames, outnames = outnames,
+                         has_output = has_output,
+                         tcrit = tcrit,
+                         return_history = return_history,
+                         by_column = by_column,
+                         return_initial = return_initial,
+                         return_statistics = return_statistics,
+                         return_time = return_time,
+                         return_output_with_y = return_output_with_y)
+    attr(ret, "restart_data") <- restart_data
+  }
+  ret
 }
 
 ##' @export
@@ -259,6 +283,52 @@ dopri5 <- function(y, times, func, parms, ...) {
 ##' @rdname dopri
 dopri853 <- function(y, times, func, parms, ...) {
   dopri(y, times, func, parms, ..., method="dopri853")
+}
+
+##' @export
+##' @rdname dopri
+##' @param obj An object to continue from; this must be the results of
+##'   running an integration with the option \code{restartable =
+##'   TRUE}.  Note that continuing a problem moves the pointer along
+##'   in time and that the incoming time (\code{times[[1]]}) must
+##'   equal the previous time \emph{exactly}.
+dopri_continue <- function(obj, times, y = NULL, ...,
+                           parms = NULL,
+                           tcrit = NULL, return_history = NULL,
+                           by_column = NULL, return_initial = NULL,
+                           return_statistics = NULL, return_time = NULL,
+                           return_output_with_y = NULL, restartable = NULL) {
+  DOTS <- list(...)
+  if (length(DOTS) > 0L) {
+    stop("Invalid dot arguments!")
+  }
+
+  ptr <- attr(obj, "ptr")
+  dat <- attr(obj, "restart_data")
+
+  if (is.null(tcrit)) {
+    tcrit <- dat$tcrit
+  }
+  if (is.null(parms)) {
+    parms <- dat$parms
+  }
+
+  ## Process any given options, falling back on the previous values
+  return_history <- logopt(return_history, dat$return_history)
+  by_column <- logopt(by_column, dat$by_column)
+  return_initial <- logopt(return_initial, dat$return_initial)
+  return_statistics <- logopt(return_statistics, dat$return_statistics)
+  return_time <- logopt(return_time, dat$return_time)
+  return_output_with_y <- logopt(return_output_with_y, dat$return_output_with_y)
+  restartable <- logopt(restartable, TRUE)
+
+  ret <- .Call(Cdopri_continue, ptr, y, as.numeric(times),
+               parms, dat$parms_are_real, tcrit,
+               return_history, return_initial, return_statistics, restartable)
+
+  prepare_output(ret, times, dat$ynames, dat$outnames, dat$has_output,
+                 by_column, return_initial, return_time, return_output_with_y,
+                 "time")
 }
 
 dopri_interpolate <- function(h, t) {

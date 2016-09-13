@@ -98,7 +98,9 @@ void dopri_data_reset(dopri_data *obj, double *y,
   }
 
   memcpy(obj->y0, y, obj->n * sizeof(double));
-  memcpy(obj->y, y, obj->n * sizeof(double));
+  if (obj->y != y) { // this is true on some restarts
+    memcpy(obj->y, y, obj->n * sizeof(double));
+  }
 
   obj->n_times = n_times;
   obj->times = (double*) R_Realloc(obj->times, n_times, double);
@@ -124,7 +126,15 @@ void dopri_data_reset(dopri_data *obj, double *y,
     }
   }
 
-  obj->t0 = obj->sign * times[0];
+  if (ring_buffer_empty(obj->history)) {
+    obj->t0 = obj->sign * times[0];
+  } else {
+    // This is the restart condition
+    //
+    // TODO: check that the sign of times agrees with the previous sign?
+    double * h = (double*) ring_buffer_tail(obj->history);
+    obj->t0 = obj->sign * h[obj->history_time_idx];
+  }
   obj->t = times[0];
 
   obj->n_tcrit = n_tcrit;
@@ -133,7 +143,8 @@ void dopri_data_reset(dopri_data *obj, double *y,
 
   obj->tcrit_idx = 0;
   if (n_tcrit > 0) {
-    while (obj->sign * tcrit[obj->tcrit_idx] < obj->t0 &&
+    double t0 = obj->sign * times[0]; // because of the restart condition above.
+    while (obj->sign * tcrit[obj->tcrit_idx] < t0 &&
            obj->tcrit_idx < n_tcrit) {
       obj->tcrit_idx++;
     }

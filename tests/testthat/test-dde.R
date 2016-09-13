@@ -303,19 +303,30 @@ test_that("Zero lag time", {
                "did not find time in history")
 })
 
+## OK, most of the fundamentals are here now, but need to get the
+## argument handling correct (I'm passing a NULL through where there
+## should have been a TRUE/FALSE).  Once this is basically working,
+## I'll get this going for the difeq version too.
 test_that("restart", {
-  skip("WIP")
   tt <- seq(0, 200, length.out=101)
-  tt1 <- tt[tt < 50]
+  tt1 <- tt[tt < 80]
   tt2 <- tt[tt >= tt1[length(tt1)]]
 
-  cmp <- run_seir_dde(tt1)
+  cmp <- run_seir_dde(tt)
+  cmp1 <- run_seir_dde(tt1)
+  cmp2 <- cmp[, tt[-1] >= tt1[length(tt1)]]
 
-  res <- run_seir_dde(tt1, return_pointer = TRUE)
-  ptr <- attr(res, "ptr")
-  expect_is(ptr, "externalptr")
+  res1 <- run_seir_dde(tt1, restartable = TRUE)
+  expect_is(attr(res1, "ptr"), "externalptr")
+
+  expect_equal(res1, cmp1, check.attributes = FALSE)
 
   ## Then start work on the continuation
+  res2 <- dopri_continue(res1, tt2, return_initial = TRUE)
+
+  ## NOTE: testthat will report incorrectly here on failure because of
+  ## attributes (at least of 1.0.2)
+  expect_equal(res2, cmp2, check.attributes = FALSE)
 })
 
 ## Next, try a restart; we'll run a system with some history and save

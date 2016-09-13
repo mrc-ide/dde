@@ -78,3 +78,12 @@ match_value <- function(x, choices, name=deparse(substitute(x))) {
   }
   choices[[i]]
 }
+
+logopt <- function(value, default, name = deparse(substitute(value))) {
+  if (is.null(value)) {
+    default
+  } else {
+    assert_scalar_logical(value, name)
+    value
+  }
+}

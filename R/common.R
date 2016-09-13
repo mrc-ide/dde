@@ -30,11 +30,10 @@ check_outnames <- function(n_out, outnames) {
   outnames
 }
 
-prepare_output <- function(ret, times, ynames, outnames, n_out,
+prepare_output <- function(ret, times, ynames, outnames, has_output,
                            by_column, return_initial,
                            return_time, return_output_with_y,
                            time_name) {
-  has_output <- n_out > 0L
   bind_output <- has_output && return_output_with_y
 
   named <- FALSE
