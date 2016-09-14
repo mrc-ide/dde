@@ -327,7 +327,35 @@ test_that("restart", {
   ## NOTE: testthat will report incorrectly here on failure because of
   ## attributes (at least of 1.0.2)
   expect_equal(res2, cmp2, check.attributes = FALSE)
+
+  expect_error(dopri_continue(res1, tt2, return_initial = TRUE),
+               "Incorrect initial time on integration restart")
 })
 
-## Next, try a restart; we'll run a system with some history and save
-## everything, then modify the system and do a restart.
+test_that("restart and copy", {
+  tt <- seq(0, 200, length.out=101)
+  tt1 <- tt[tt < 80]
+  tt2 <- tt[tt >= tt1[length(tt1)]]
+
+  cmp <- run_seir_dde(tt)
+  cmp1 <- run_seir_dde(tt1)
+  cmp2 <- cmp[, tt[-1] >= tt1[length(tt1)]]
+
+  res1 <- run_seir_dde(tt1, restartable = TRUE)
+  expect_is(attr(res1, "ptr"), "externalptr")
+
+  ## So, we're not correctly using the copied object.  That's cool,
+  ## because I understand how this could possibly be an error!
+  res2 <- dopri_continue(res1, tt2, return_initial = TRUE, copy = TRUE)
+  res3 <- dopri_continue(res1, tt2, return_initial = TRUE, copy = TRUE)
+  expect_equal(res2, cmp2, check.attributes = FALSE)
+  expect_equal(res2, res3)
+
+  ## Continue off and things should work OK here
+  res4 <- dopri_continue(res1, tt2, return_initial = TRUE, copy = FALSE)
+  expect_equal(res4, cmp2, check.attributes = FALSE)
+
+  ## But we've modified the pointer so this will no longer work:
+  expect_error(dopri_continue(res1, tt2, return_initial = TRUE),
+               "Incorrect initial time on integration restart")
+})

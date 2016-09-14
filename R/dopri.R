@@ -290,9 +290,17 @@ dopri853 <- function(y, times, func, parms, ...) {
 ##' @param obj An object to continue from; this must be the results of
 ##'   running an integration with the option \code{restartable =
 ##'   TRUE}.  Note that continuing a problem moves the pointer along
-##'   in time and that the incoming time (\code{times[[1]]}) must
-##'   equal the previous time \emph{exactly}.
+##'   in time (unless \code{copy = TRUE}, and that the incoming time
+##'   (\code{times[[1]]}) must equal the previous time \emph{exactly}.
+##'
+##' @param copy Logical, indicating if the pointer should be copied
+##'   before continuing.  If \code{TRUE}, this is non-destructive with
+##'   respect to the data in the original pointer so the problem can
+##'   be restarted multiple times.  By default this is \code{FALSE}
+##'   becaue there is a (potentially very small) cost to this
+##'   operation.
 dopri_continue <- function(obj, times, y = NULL, ...,
+                           copy = FALSE,
                            parms = NULL,
                            tcrit = NULL, return_history = NULL,
                            by_column = NULL, return_initial = NULL,
@@ -303,8 +311,11 @@ dopri_continue <- function(obj, times, y = NULL, ...,
     stop("Invalid dot arguments!")
   }
 
-  ptr <- attr(obj, "ptr")
-  dat <- attr(obj, "restart_data")
+  ptr <- attr(obj, "ptr", exact = TRUE)
+  dat <- attr(obj, "restart_data", exact = TRUE)
+  if (copy) {
+    ptr <- .Call(Cdopri_copy, ptr)
+  }
 
   if (is.null(tcrit)) {
     tcrit <- dat$tcrit

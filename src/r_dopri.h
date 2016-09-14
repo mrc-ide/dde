@@ -18,11 +18,13 @@ SEXP r_dopri_continue(SEXP r_ptr, SEXP r_y_initial, SEXP r_times,
                       // Return information:
                       SEXP r_return_history, SEXP r_return_initial,
                       SEXP r_return_statistics, SEXP r_return_pointer);
+SEXP r_dopri_copy(SEXP r_ptr);
 SEXP r_ylag(SEXP r_t, SEXP r_idx);
 
 // Internal
 SEXP dopri_ptr_create(dopri_data *obj);
 void dopri_ptr_finalizer(SEXP extPtr);
+dopri_data* dopri_ptr_get(SEXP r_ptr);
 void r_integration_error(dopri_data* obj);
 void r_cleanup(dopri_data *obj, SEXP r_ptr, SEXP r_y, SEXP r_out,
                bool return_history, bool return_statistics,

@@ -9,6 +9,7 @@
 static const R_CallMethodDef call_methods[] = {
   {"Cdopri",          (DL_FUNC) &r_dopri,          20},
   {"Cdopri_continue", (DL_FUNC) &r_dopri_continue, 10},
+  {"Cdopri_copy",     (DL_FUNC) &r_dopri_copy,      1},
   {"Cylag",           (DL_FUNC) &r_ylag,            2},
 
   {"Cdifeq",          (DL_FUNC) &r_difeq,           9},

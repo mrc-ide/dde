@@ -21,9 +21,9 @@ dopri5(y, times, func, parms, ...)
 
 dopri853(y, times, func, parms, ...)
 
-dopri_continue(obj, times, y = NULL, ..., parms = NULL, tcrit = NULL,
-  return_history = NULL, by_column = NULL, return_initial = NULL,
-  return_statistics = NULL, return_time = NULL,
+dopri_continue(obj, times, y = NULL, ..., copy = FALSE, parms = NULL,
+  tcrit = NULL, return_history = NULL, by_column = NULL,
+  return_initial = NULL, return_statistics = NULL, return_time = NULL,
   return_output_with_y = NULL, restartable = NULL)
 
 ylag(t, i = NULL)
@@ -181,8 +181,15 @@ the returned value, and not the calculations themselves.}
 \item{obj}{An object to continue from; this must be the results of
 running an integration with the option \code{restartable =
 TRUE}.  Note that continuing a problem moves the pointer along
-in time and that the incoming time (\code{times[[1]]}) must
-equal the previous time \emph{exactly}.}
+in time (unless \code{copy = TRUE}, and that the incoming time
+(\code{times[[1]]}) must equal the previous time \emph{exactly}.}
+
+\item{copy}{Logical, indicating if the pointer should be copied
+before continuing.  If \code{TRUE}, this is non-destructive with
+respect to the data in the original pointer so the problem can
+be restarted multiple times.  By default this is \code{FALSE}
+becaue there is a (potentially very small) cost to this
+operation.}
 
 \item{t}{The time to access (not that this is not an offset,
 but the actual time; within your target function you'd write

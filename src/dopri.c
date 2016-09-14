@@ -74,6 +74,47 @@ dopri_data* dopri_data_alloc(deriv_func* target, size_t n,
   return ret;
 }
 
+dopri_data* dopri_data_copy(const dopri_data* obj) {
+  size_t n_history = ring_buffer_size(obj->history, false);
+  dopri_data* ret = dopri_data_alloc(obj->target, obj->n,
+                                     obj->output, obj->n_out,
+                                     obj->data, obj->method,
+                                     n_history);
+  // Then update a few things
+  ret->t0 = obj->t0;
+  ret->t  = obj->t;
+  ring_buffer_mirror(obj->history, ret->history);
+  ret->history_time_idx = obj->history_time_idx;
+  ret->sign = obj->sign;
+  ret->atol = obj->atol;
+  ret->rtol = obj->rtol;
+  ret->step_factor_safe = obj->step_factor_safe;
+  ret->step_factor_min = obj->step_factor_min;
+  ret->step_factor_max = obj->step_factor_max;
+  ret->step_size_min = obj->step_size_min;
+  ret->step_size_max = obj->step_size_max;
+  ret->step_size_initial = obj->step_size_initial;
+  ret->step_max_n = obj->step_max_n;
+  ret->step_beta = obj->step_beta;
+  ret->step_constant = obj->step_constant;
+
+  // NOTE: I'm not copying the times over because the first thing that
+  // happens is always a reset and that deals with this.
+  ret->times = NULL;
+  ret->tcrit = NULL;
+
+  // Copy all of the internal state:
+  memcpy(ret->y, obj->y, obj->n * sizeof(double));
+  memcpy(ret->y0, obj->y0, obj->n * sizeof(double));
+  memcpy(ret->y1, obj->y1, obj->n * sizeof(double));
+  size_t nk = ret->order + 2;
+  for (size_t i = 0; i < nk; ++i) {
+    memcpy(ret->k[i], obj->k[i], obj->n * sizeof(double));
+  }
+
+  return ret;
+}
+
 // We'll need a different reset when we're providing history, because
 // then we won't end up resetting t0/y0 the same way.
 //

@@ -10,7 +10,7 @@ Description: Solves delay differential equations, where objective
 License: MIT + file LICENSE
 URL: https://github.com/richfitz/dde
 BugReports: https://github.com/richfitz/dde/issues
-LinkingTo: ring (>= 0.0.2)
+LinkingTo: ring (>= 0.0.3)
 Remotes: richfitz/ring
 Suggests:
     deSolve,

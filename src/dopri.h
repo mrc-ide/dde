@@ -145,6 +145,7 @@ dopri_data* dopri_data_alloc(deriv_func* target, size_t n,
 void dopri_data_reset(dopri_data *obj, double *y,
                       double *times, size_t n_times,
                       double *tcrit, size_t n_tcrit);
+dopri_data* dopri_data_copy(const dopri_data* obj);
 void dopri_data_free(dopri_data *obj);
 void dopri_integrate(dopri_data *obj, double *y,
                      double *times, size_t n_times,

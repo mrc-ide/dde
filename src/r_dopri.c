@@ -110,21 +110,17 @@ SEXP r_dopri(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
   return r_y;
 }
 
+SEXP r_dopri_copy(SEXP r_ptr) {
+  return dopri_ptr_create(dopri_data_copy(dopri_ptr_get(r_ptr)));
+}
+
 // Different interface here:
 SEXP r_dopri_continue(SEXP r_ptr, SEXP r_y_initial, SEXP r_times,
                       SEXP r_data, SEXP r_data_is_real, SEXP r_tcrit,
                       // Return information:
                       SEXP r_return_history, SEXP r_return_initial,
                       SEXP r_return_statistics, SEXP r_return_pointer) {
-  // TODO: check type here and non-nullness
-  if (TYPEOF(r_ptr) != EXTPTRSXP) {
-    Rf_error("Expected an external pointer");
-  }
-  dopri_data* obj = (dopri_data*)R_ExternalPtrAddr(r_ptr);
-  if (obj == NULL) {
-    Rf_error("pointer has been freed (perhaps serialised?)");
-  }
-
+  dopri_data* obj = dopri_ptr_get(r_ptr);
   size_t n = obj->n, n_out = obj->n_out;
   double *y_initial;
   if (r_y_initial == R_NilValue) {
@@ -284,6 +280,17 @@ SEXP dopri_ptr_create(dopri_data *obj) {
   return r_ptr;
 }
 
+dopri_data* dopri_ptr_get(SEXP r_ptr) {
+  if (TYPEOF(r_ptr) != EXTPTRSXP) {
+    Rf_error("Expected an external pointer");
+  }
+  dopri_data* obj = (dopri_data*)R_ExternalPtrAddr(r_ptr);
+  if (obj == NULL) {
+    Rf_error("pointer has been freed (perhaps serialised?)");
+  }
+  return obj;
+}
+
 void r_cleanup(dopri_data *obj, SEXP r_ptr, SEXP r_y, SEXP r_out,
                bool return_history, bool return_statistics,
                bool return_pointer) {
@@ -325,6 +332,9 @@ void r_cleanup(dopri_data *obj, SEXP r_ptr, SEXP r_y, SEXP r_out,
   // Deterministically clean up if we can, otherwise we clean up by R
   // running the finaliser for us when it garbage collects ptr above.
   if (return_pointer) {
+    // Need to reset this memory
+    obj->times = NULL;
+    obj->tcrit = NULL;
     setAttrib(r_y, install("ptr"), r_ptr);
   } else {
     dopri_data_free(obj);
