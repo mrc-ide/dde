@@ -394,3 +394,68 @@ test_that("restart errors", {
   expect_error(dopri_continue(res1, tt2, copy = TRUE),
                "Expected an external pointer")
 })
+
+test_that("change y on restart", {
+  growth <- function(t, y, p) {
+    y * p
+  }
+  output <- function(t, y, p) {
+    ylag(t - 2.0)
+  }
+
+  tt <- seq(0, 10, length.out=101)
+  tc <- 4
+  i1 <- tt <= tc
+  i2 <- tt >= tc
+  tt1 <- tt[i1]
+  tt2 <- tt[i2]
+
+  y0 <- 1
+  r <- -0.5
+  j <- seq_along(y0)
+
+  ## TODO: error is not very clear when output = NULL but n_out > 0
+  ##
+  ## TODO: error is not very clear when n_history = 0
+  ##
+  ## TODO: error if tcrit[1] == t[1]
+
+  res <- dopri(y0, tt, growth, r, n_out = length(y0), output = output,
+               n_history = 1000, return_history = FALSE,
+               return_initial = TRUE, return_output_with_y = TRUE,
+               tcrit = tt2[[1]], atol = 1e-8, rtol = 1e-8)
+
+  ## Here's the benchmark:
+  plot(tt, res[1, ])
+  lines(tt, res[2, ], col="red")
+  lines(tt - 2, res[2, ], col="blue")
+
+  res1 <- dopri(y0, tt1, growth, r, n_out = length(y0), output = output,
+                n_history = 1000, return_history = FALSE,
+                return_initial = TRUE, return_output_with_y = TRUE,
+                restartable = TRUE)
+
+  y1 <- res1[j, ncol(res1)]
+  res2 <- dopri_continue(res1, tt2, y1, copy = TRUE)
+
+  ## Check that options have been preserved:
+  expect_equal(nrow(res2), nrow(res1))
+  expect_equal(ncol(res2), length(tt2))
+  expect_null(attr(res2, "output"))
+
+  ## TODO: not sure why this is very slightly off, but it's possibly
+  ## due to a change in step size?  I don't think that this should be
+  ## the case though and would like to see this shrink.
+  expect_equal(res2[j, ], res[j, i2], tolerance = 5e-7)
+  expect_equal(res2[-j, ], res[-j, i2], tolerance = 5e-7)
+
+  ## Change y on re-entry:
+  y2 <- y1 * 2
+  res3 <- dopri_continue(res1, tt2, y2, copy = TRUE, tcrit = tt2[[1]] + 2)
+
+  ## TODO: this is not terrific accuracy either:
+  expect_equal(res3[j, ] / res2[j, ], rep(2, length(tt2)), tolerance = 1e-5)
+  k <- tt2 - tt2[[1]] < 2.0
+  expect_equal(res3[-j, k] / res2[-j, k], rep(1, sum(k)))
+  expect_equal(res3[-j, !k] / res2[-j, !k], rep(2, sum(!k)), tolerance = 1e-5)
+})
