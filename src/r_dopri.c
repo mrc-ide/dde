@@ -127,7 +127,7 @@ SEXP r_dopri_continue(SEXP r_ptr, SEXP r_y_initial, SEXP r_times,
     y_initial = obj->y;
   } else {
     if ((size_t) length(r_y_initial) != n) {
-      Rf_error("Incorrect size on integration restart");
+      Rf_error("Incorrect size 'y' on integration restart");
     }
     y_initial = REAL(r_y_initial);
   }
@@ -139,6 +139,9 @@ SEXP r_dopri_continue(SEXP r_ptr, SEXP r_y_initial, SEXP r_times,
   }
   if (times[0] != obj->t) {
     Rf_error("Incorrect initial time on integration restart");
+  }
+  if (obj->sign != copysign(1.0, times[n_times - 1] - times[0])) {
+    Rf_error("Incorrect sign for the times");
   }
 
   // Need to freshly set the data pointer because it could have been

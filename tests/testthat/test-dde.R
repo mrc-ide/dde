@@ -344,8 +344,6 @@ test_that("restart and copy", {
   res1 <- run_seir_dde(tt1, restartable = TRUE)
   expect_is(attr(res1, "ptr"), "externalptr")
 
-  ## So, we're not correctly using the copied object.  That's cool,
-  ## because I understand how this could possibly be an error!
   res2 <- dopri_continue(res1, tt2, return_initial = TRUE, copy = TRUE)
   res3 <- dopri_continue(res1, tt2, return_initial = TRUE, copy = TRUE)
   expect_equal(res2, cmp2, check.attributes = FALSE)
@@ -358,4 +356,41 @@ test_that("restart and copy", {
   ## But we've modified the pointer so this will no longer work:
   expect_error(dopri_continue(res1, tt2, return_initial = TRUE),
                "Incorrect initial time on integration restart")
+})
+
+test_that("restart errors", {
+  tt <- seq(0, 200, length.out=101)
+  tt1 <- tt[tt < 80]
+  tt2 <- tt[tt >= tt1[length(tt1)]]
+
+  cmp <- run_seir_dde(tt)
+  cmp1 <- run_seir_dde(tt1)
+  cmp2 <- cmp[, tt[-1] >= tt1[length(tt1)]]
+
+  res1 <- run_seir_dde(tt1, restartable = TRUE)
+
+  expect_error(dopri_continue(res1, tt2[[1]], copy = TRUE),
+               "At least two times must be given")
+  expect_error(dopri_continue(res1, rev(tt1), copy = TRUE),
+               "Incorrect sign for the times")
+
+  y1 <- res1[, ncol(res1)]
+  expect_error(dopri_continue(res1, tt2, y1[-1], copy = TRUE),
+               "Incorrect size 'y' on integration restart")
+  expect_error(dopri_continue(res1, tt2, rep(y1, 2), copy = TRUE),
+               "Incorrect size 'y' on integration restart")
+
+  ptr <- attr(res1, "ptr")
+  ## Make a NULL pointer:
+  attr(res1, "ptr") <- unserialize(serialize(ptr, NULL))
+  expect_error(dopri_continue(res1, tt2, copy = TRUE),
+               "pointer has been freed")
+  ## Delete the pointer:
+  attr(res1, "ptr") <- NULL
+  expect_error(dopri_continue(res1, tt2, copy = TRUE),
+               "Expected an external pointer")
+  ## Something stupid as a pointer:
+  attr(res1, "ptr") <- res1
+  expect_error(dopri_continue(res1, tt2, copy = TRUE),
+               "Expected an external pointer")
 })
