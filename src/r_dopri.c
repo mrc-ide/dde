@@ -126,7 +126,7 @@ SEXP r_dopri_continue(SEXP r_ptr, SEXP r_y_initial, SEXP r_times,
   if (r_y_initial == R_NilValue) {
     y_initial = obj->y;
   } else {
-    if (length(r_y_initial) != n) {
+    if ((size_t) length(r_y_initial) != n) {
       Rf_error("Incorrect size on integration restart");
     }
     y_initial = REAL(r_y_initial);

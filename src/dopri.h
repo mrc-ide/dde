@@ -46,7 +46,7 @@ typedef void output_func(size_t n_eq, double t, const double *y,
 typedef struct {
   deriv_func* target;  // core rhs function
   output_func* output; // optional output function
-  void* data;
+  const void* data;
 
   dopri_method method; // switch between (4)5 and 8(5(3))
   size_t order;        // order of integration, based on method
@@ -59,12 +59,12 @@ typedef struct {
   double t;  // current time
 
   // Times for integration to report at
-  double *times; // Set of times to stop at
+  const double *times; // Set of times to stop at
   size_t n_times;
   size_t times_idx;
 
   // Times for integration to stop at
-  double *tcrit;
+  const double *tcrit;
   size_t n_tcrit;
   size_t tcrit_idx;
 
@@ -140,11 +140,11 @@ typedef struct {
 
 dopri_data* dopri_data_alloc(deriv_func* target, size_t n,
                              output_func* output, size_t n_out,
-                             void *data,
+                             const void *data,
                              dopri_method method, size_t n_history);
-void dopri_data_reset(dopri_data *obj, double *y,
-                      double *times, size_t n_times,
-                      double *tcrit, size_t n_tcrit);
+void dopri_data_reset(dopri_data *obj, const double *y,
+                      const double *times, size_t n_times,
+                      const double *tcrit, size_t n_tcrit);
 dopri_data* dopri_data_copy(const dopri_data* obj);
 void dopri_data_free(dopri_data *obj);
 void dopri_integrate(dopri_data *obj, double *y,
