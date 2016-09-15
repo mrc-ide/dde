@@ -214,6 +214,21 @@ test_that("critical times", {
   expect_identical(res2, res3)
 
   expect_is(attr(res1, "step_size"), "numeric")
+
+  ## I also need to check a pathology here:
+  res4 <- dopri(1, tt, target, numeric(0), tcrit=c(tt[[1]], 1),
+                return_statistics = TRUE)
+  expect_equal(res4, res3)
+
+  ## Bunch of pathalogical times:
+  res5 <- dopri(1, tt, target, numeric(0), tcrit=rep(tt[[1]], 3),
+                return_statistics = TRUE)
+  expect_equal(res5, res1)
+
+  ## Pile up some times in the middle:
+  res6 <- dopri(1, tt, target, numeric(0), tcrit=rep(1, 3),
+                return_statistics = TRUE)
+  expect_equal(res4, res3)
 })
 
 test_that("names", {

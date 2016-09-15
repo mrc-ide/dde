@@ -179,7 +179,7 @@ void dopri_data_reset(dopri_data *obj, const double *y,
   obj->tcrit_idx = 0;
   if (n_tcrit > 0) {
     double t0 = obj->sign * times[0]; // because of the restart condition above.
-    while (obj->sign * tcrit[obj->tcrit_idx] < t0 &&
+    while (obj->sign * tcrit[obj->tcrit_idx] <= t0 &&
            obj->tcrit_idx < n_tcrit) {
       obj->tcrit_idx++;
     }
@@ -406,7 +406,10 @@ void dopri_integrate(dopri_data *obj, double *y,
         reject = false;
       }
       if (stop) {
-        obj->tcrit_idx++;
+        while (obj->sign * tcrit[obj->tcrit_idx] <= obj->sign * obj->t &&
+               obj->tcrit_idx < n_tcrit) {
+          obj->tcrit_idx++;
+        }
         if (obj->tcrit_idx < obj->n_tcrit &&
             obj->sign * obj->tcrit[obj->tcrit_idx] < obj->sign * t_end) {
           t_stop = obj->tcrit[obj->tcrit_idx];
