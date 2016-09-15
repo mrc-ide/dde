@@ -91,9 +91,16 @@ test_that("invalid function input", {
   y <- c(10, 1, 1)
   times <- seq(0, 1, length.out = 11)
   expect_error(dopri(y, times, 1, p),
-               "Invalid input for 'fun'")
+               "Invalid input for 'func'")
 })
 
 test_that("don't call ylag improperly", {
   expect_error(ylag(10), "Can't call this without being in an integration")
+})
+
+test_that("Missing output function", {
+  growth <- function(t, y, p) y
+  output <- function(t, y, p) sum(y)
+  expect_error(dopri(1, 0:10, growth, NULL, n_out = 1),
+               "Invalid input for 'output'")
 })

@@ -81,3 +81,14 @@ prepare_output <- function(ret, times, ynames, outnames, has_output,
 
   ret
 }
+
+find_function_address <- function(fun, dllname = "") {
+  if (is.character(fun)) {
+    fun <- getNativeSymbolInfo(fun, dllname)$address
+  } else if (inherits(fun, "NativeSymbolInfo")) {
+    fun <- fun$address
+  } else if (!(inherits(fun, "externalptr") || is.function(fun))) {
+    stop(sprintf("Invalid input for '%s'", deparse(substitute(fun))))
+  }
+  fun
+}

@@ -405,17 +405,6 @@ dopri_interpolate <- function(h, t) {
   ret
 }
 
-find_function_address <- function(fun, dllname = "") {
-  if (is.character(fun)) {
-    fun <- getNativeSymbolInfo(fun, dllname)$address
-  } else if (inherits(fun, "NativeSymbolInfo")) {
-    fun <- fun$address
-  } else if (!(inherits(fun, "externalptr") || is.function(fun))) {
-    stop("Invalid input for 'fun'")
-  }
-  fun
-}
-
 ##' @export
 ##' @rdname dopri
 ##'
