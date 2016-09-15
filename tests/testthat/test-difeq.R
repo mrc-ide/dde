@@ -255,19 +255,19 @@ test_that("error conditions", {
 
   ## Beginning and end times are the same:
   expect_error(difeq(y0, 0, rhs, p),
-               "Beginning and end times are the same")
+               "Beginning and end steps are the same")
   expect_error(difeq(y0, c(0, 0), rhs, p),
-               "Beginning and end times are the same")
+               "Beginning and end steps are the same")
   expect_error(difeq(y0, c(i, 0), rhs, p),
-               "Beginning and end times are the same")
+               "Beginning and end steps are the same")
 
   ## Incorrect order:
   expect_error(difeq(y0, rev(i), rhs, p),
-               "Times not strictly increasing")
+               "Steps not strictly increasing")
   expect_error(difeq(y0, c(0, 1, 1, 2), rhs, p),
-               "Times not strictly increasing")
+               "Steps not strictly increasing")
   expect_error(difeq(y0, c(0, 2, 1), rhs, p),
-               "Times not strictly increasing")
+               "Steps not strictly increasing")
 
   expect_error(difeq(y0, i, rhs, p, unknown = TRUE),
                "Invalid dot arguments")

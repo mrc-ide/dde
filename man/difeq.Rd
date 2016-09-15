@@ -2,6 +2,7 @@
 % Please edit documentation in R/difeq.R
 \name{difeq}
 \alias{difeq}
+\alias{difeq_continue}
 \alias{yprev}
 \title{Solve difference equation}
 \usage{
@@ -9,7 +10,12 @@ difeq(y, steps, target, parms, ..., n_out = 0L, n_history = 0L,
   return_history = n_history > 0, dllname = "", parms_are_real = TRUE,
   ynames = TRUE, outnames = NULL, by_column = FALSE,
   return_initial = FALSE, return_step = FALSE,
-  return_output_with_y = FALSE, deSolve_compatible = FALSE)
+  return_output_with_y = FALSE, restartable = FALSE,
+  deSolve_compatible = FALSE)
+
+difeq_continue(obj, steps, y = NULL, ..., copy = FALSE, parms = NULL,
+  return_history = NULL, by_column = NULL, return_initial = NULL,
+  return_time = NULL, return_output_with_y = NULL, restartable = NULL)
 
 yprev(step, i = NULL)
 }
@@ -87,11 +93,37 @@ should be bound together with the returned matrix \code{y} (as
 it is with \code{deSolve}).  Otherwise output will be returned
 as the attribute \code{output}.}
 
+\item{restartable}{Logical, indicating if the problem should be
+restartable.  If \code{TRUE}, then the return value of a
+simulation can be passed to \code{difeq_restart} to continue the
+simulation after arbitrary changes to the state or the
+parameters.  Note that this is really only useful for delay
+difference equations where you want to keep the history but make
+changes to the parameters or to the state vector while keeping
+the history of the problem so far.}
+
 \item{deSolve_compatible}{Logical, indicating if we should run in
 "deSolve compatible" output mode.  This enables the options
 \code{by_column}, \code{return_initial}, \code{return_time} and
 \code{return_output_with_y}.  This affects only some aspects of
 the returned value, and not the calculations themselves.}
+
+\item{obj}{An object to continue from; this must be the results of
+running a simulation with the option \code{restartable =
+TRUE}.  Note that continuing a problem moves the pointer along
+in time (unless \code{copy = TRUE}, and that the incoming time
+(\code{times[[1]]}) must equal the previous time \emph{exactly}.}
+
+\item{copy}{Logical, indicating if the pointer should be copied
+before continuing.  If \code{TRUE}, this is non-destructive with
+respect to the data in the original pointer so the problem can
+be restarted multiple times.  By default this is \code{FALSE}
+becaue there is a (potentially very small) cost to this
+operation.}
+
+\item{return_time}{Logical, indicating if a row (or column if
+\code{by_column} is \code{TRUE}) representing time is included
+(this matches deSolve).}
 
 \item{step}{The step to access (not that this is not an offset,
 but the actual step; within your target function you'd write

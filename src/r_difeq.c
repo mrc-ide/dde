@@ -2,18 +2,18 @@
 #include "difeq.h"
 #include "util.h"
 
-SEXP difeq_ptr_create(difeq_data *obj);
-void difeq_ptr_finalizer(SEXP extPtr);
-
 SEXP r_difeq(SEXP r_y_initial, SEXP r_steps, SEXP r_target, SEXP r_data,
              SEXP r_n_out,
              SEXP r_data_is_real,
              SEXP r_n_history, SEXP r_return_history,
-             SEXP r_return_initial) {
+             SEXP r_return_initial, SEXP r_return_pointer) {
   double *y_initial = REAL(r_y_initial);
   size_t n = length(r_y_initial);
 
   size_t n_steps = LENGTH(r_steps);
+  // This is required to avoid the issue that int* and size_t* need
+  // not be the same.  I should probably just relax this within run
+  // instead (TODO)
   size_t *steps = (size_t*) R_alloc(n_steps, sizeof(size_t));
   int* tmp = INTEGER(r_steps);
   for (size_t i = 0; i < n_steps; ++i) {
@@ -23,18 +23,12 @@ SEXP r_difeq(SEXP r_y_initial, SEXP r_steps, SEXP r_target, SEXP r_data,
   // TODO: check for NULL function pointers here to avoid crashes;
   // also test type?
   difeq_target *target = (difeq_target*)R_ExternalPtrAddr(r_target);
-  void *data = NULL;
-  if (TYPEOF(r_data) == REALSXP && INTEGER(r_data_is_real)[0]) {
-    data = (void*) REAL(r_data);
-  } else if (TYPEOF(r_data) == EXTPTRSXP) {
-    data = R_ExternalPtrAddr(r_data);
-  } else {
-    data = (void*) r_data;
-  }
+  void *data = data_pointer(r_data, r_data_is_real);
 
   size_t n_history = (size_t)INTEGER(r_n_history)[0];
   bool return_history = INTEGER(r_return_history)[0];
   bool return_initial = INTEGER(r_return_initial)[0];
+  bool return_pointer = INTEGER(r_return_pointer)[0];
   size_t nt = return_initial ? n_steps : n_steps - 1;
 
   size_t n_out = INTEGER(r_n_out)[0];
@@ -55,7 +49,7 @@ SEXP r_difeq(SEXP r_y_initial, SEXP r_steps, SEXP r_target, SEXP r_data,
   // call in a user function, etc) R will clean up for us once it
   // garbage collects ptr.  Because R resets the protection stack on
   // early exit it is guaranteed to get collected at some point.
-  SEXP ptr = PROTECT(difeq_ptr_create(obj));
+  SEXP r_ptr = PROTECT(difeq_ptr_create(obj));
 
   // Then solve things:
   SEXP r_y = PROTECT(allocMatrix(REALSXP, n, nt));
@@ -65,25 +59,75 @@ SEXP r_difeq(SEXP r_y_initial, SEXP r_steps, SEXP r_target, SEXP r_data,
   difeq_run(obj, y_initial, steps, n_steps, y, out, return_initial);
   PutRNGstate();
 
-  if (return_history) {
-    size_t nh = ring_buffer_used(obj->history, 0);
-    SEXP history = PROTECT(allocMatrix(REALSXP, obj->history_len, nh));
-    ring_buffer_take(obj->history, REAL(history), nh);
-    setAttrib(history, install("n"), ScalarInteger(obj->n));
-    setAttrib(r_y, install("history"), history);
-    UNPROTECT(1);
-  }
+  r_difeq_cleanup(obj, r_ptr, r_y, r_out, return_history, return_pointer);
 
-  if (n_out > 0) {
-    setAttrib(r_y, install("output"), r_out);
-    UNPROTECT(1);
-  }
-
-  // Deterministically clean up if we can, otherwise we clean up by R
-  // running the finaliser for us when it garbage collects ptr above.
-  difeq_data_free(obj);
-  R_ClearExternalPtr(ptr);
   UNPROTECT(2);
+  return r_y;
+}
+
+SEXP r_difeq_copy(SEXP r_ptr) {
+  return difeq_ptr_create(difeq_data_copy(difeq_ptr_get(r_ptr)));
+}
+
+// Different interface here:
+SEXP r_difeq_continue(SEXP r_ptr, SEXP r_y_initial, SEXP r_steps,
+                      SEXP r_data, SEXP r_data_is_real,
+                      // Return information:
+                      SEXP r_return_history, SEXP r_return_initial,
+                      SEXP r_return_pointer) {
+  difeq_data* obj = difeq_ptr_get(r_ptr);
+  size_t n = obj->n, n_out = obj->n_out;
+  double *y_initial;
+  if (r_y_initial == R_NilValue) {
+    Rf_error("this needs work");
+    // To make this work for the non-delay case we'll have to create
+    // some new memory and store it on exit.
+    y_initial = (double*) ring_buffer_head(obj->history);
+  } else {
+    if ((size_t) length(r_y_initial) != n) {
+      Rf_error("Incorrect size 'y' on integration restart");
+    }
+    y_initial = REAL(r_y_initial);
+  }
+
+  size_t n_steps = LENGTH(r_steps);
+  size_t *steps = (size_t*) R_alloc(n_steps, sizeof(size_t));
+  int* tmp = INTEGER(r_steps);
+  for (size_t i = 0; i < n_steps; ++i) {
+    steps[i] = (size_t) tmp[i];
+  }
+  if (n_steps < 2) {
+    Rf_error("At least two steps must be given");
+  }
+  if (steps[0] != obj->step) {
+    Rf_error("Incorrect initial step on simulation restart");
+  }
+
+  // Need to freshly set the data pointer because it could have been
+  // garbage collected in the meantime.
+  obj->data = data_pointer(r_data, r_data_is_real);
+
+  bool return_history = INTEGER(r_return_history)[0];
+  bool return_initial = INTEGER(r_return_initial)[0];
+  bool return_pointer = INTEGER(r_return_pointer)[0];
+  size_t ns = return_initial ? n_steps : n_steps - 1;
+
+  SEXP r_y = PROTECT(allocMatrix(REALSXP, n, ns));
+  double *y = REAL(r_y);
+  SEXP r_out = R_NilValue;
+  double *out = NULL;
+  if (n_out > 0) {
+    r_out = PROTECT(allocMatrix(REALSXP, n_out, ns));
+    out = REAL(r_out);
+  }
+
+  GetRNGstate();
+  difeq_run(obj, y_initial, steps, n_steps, y, out, return_initial);
+  PutRNGstate();
+
+  r_difeq_cleanup(obj, r_ptr, r_y, r_out, return_history, return_pointer);
+
+  UNPROTECT(1);
   return r_y;
 }
 
@@ -154,4 +198,35 @@ SEXP difeq_ptr_create(difeq_data *obj) {
   R_RegisterCFinalizer(r_ptr, difeq_ptr_finalizer);
   UNPROTECT(1);
   return r_ptr;
+}
+
+difeq_data* difeq_ptr_get(SEXP r_ptr) {
+  return (difeq_data*) ptr_get(r_ptr);
+}
+
+void r_difeq_cleanup(difeq_data *obj, SEXP r_ptr, SEXP r_y, SEXP r_out,
+                     bool return_history, bool return_pointer) {
+  if (return_history) {
+    size_t nh = ring_buffer_used(obj->history, 0);
+    SEXP history = PROTECT(allocMatrix(REALSXP, obj->history_len, nh));
+    ring_buffer_take(obj->history, REAL(history), nh);
+    setAttrib(history, install("n"), ScalarInteger(obj->n));
+    setAttrib(r_y, install("history"), history);
+    UNPROTECT(1);
+  }
+
+  if (obj->n_out > 0) {
+    setAttrib(r_y, install("output"), r_out);
+    UNPROTECT(1);
+  }
+
+  // Deterministically clean up if we can, otherwise we clean up by R
+  // running the finaliser for us when it garbage collects ptr above.
+  if (return_pointer) {
+    obj->steps = NULL;
+    setAttrib(r_y, install("ptr"), r_ptr);
+  } else {
+    difeq_data_free(obj);
+    R_ClearExternalPtr(r_ptr);
+  }
 }

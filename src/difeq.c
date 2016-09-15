@@ -7,7 +7,7 @@ void difeq_store_time(difeq_data *obj);
 void fill_na(double *x, size_t n);
 
 difeq_data* difeq_data_alloc(difeq_target* target,
-                             size_t n, size_t n_out, void *data,
+                             size_t n, size_t n_out, const void *data,
                              size_t n_history) {
   difeq_data *ret = (difeq_data*) R_Calloc(1, difeq_data);
   ret->target = target;
@@ -41,31 +41,57 @@ difeq_data* difeq_data_alloc(difeq_target* target,
   return ret;
 }
 
-void difeq_data_reset(difeq_data *obj, double *y,
-                      size_t *steps, size_t n_steps) {
+difeq_data* difeq_data_copy(const difeq_data* obj) {
+  size_t n_history = ring_buffer_size(obj->history, false);
+  difeq_data* ret = difeq_data_alloc(obj->target, obj->n, obj->n_out,
+                                     obj->data, n_history);
+  // Then update a few things
+  ret->step0 = obj->step0;
+  ret->step  = obj->step;
+  ring_buffer_mirror(obj->history, ret->history);
+  ret->history_idx_step = obj->history_idx_step;
+
+  // NOTE: I'm not copying the steps over because the first thing that
+  // happens is always a reset and that deals with this.
+  ret->steps = NULL;
+
+  // Copy all of the internal state:
+  memcpy(ret->y0, obj->y0, obj->n * sizeof(double));
+
+  return ret;
+}
+
+void difeq_data_reset(difeq_data *obj, const double *y,
+                      const size_t *steps, size_t n_steps) {
   memcpy(obj->y0, y, obj->n * sizeof(double));
 
-  obj->step0 = steps[0];
-  obj->step  = steps[0];
-  obj->step1 = steps[n_steps - 1];
-
   obj->n_steps = n_steps;
-  obj->steps = (size_t*) R_Realloc(obj->steps, n_steps, size_t);
-  memcpy(obj->steps, steps, n_steps * sizeof(size_t));
+  obj->steps = steps;
   obj->steps_idx = 1; // skipping the first step!
 
   // TODO: I don't check that there is at least one time anywhere in
   // *this* routine, but it is checked in r_difeq which calls
   // this.
   if (steps[n_steps - 1] == steps[0]) {
-    Rf_error("Initialisation failure: Beginning and end times are the same");
+    Rf_error("Initialisation failure: Beginning and end steps are the same");
   }
 
   for (size_t i = 0; i < n_steps - 1; ++i) {
     if (steps[i + 1] <= steps[i]) { // NOTE: Disallows ties
-      Rf_error("Initialisation failure: Times not strictly increasing");
+      Rf_error("Initialisation failure: Steps not strictly increasing");
     }
   }
+
+  // TODO: Possibly need to do some work here.
+  if (obj->history == NULL || ring_buffer_is_empty(obj->history)) {
+    obj->step0 = steps[0];
+  } else {
+    // This is the restart condition
+    double * h = (double*) ring_buffer_tail(obj->history);
+    obj->step0 = h[obj->history_idx_step];
+  }
+  obj->step = steps[0];
+  obj->step1 = steps[n_steps - 1];
 }
 
 void difeq_data_free(difeq_data *obj) {
@@ -75,7 +101,6 @@ void difeq_data_free(difeq_data *obj) {
     ring_buffer_destroy(obj->history);
   }
 
-  R_Free(obj->steps);
   R_Free(obj);
 }
 
@@ -88,8 +113,8 @@ size_t get_current_problem_size_difeq() {
   return difeq_global_obj == NULL ? 0 : difeq_global_obj->n;
 }
 
-void difeq_run(difeq_data *obj, double *y,
-               size_t *steps, size_t n_steps,
+void difeq_run(difeq_data *obj, const double *y,
+               const size_t *steps, size_t n_steps,
                double *y_out, double *out,
                bool return_initial) {
   difeq_data_reset(obj, y, steps, n_steps);
