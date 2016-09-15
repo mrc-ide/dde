@@ -54,7 +54,6 @@ typedef struct {
   size_t n;     // number of equations
   size_t n_out; // number of output variables (possibly zero)
 
-
   double t0; // initial time; used in models with delays
   double t;  // current time
 

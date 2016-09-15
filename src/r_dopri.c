@@ -198,8 +198,11 @@ void r_integration_error(dopri_data* obj) {
     Rf_error("Integration failure: step size vanished (at t = %2.5f)", t);
     break;
   case ERR_YLAG_FAIL:
-    Rf_error("Integration failure: did not find time in history (at t = %2.5f)",
-             t);
+    if (ring_buffer_size(obj->history, false) == 0) {
+      Rf_error("Integration failure: can't use ylag in model with no history");
+    } else {
+      Rf_error("Integration failure: did not find time in history (at t = %2.5f)", t);
+    }
     break;
     //case ERR_STIFF:
     // TODO: never thrown
