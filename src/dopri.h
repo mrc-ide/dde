@@ -109,7 +109,7 @@ typedef struct {
   //
   size_t history_len;
   ring_buffer *history;
-  size_t history_time_idx;
+  size_t history_idx_time;
 
   double sign;
 
@@ -146,9 +146,9 @@ void dopri_data_reset(dopri_data *obj, const double *y,
                       const double *tcrit, size_t n_tcrit);
 dopri_data* dopri_data_copy(const dopri_data* obj);
 void dopri_data_free(dopri_data *obj);
-void dopri_integrate(dopri_data *obj, double *y,
-                     double *times, size_t n_times,
-                     double *tcrit, size_t n_tcrit,
+void dopri_integrate(dopri_data *obj, const double *y,
+                     const double *times, size_t n_times,
+                     const double *tcrit, size_t n_tcrit,
                      double *y_out, double *out,
                      bool return_initial);
 

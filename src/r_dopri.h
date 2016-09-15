@@ -25,8 +25,7 @@ SEXP r_ylag(SEXP r_t, SEXP r_idx);
 SEXP dopri_ptr_create(dopri_data *obj);
 void dopri_ptr_finalizer(SEXP extPtr);
 dopri_data* dopri_ptr_get(SEXP r_ptr);
-void r_integration_error(dopri_data* obj);
-void r_cleanup(dopri_data *obj, SEXP r_ptr, SEXP r_y, SEXP r_out,
-               bool return_history, bool return_statistics,
-               bool return_pointer);
-void * data_pointer(SEXP r_data, SEXP r_data_is_real);
+void r_dopri_error(dopri_data* obj);
+void r_dopri_cleanup(dopri_data *obj, SEXP r_ptr, SEXP r_y, SEXP r_out,
+                     bool return_history, bool return_statistics,
+                     bool return_pointer);

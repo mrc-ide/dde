@@ -104,8 +104,8 @@ SEXP r_dopri(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
   dopri_integrate(obj, y_initial, times, n_times, tcrit, n_tcrit, y, out,
                   return_initial);
 
-  r_cleanup(obj, r_ptr, r_y, r_out,
-            return_history, return_statistics, return_pointer);
+  r_dopri_cleanup(obj, r_ptr, r_y, r_out,
+                  return_history, return_statistics, return_pointer);
   UNPROTECT(2);
   return r_y;
 }
@@ -172,13 +172,13 @@ SEXP r_dopri_continue(SEXP r_ptr, SEXP r_y_initial, SEXP r_times,
 
   dopri_integrate(obj, y_initial, times, n_times, tcrit, n_tcrit,
                   y, out, return_initial);
-  r_cleanup(obj, r_ptr, r_y, r_out,
-            return_history, return_statistics, return_pointer);
+  r_dopri_cleanup(obj, r_ptr, r_y, r_out,
+                  return_history, return_statistics, return_pointer);
   UNPROTECT(1);
   return r_y;
 }
 
-void r_integration_error(dopri_data* obj) {
+void r_dopri_error(dopri_data* obj) {
   int code = obj->code;
   double t = obj->t;
   switch (code) {
@@ -287,21 +287,14 @@ SEXP dopri_ptr_create(dopri_data *obj) {
 }
 
 dopri_data* dopri_ptr_get(SEXP r_ptr) {
-  if (TYPEOF(r_ptr) != EXTPTRSXP) {
-    Rf_error("Expected an external pointer");
-  }
-  dopri_data* obj = (dopri_data*)R_ExternalPtrAddr(r_ptr);
-  if (obj == NULL) {
-    Rf_error("pointer has been freed (perhaps serialised?)");
-  }
-  return obj;
+  return (dopri_data*) ptr_get(r_ptr);
 }
 
-void r_cleanup(dopri_data *obj, SEXP r_ptr, SEXP r_y, SEXP r_out,
-               bool return_history, bool return_statistics,
-               bool return_pointer) {
+void r_dopri_cleanup(dopri_data *obj, SEXP r_ptr, SEXP r_y, SEXP r_out,
+                     bool return_history, bool return_statistics,
+                     bool return_pointer) {
   if (obj->error) {
-    r_integration_error(obj); // will error
+    r_dopri_error(obj); // will error
   }
 
   if (return_history) {
@@ -346,16 +339,4 @@ void r_cleanup(dopri_data *obj, SEXP r_ptr, SEXP r_y, SEXP r_out,
     dopri_data_free(obj);
     R_ClearExternalPtr(r_ptr);
   }
-}
-
-void * data_pointer(SEXP r_data, SEXP r_data_is_real) {
-  void *data;
-  if (TYPEOF(r_data) == REALSXP && INTEGER(r_data_is_real)[0]) {
-    data = (void*) REAL(r_data);
-  } else if (TYPEOF(r_data) == EXTPTRSXP) {
-    data = R_ExternalPtrAddr(r_data);
-  } else {
-    data = (void*) r_data;
-  }
-  return data;
 }

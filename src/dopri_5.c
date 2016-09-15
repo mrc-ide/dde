@@ -115,8 +115,8 @@ void dopri5_save_history(dopri_data *obj, double h) {
     history[2 * obj->n + i] = bspl;
     history[3 * obj->n + i] = -h * obj->k[1][i] + ydiff - bspl;
   }
-  history[obj->history_time_idx    ] = obj->t;
-  history[obj->history_time_idx + 1] = h;
+  history[obj->history_idx_time    ] = obj->t;
+  history[obj->history_idx_time + 1] = h;
 }
 
 double dopri5_interpolate(size_t n, double theta, double theta1,

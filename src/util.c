@@ -65,3 +65,26 @@ size_t * r_indices(SEXP x, size_t len) {
   }
   return idx;
 }
+
+void * data_pointer(SEXP r_data, SEXP r_data_is_real) {
+  void *data;
+  if (TYPEOF(r_data) == REALSXP && INTEGER(r_data_is_real)[0]) {
+    data = (void*) REAL(r_data);
+  } else if (TYPEOF(r_data) == EXTPTRSXP) {
+    data = R_ExternalPtrAddr(r_data);
+  } else {
+    data = (void*) r_data;
+  }
+  return data;
+}
+
+void * ptr_get(SEXP r_ptr) {
+  if (TYPEOF(r_ptr) != EXTPTRSXP) {
+    Rf_error("Expected an external pointer");
+  }
+  void *ret = R_ExternalPtrAddr(r_ptr);
+  if (ret == NULL) {
+    Rf_error("pointer has been freed (perhaps serialised?)");
+  }
+  return ret;
+}

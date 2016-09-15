@@ -366,8 +366,8 @@ void dopri853_save_history(dopri_data *obj, double h) {
                               D715 * k2[i] + D716 * k3[i]);
   }
 
-  history[obj->history_time_idx    ] = t;
-  history[obj->history_time_idx + 1] = h;
+  history[obj->history_idx_time    ] = t;
+  history[obj->history_idx_time + 1] = h;
 }
 
 double dopri853_interpolate(size_t n, double theta, double theta1,

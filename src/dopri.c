@@ -42,7 +42,7 @@ dopri_data* dopri_data_alloc(deriv_func* target, size_t n,
   ret->history_len = 2 + ret->order * n;
   ret->history =
     ring_buffer_create(n_history, ret->history_len * sizeof(double));
-  ret->history_time_idx = ret->order * n;
+  ret->history_idx_time = ret->order * n;
 
   // NOTE: The numbers below are defaults only, but to alter them,
   // directly modify the object after creation.  I may set up some
@@ -84,7 +84,7 @@ dopri_data* dopri_data_copy(const dopri_data* obj) {
   ret->t0 = obj->t0;
   ret->t  = obj->t;
   ring_buffer_mirror(obj->history, ret->history);
-  ret->history_time_idx = obj->history_time_idx;
+  ret->history_idx_time = obj->history_idx_time;
   ret->sign = obj->sign;
   ret->atol = obj->atol;
   ret->rtol = obj->rtol;
@@ -167,10 +167,8 @@ void dopri_data_reset(dopri_data *obj, const double *y,
     obj->t0 = obj->sign * times[0];
   } else {
     // This is the restart condition
-    //
-    // TODO: check that the sign of times agrees with the previous sign?
     double * h = (double*) ring_buffer_tail(obj->history);
-    obj->t0 = obj->sign * h[obj->history_time_idx];
+    obj->t0 = obj->sign * h[obj->history_idx_time];
   }
   obj->t = times[0];
 
@@ -260,9 +258,9 @@ void dopri_save_history(dopri_data *obj, double h) {
 
 // Integration is going to be over a set of times 't', of which there
 // are 'n_t'.
-void dopri_integrate(dopri_data *obj, double *y,
-                     double *times, size_t n_times,
-                     double *tcrit, size_t n_tcrit,
+void dopri_integrate(dopri_data *obj, const double *y,
+                     const double *times, size_t n_times,
+                     const double *tcrit, size_t n_tcrit,
                      double *y_out, double *out,
                      bool return_initial) {
   dopri_data_reset(obj, y, times, n_times, tcrit, n_tcrit);
@@ -640,7 +638,7 @@ bool dopri_find_time_backward(const void *x, void *data) {
 }
 
 const double* dopri_find_time(dopri_data *obj, double t) {
-  const size_t idx_t = obj->history_time_idx;
+  const size_t idx_t = obj->history_idx_time;
   struct dopri_find_time_pred_data data = {idx_t, t};
   // The first shot at idx here is based on a linear interpolation of
   // the time; hopefully this gets is close to the correct point
