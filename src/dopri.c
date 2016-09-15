@@ -163,7 +163,7 @@ void dopri_data_reset(dopri_data *obj, const double *y,
     }
   }
 
-  if (ring_buffer_empty(obj->history)) {
+  if (ring_buffer_is_empty(obj->history)) {
     obj->t0 = obj->sign * times[0];
   } else {
     // This is the restart condition
