@@ -459,3 +459,16 @@ test_that("change y on restart", {
   expect_equal(res3[-j, k] / res2[-j, k], rep(1, sum(k)))
   expect_equal(res3[-j, !k] / res2[-j, !k], rep(2, sum(!k)), tolerance = 1e-5)
 })
+
+## This indicates to me that we might still have a problem with the
+## solver, but it might also be that the high order difficulty from
+## the echo of the delay is causing trouble.  If you push out tcrit
+## values as multiples of 14 and drop tolerance to 1e-5 you can get as
+## far as t = 56 before it gives up.
+test_that("stiffness detection", {
+  tt <- seq(0, 200, length.out=301)
+  yy <- run_seir_dde(tt)
+  expect_equal(run_seir_dde(tt, stiff_check = 1), yy)
+  expect_error(run_seir_dde(tt, method = "dopri853", stiff_check = 1),
+               "problem became stiff")
+})
