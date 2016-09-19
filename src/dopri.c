@@ -628,7 +628,7 @@ bool dopri_test_stiff(dopri_data *obj, double h) {
       if (obj->stiff_n_stiff++ >= 15) {
         ret = true;
       }
-    } else if (obj->stiff_n_nonstiff > 0) {
+    } else if (obj->stiff_n_stiff > 0) {
       if (obj->stiff_n_nonstiff++ >= 6) {
         obj->stiff_n_stiff = 0;
       }
