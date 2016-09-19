@@ -155,7 +155,7 @@ difeq_continue <- function(obj, steps, y = NULL, ...,
   ptr <- attr(obj, "ptr", exact = TRUE)
   dat <- attr(obj, "restart_data", exact = TRUE)
   if (copy) {
-    ptr <- .Call(Cdopri_copy, ptr)
+    ptr <- .Call(Cdifeq_copy, ptr)
   }
 
   if (is.null(parms)) {
@@ -174,7 +174,8 @@ difeq_continue <- function(obj, steps, y = NULL, ...,
                parms, dat$parms_are_real,
                return_history, return_initial, restartable)
 
-  ret <- prepare_output(ret, step, dat$ynames, dat$outnames, dat$has_output,
+  ## These may get lumped together
+  ret <- prepare_output(ret, steps, dat$ynames, dat$outnames, dat$has_output,
                         return_by_column, return_initial, return_step,
                         return_output_with_y, "step")
   if (restartable) {

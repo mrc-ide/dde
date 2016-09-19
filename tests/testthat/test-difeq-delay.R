@@ -30,8 +30,9 @@ test_that("prev and output", {
     ret
   }
 
-  y0 <- runif(5)
-  p <- runif(5)
+  n <- 5
+  y0 <- runif(n)
+  p <- runif(n)
   i <- 0:10
   i2 <- seq(0, 10, by = 2)
 
@@ -176,4 +177,47 @@ test_that("integer lag", {
   res <- difeq(y0, i, "growth", p, n_history = 2L, dllname = "growth_int",
                return_history = FALSE, return_step = FALSE)
   expect_equal(res, cmp)
+})
+
+test_that("restart", {
+  growth <- function(i, y, p) {
+    ret <- y + p
+    attr(ret, "output") <- yprev(i - 5L)
+    ret
+  }
+
+  n <- 5L
+  y0 <- runif(n)
+  p <- runif(n)
+
+  tt <- 0:50
+  tc <- 20
+  tt1 <- tt[tt <= tc]
+  tt2 <- tt[tt >= tc]
+
+  cmp <- y0 + outer(p, tt)
+
+  res <- difeq(y0, tt, growth, p, n_out = n, n_history = 100L,
+               restartable = FALSE)
+  h <- attr(res, "history")
+  expect_null(attr(res, "ptr"))
+  expect_null(attr(res, "restart_data"))
+
+  res1 <- difeq(y0, tt1, growth, p,  n_out = n, n_history = 100L,
+                restartable = TRUE)
+  h1 <- attr(res1, "history")
+
+  ## We have useful things here:
+  expect_is(attr(res1, "ptr"), "externalptr")
+  expect_is(attr(res1, "restart_data"), "list")
+
+  ## Do the restart
+  res2 <- difeq_continue(res1, tt2, copy = FALSE)
+  h2 <- attr(res2, "history")
+
+  ## This is key; do all history elements match up:
+  expect_equal(h2, h)
+
+  expect_equal(res2[1, ], res1[nrow(res1), ])
+  expect_equal(res, rbind(res1, res2[-1, ]), check.attributes = FALSE)
 })

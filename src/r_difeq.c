@@ -81,10 +81,7 @@ SEXP r_difeq_continue(SEXP r_ptr, SEXP r_y_initial, SEXP r_steps,
   size_t n = obj->n, n_out = obj->n_out;
   double *y_initial;
   if (r_y_initial == R_NilValue) {
-    Rf_error("this needs work");
-    // To make this work for the non-delay case we'll have to create
-    // some new memory and store it on exit.
-    y_initial = (double*) ring_buffer_head(obj->history);
+    y_initial = obj->y1;
   } else {
     if ((size_t) length(r_y_initial) != n) {
       Rf_error("Incorrect size 'y' on integration restart");
@@ -158,7 +155,7 @@ SEXP r_yprev(SEXP r_i, SEXP r_idx) {
 }
 
 void difeq_r_harness(size_t n, size_t step,
-                     double *y,  double *ynext,
+                     double *y, double *ynext,
                      size_t n_out, double *output, void *data) {
   SEXP d = (SEXP)data;
   SEXP
@@ -170,6 +167,10 @@ void difeq_r_harness(size_t n, size_t step,
   memcpy(REAL(r_y), y, n * sizeof(double));
   SEXP call = PROTECT(lang4(target, r_step, r_y, parms));
   SEXP ans = PROTECT(eval(call, rho));
+  // Ensure that we get sensible output from the target function:
+  if ((size_t)length(ans) != n) {
+    Rf_error("Unexpected length output");
+  }
   memcpy(ynext, REAL(ans), n * sizeof(double));
   if (n_out > 0) {
     SEXP r_output = getAttrib(ans, install("output"));
@@ -210,7 +211,7 @@ void r_difeq_cleanup(difeq_data *obj, SEXP r_ptr, SEXP r_y, SEXP r_out,
   if (return_history) {
     size_t nh = ring_buffer_used(obj->history, 0);
     SEXP history = PROTECT(allocMatrix(REALSXP, obj->history_len, nh));
-    ring_buffer_take(obj->history, REAL(history), nh);
+    ring_buffer_read(obj->history, REAL(history), nh);
     setAttrib(history, install("n"), ScalarInteger(obj->n));
     setAttrib(r_y, install("history"), history);
     UNPROTECT(1);

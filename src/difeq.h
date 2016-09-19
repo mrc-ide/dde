@@ -37,6 +37,7 @@ typedef struct {
   size_t steps_idx;
 
   double * y0; // initial state
+  double * y1; // final state
 
   // History (if needed)
   //

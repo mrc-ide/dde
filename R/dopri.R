@@ -377,6 +377,7 @@ dopri_continue <- function(obj, times, y = NULL, ...,
                parms, dat$parms_are_real, tcrit,
                return_history, return_initial, return_statistics, restartable)
 
+  ## TODO: make this work as restartable
   prepare_output(ret, times, dat$ynames, dat$outnames, dat$has_output,
                  return_by_column, return_initial, return_time, return_output_with_y,
                  "time")

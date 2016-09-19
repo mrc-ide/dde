@@ -11,7 +11,7 @@ void seir(size_t n, double t, double *y, double *dydt, void *data) {
 
   const double tau = t - lat_hum;
 
-  int idx[2] = {0, 2};
+  static const int idx[2] = {0, 2};
   double ylag[2];
   ylag_vec_int(tau, idx, 2, ylag);
   double S_lag = ylag[0], I_lag = ylag[1];

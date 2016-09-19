@@ -303,7 +303,7 @@ void r_dopri_cleanup(dopri_data *obj, SEXP r_ptr, SEXP r_y, SEXP r_out,
   if (return_history) {
     size_t nh = ring_buffer_used(obj->history, 0);
     SEXP history = PROTECT(allocMatrix(REALSXP, obj->history_len, nh));
-    ring_buffer_take(obj->history, REAL(history), nh);
+    ring_buffer_read(obj->history, REAL(history), nh);
     setAttrib(history, install("n"), ScalarInteger(obj->n));
     setAttrib(history, R_ClassSymbol, mkString("dopri_history"));
     setAttrib(r_y, install("history"), history);
