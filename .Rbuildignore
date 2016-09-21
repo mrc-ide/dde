@@ -5,6 +5,9 @@
 ^tests/testthat/.*\.o$
 ^tests/testthat/.*\.so$
 ^tests/testthat/.*\.dll$
+^inst/examples/.*\.o$
+^inst/examples/.*\.so$
+^inst/examples/.*\.dll$
 ^notes\.md$
 ^dde_.*\.tar\.gz$
 ^ignore$

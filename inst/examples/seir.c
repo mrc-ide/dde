@@ -5,11 +5,11 @@
 void seir(size_t n, double t, double *y, double *dydt, void *data) {
   // Hard code the parameters for now, rather than passing them
   // through as `data`.
-  double b = 1.0 / 10.0, N = 1e7, beta = 10.0, sigma = 1.0 / 3.0,
-    delta = 1.0 / 21.0, lat_hum = 14.0;
-  double Births = N * b, surv = exp(-b * lat_hum);
+  double b = 0.1, N = 1e7, beta = 10.0, sigma = 1.0 / 3.0,
+    delta = 1.0 / 21.0, t_latent = 14.0;
+  double Births = N * b, surv = exp(-b * t_latent);
 
-  const double tau = t - lat_hum;
+  const double tau = t - t_latent;
   double S_lag = ylag_1(tau, 0), I_lag = ylag_1(tau, 2);
 
   // This is an alternative mode that looks up the value of the lags

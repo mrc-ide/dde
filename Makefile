@@ -41,6 +41,7 @@ check_all:
 clean:
 	rm -f src/*.o src/*.so src/*.dll
 	rm -f tests/testthat/*.o tests/testthat/*.so tests/testthat/*.dll
+	rm -f inst/examples/*.o inst/examples/*.so inst/examples/*.dll
 
 
 README.md: README.Rmd
@@ -48,4 +49,15 @@ README.md: README.Rmd
 	sed -i.bak 's/[[:space:]]*$$//' README.md
 	rm -f $@.bak myfile.json
 
-.PHONY: all test document install
+.PHONY: all test document install vignettes
+
+vignettes/%.Rmd: vignettes/src/%.R
+	${RSCRIPT} -e 'library(sowsear); sowsear("$<", output="$@")'
+
+## This will eventually swap out for devtools::build_vignettes(), but
+## in current version it's not working when offline.  For now I'll
+## just do the copy manually.
+vignettes: vignettes/dde.Rmd
+	${RSCRIPT} -e 'tools::buildVignettes(dir = ".")'
+	mkdir -p inst/doc
+	cp vignettes/*.html vignettes/*.Rmd inst/doc

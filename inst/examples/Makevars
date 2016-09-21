@@ -1,0 +1,2 @@
+# -*-makefile-*-
+PKG_CFLAGS = -I../include -g

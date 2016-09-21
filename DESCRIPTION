@@ -14,5 +14,9 @@ LinkingTo: ring (>= 0.0.4)
 Remotes: richfitz/ring
 Suggests:
     deSolve,
+    knitr,
+    microbenchmark,
+    rmarkdown,
     testthat
 RoxygenNote: 5.0.1
+VignetteBuilder: knitr

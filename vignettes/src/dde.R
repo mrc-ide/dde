@@ -1,0 +1,435 @@
+## ---
+## title: "dde"
+## author: "Rich FitzJohn"
+## date: "`r Sys.Date()`"
+## output: rmarkdown::html_vignette
+## vignette: >
+##   %\VignetteIndexEntry{dde}
+##   %\VignetteEngine{knitr::rmarkdown}
+##   %\VignetteEncoding{UTF-8}
+## ---
+
+##+ echo = FALSE, results = "hide"
+output_lang <- function(x, lang) {
+  writeLines(c(sprintf("```%s", lang), x, "```"))
+}
+output_r <- function(x) output_lang(x, "r")
+output_c <- function(x) output_lang(x, "c")
+knitr::opts_chunk$set(
+  error=FALSE,
+  fig.width=7,
+  fig.height=5)
+set.seed(1)
+
+## The `dde` package implements solvers for ordinary differential
+## equations (ODEs) and _delay_ differential equations (DDEs).  DDEs
+## differ from ODEs in that the right hand side depends not only on
+## time and the current state of the system but also on the previous
+## state of the system.
+##
+## This seemingly innocuous dependency can create problems, especially
+## where the delay changes size overtime.  In particular, problems
+## where delays are on the order of the step size (vanishing delays)
+## are difficult to solve.
+##
+## This package is aimed at solving nonstiff ODEs and DDEs with simple
+## delays.
+##
+## The `deSolve` package already allows for solving delay differential
+## equations, though the interface and approach differs; see below for
+## similarities and differences.
+
+## ## Ordinary differential equation models
+
+## With ODE models you will almost always be better off using
+## `deSolve`.  The `deTestSet` package also implements Fortran version
+## of the Dormand Prince algorithms here (as `deTestSet::dopri5` and
+## `deTestSet::dopri853`).  If you use `deSolve` then you'll have the
+## ability to switch between a huge number of different solvers.
+
+## The reasons to consider using `dde` over `deSolve`/`deTestSet`
+## would be if you
+##
+## * are needing to use a DDE equation elsewhere in your package/program
+## * want to generate dense output for a system for later interpolation
+##
+## Other than that, I would recommend using `deSolve` (which is what I
+## do).
+
+## For completeness, I will show how below
+##
+## * R code
+## * Dense output and interpolation
+## * C code
+## * Exotic argument handling
+
+## ### Models implemented in R
+
+## Models implemented in R look very similar to `deSolve`.  Here is
+## the Lorenz attractor implemented for `dde`:
+lorenz_dde <- function(t, y, p) {
+  sigma <- p$sigma
+  R     <- p$R
+  b     <- p$b
+  y1 <- y[[1L]]
+  y2 <- y[[2L]]
+  y3 <- y[[3L]]
+  c(sigma * (y2 - y1),
+    R * y1 - y2 - y1 * y3,
+    -b * y3 + y1 * y2)
+}
+
+## The `p` argument is the parameters and can be any R object.  Here
+## I'll use a `list` to hold the standard Lorenz attractor parameters:
+p <- list(sigma = 10.0,
+          R     = 28.0,
+          b     =  8.0 / 3.0)
+
+tt <- seq(0, 100, length.out = 50001)
+y0 <- c(1, 1, 1)
+yy <- dde::dopri(y0, tt, lorenz_dde, p, deSolve_compatible = TRUE)
+
+## Here is the iconic attractor
+par(mar=rep(.5, 4))
+plot(yy[, c(2, 4)], type = "l", lwd = 0.5, col = "#00000066",
+     axes = FALSE, xlab = "", ylab = "")
+
+## The approach above is almost identical to implementing this model
+## using `deSolve`:
+##+ eval = FALSE
+lorenz_ds <- function(t, y, p) {
+  sigma <- 10.0
+  R     <- 28.0
+  b     <-  8.0 / 3.0
+  y1 <- y[[1L]]
+  y2 <- y[[2L]]
+  y3 <- y[[3L]]
+  list(c(sigma * (y2 - y1),
+         R * y1 - y2 - y1 * y3,
+         -b * y3 + y1 * y2))
+}
+yy_ds <- deSolve::ode(y0, tt, lorenz_ds, p)
+
+## ### Dense output and interpolation
+
+## One of the nice things about the `dopri` solvers is that they do
+## not need to stop the integration at the times that you request
+## output at:
+yy <- dde::dopri(y0, tt, lorenz_dde, p, deSolve_compatible = TRUE,
+                 return_statistics = TRUE)
+attr(yy, "statistics")
+
+## Above, the number of function evaluations (~6 per step), steps, and
+## rejected steps is indicated (a rejected step occurs where the
+## solver has to reduce step size multiple times to achieve the
+## required accuracy).  The number of steps here is about 1/10 the
+## number of returned samples.  This works because the solver here
+## returns "**dense output**" which allows it to interpolate the
+## solution between points that it has not visited.  This is supported
+## by many of the solvers in `deSolve`, too.
+
+## In contrast with `deSolve`, the dense output here can be collected
+## and worked with later, though doing this requires a bit of faff.
+
+## Specify the history length; this needs to be an _overestimate_
+## because once the end of the history buffer is reached it will be
+## silently overwritten to return the *last* steps in history.  (This
+## is the behaviour required to support delay models without running
+## out of memory).
+yy2 <- dde::dopri(y0, range(tt), lorenz_dde, p,
+                  return_initial = FALSE, return_time = FALSE,
+                  by_column = TRUE,
+                  n_history = 5000, return_history = TRUE)
+
+## With these arguments `yy2` is a 1 x 3 matrix:
+dim(yy2)
+
+## But it comes with a massive "history" matrix:
+h <- attr(yy2, "history")
+dim(h)
+
+## The contents of this matrix are designed to be opaque (i.e., I may
+## change how things are represented at a future time).  However, the
+## solution can be interpolated to any number of points using this
+## matrix:
+yy2 <- dde:::dopri_interpolate(h, tt)
+all.equal(yy2, yy[, -1], check.attributes = FALSE)
+
+## ## Delay differential equation models
+
+## Implementing a delay differential equation model (vs an ODE model)
+## means that you refer to the model state at a previous point in
+## time.  To do that, you use the the `ylag` function, of which `dde`
+## provides interfaces in both R and C.
+
+## ### A model in R
+
+## This is a simple SEIR (Susceptible - Exposed - Infected -
+## Resistant) model from epidemiology.  Once exposed to the disease,
+## an individual exists in an "Exposed" state for exactly 14 days
+## before beoming "Infected" (you could model this with a series of
+## compartments and get a distribution of exposed times).
+seir <- function(t, y, p) {
+  b <- 0.1
+  N <- 1e7
+  beta <- 10.0
+  sigma <- 1.0 / 3.0
+  delta <- 1.0 / 21.0
+  t_latent <- 14.0
+  Births <- N * b
+  surv <- exp(-b * t_latent)
+
+  S <- y[[1L]]
+  E <- y[[2L]]
+  I <- y[[3L]]
+  R <- y[[4L]]
+
+  tau <- t - t_latent
+  y_lag <- dde::ylag(tau, c(1L, 3L)) # Here is ylag!
+  S_lag <- y_lag[[1L]]
+  I_lag <- y_lag[[2L]]
+
+  new_inf <- beta * S * I / N
+  lag_inf <- beta * S_lag * I_lag * surv / N
+
+  c(Births  - b * S - new_inf + delta * R,
+    new_inf - lag_inf - b * E,
+    lag_inf - (b + sigma) * I,
+    sigma * I - b * R - delta * R)
+}
+
+## The model needs to know how many susceptibles there were 14 days
+## ago, and how many infected there were 14 days ago.  To get this
+## from the model, we use
+##
+## ```r
+## y_lag <- dde::ylag(tau, c(1L, 3L))
+## ```
+##
+## To get the values of the first and third variables (SeIr) at time
+## `tau`.  Alternatively you can get all values with
+##
+## ```r
+## y_lag <- dde::ylag(tau)
+## ```
+##
+## or get them individually
+##
+## ```r
+## S_lag <- dde::ylag(tau, 1L)
+## I_lag <- dde::ylag(tau, 3L)
+## ```
+##
+## The `ylag` function can only be called from within an integration;
+## it will throw an error if you try to call it otherwise.
+##
+## What happens when we start though?  If time starts at 0, then the
+## first `tau` is -14 and we have no history then.  `dde` keeps track
+## of the initial state of the system and if a time before this is
+## requested it returns the initial state of a variable.  This is
+## going to be reasonable for many applications but will lead to
+## discontinuities in the *derivative* of your solution (and the
+## second derivative and so on).  This can make the problem hard to
+## solve, and it may be prefereable to provide your own information
+## (see the deSolve implementation below for one possible way of
+## implementing this).
+
+## To integrate the problem, use the `dde::dopri` function (which by
+## default will use the 5th order method, which is probably the best
+## bet for most problems).  You need to provide arguments:
+##
+## * `n_history`: number of history elements to retain.  If this is
+##   too low then the integration will stop with an error and you can
+##   increase it
+## * `return_history`: set this to `FALSE` if you won't want the
+##   history matrix returned; returning it costs a little time and if
+##   you don't want to inspect it it's better to leave it off
+y0 <-  y0 <- c(1e7 - 1, 0, 1, 0)
+tt <- seq(0, 365, length.out = 100)
+yy <- dde::dopri(y0, tt, seir, NULL, n_history = 1000L, return_history = FALSE,
+                 deSolve_compatible = TRUE)
+matplot(tt, yy[, 2:5], type="l")
+
+## ## Differences with deSolve
+
+## deSolve has a function `dede` that implements a delay differential
+## equation solver, supporting solutions using `lsoda` and other
+## solvers.  `dde` differs in both approach and interface and these
+## are documented here for users familiar with `deSolve`.  This
+## section is not needed for basic use of the package, but may be
+## useful if you have used deSolve, especially with compiled or DDE
+## models.
+
+## By default the delayed variables are computed using interpolation
+## of the solution using Hermitian (cubic) interpolation along the
+## time dimension.  This works surprisingly well, but we found that
+## `lsoda` and other solvers got confused on some large problems
+## (~2000 equations, 3 delays), possibly because the order of accuracy
+## of the interpolated solution is much lower than the accuracy of the
+## actual problem.  This manifested in the solver locking up in a
+## matrix algebra routine involved with approximating the Jacobian of
+## the solution.  The package `PBSddesolve`, based on `solv95`, takes
+## a similar approach and may have similar limitations.
+
+## The `dde` solver uses the "dense output" that the Dormand-Prince
+## solvers generate; this means that the value of lagged variables can
+## be immediately looked up without any additional interpolation, and
+## that the accuracy of the lagged variables will be the same as the
+## integrated variables.
+
+## * more flexible handling of the parameters object (which is not global)
+## * output only hit using interpolation
+## * R functions do not return lists, and return output via an
+##   attribute (this may change?)
+
+## ### Models implemented in R
+
+## Above, I implemented a derivative function for an SEIR model for `dde` as
+##+ echo=FALSE, results="asis"
+output_r(capture.output(print(seir)))
+
+## The implementation using `deSolve` looks very similar:
+seir_deSolve <- function(t, y, parms) {
+  b <- 0.1
+  N <- 1e7
+  beta <- 10
+  sigma <- 1 / 3
+  delta <- 1 / 21
+  t_latent <- 14.0
+  I0 <- 1
+  Births <- N * b
+  surv <- exp(-b * t_latent)
+
+  S <- y[[1L]]
+  E <- y[[2L]]
+  I <- y[[3L]]
+  R <- y[[4L]]
+
+  tau <- t - t_latent
+  if (tau < 0.0) { # NOTE: assuming that t0 is always zero
+    S_lag <- parms$S0
+    I_lag <- parms$I0
+  } else {
+    y_lag <- deSolve::lagvalue(tau, c(1L, 3L))
+    S_lag <- y_lag[[1L]]
+    I_lag <- y_lag[[2L]]
+  }
+
+  new_inf <- beta * S * I / N
+  lag_inf <- beta * S_lag * I_lag * surv / N
+
+  list(c(Births  - b * S - new_inf + delta * R,
+         new_inf - lag_inf - b * E,
+         lag_inf - (b + sigma) * I,
+         sigma * I - b * R - delta * R))
+}
+
+## The differences are that:
+##
+## * `deSolve` requires that the derivatives are returned as a list,
+##   whereas `dde` uses a numeric vector (see below for details about this)
+## * `deSolve` requires that you provide the initial values for the
+##   lagged values (and we also need to know what the initial *time*
+##   is too, but I'm assuming that as zero)
+## * The appropriate function for pulling previous values from the
+##   history buffer is `deSolve::lagvalue` (for `dde` it is
+##   `dde::ylag`)
+##
+## Aside from this the code is essentially identical.
+
+## To run the model with `deSolve`, use `deSolve::dede` which
+## automatically sets up a history buffer of 10000 elements (the
+## `mxhist` element of the control list alters this).
+y0 <-  y0 <- c(1e7 - 1, 0, 1, 0)
+tt <- seq(0, 365, length.out = 100)
+initial <- list(S0 = y0[[1]], I0 = y0[[3]])
+yy_ds <- deSolve::dede(y0, tt, seir_deSolve, initial)
+
+## This produces output that the same as `dde`:
+yy_dde <- dde::dopri(y0, tt, seir, NULL, n_history = 1000L,
+                     return_history = FALSE, deSolve_compatible = TRUE)
+op <- par(mfrow=c(1, 2), mar=c(4, .5, 1.4, .5), oma=c(0, 2, 0, 0))
+matplot(tt, yy_dde[, -1], type="l", main = "dde")
+matplot(tt, yy_ds[, -1], type="l", main = "deSolve", yaxt="n")
+
+## The performance of both packages is fairly similar, taking a few
+## tens of milliseconds to run on my machines
+tR <- microbenchmark::microbenchmark(times = 30,
+  deSolve = deSolve::dede(y0, tt, seir_deSolve, initial),
+  dde = dde::dopri(y0, tt, seir, NULL, n_history = 1000L,
+                   return_history = FALSE, deSolve_compatible = TRUE))
+tR
+
+## ### Models implemented in C
+
+##+ echo = FALSE, results = "hide"
+local({
+  build <- setdiff(c("seir", "seir_ds"), names(getLoadedDLLs()))
+  files <- file.path(dde:::dde_example_path(), sprintf("%s.c", build))
+  for (f in files) {
+    dde:::compile_shlib(f, FALSE)
+  }
+})
+
+## The compiled code inteface for `deSolve` has greatly influenced
+## `dde` and models implemented in either framework will be similar.
+## Eventually `dde` may support a fully `deSolve` compatible interface
+## but for now there are a few differences.
+
+##+ echo=FALSE, results="asis"
+output_c(readLines(system.file("examples/seir_ds.c", package = "dde")))
+
+## This looks very similar to the `dde` version above but:
+##
+## * `parms` (or whatever parameters are called) are handled as a
+##   global variable that is updated via a model initialisation
+##   function, whereas in `dde` they're passed in as a `void` pointer
+## * We need to keep track of the initial state of the system via
+##   passing in `t0` and initial conditions for `S` and `I` * There is
+##   an argument `double *yout` for additional output variables (of
+##   length `*ip`; in `dde` these are handled via a separate function.
+## * The lagvalue function must be explicitly defined (which requires
+##   loading some R-related headers (in `dde` this is achived by
+##   including `<dde/dde.h>` and `<dde/dde.c>`.
+##
+## Apart from these logicstical differences, the model definition
+## should appear very similar.
+initial <- c(0.0, y0[[1]], y0[[3]])
+
+zz_ds <- deSolve::dede(y0, tt, "seir_deSolve", initial,
+                       initfunc = "seir_initmod", dllname = "seir_ds")
+zz_dde <- dde::dopri(y0, tt, "seir", numeric(), dllname = "seir",
+                     n_history = 1000L,
+                     return_history = FALSE, deSolve_compatible = TRUE)
+
+## Check that outputs of these models are the same as the R version
+## above:
+all.equal(zz_ds, yy_ds, check.attributes = FALSE)
+all.equal(zz_dde, yy_dde, check.attributes = FALSE)
+
+## Here, the timings are even closer and have dropped from on the
+## order of 20 milliseconds to 0.5 millseconds; so we're getting a
+## ~40x speed up from using compiled code.
+tC <- microbenchmark::microbenchmark(
+  deSolve = deSolve::dede(y0, tt, "seir_deSolve", initial,
+                          initfunc = "seir_initmod", dllname = "seir_ds"),
+  dde = dde::dopri(y0, tt, "seir", numeric(), dllname = "seir",
+                   n_history = 1000L,
+                   return_history = FALSE, deSolve_compatible = TRUE))
+tC
+
+## The difference in speed will tend to increase as the models become
+## larger (in terms of numbers of equations and parameters).  On the
+## other hand, constructing large models in C can be a hassle (but see
+## [odin](https://richfitz.github.io/odin) for a possible solution).
+
+## You can extract a little more performance by tweaking options to
+## `dde::dopri`; in particular, dropping `deSolve_compatible = TRUE`
+## will avoid transposing the output, binding the times on, and (if
+## given) avoiding binding output variables.  These costs may be
+## nontrivial with bigger models, though the cost of running a larger
+## model will likely be larger still.  Previous version of R suffered
+## from a large cost of looking up the address of the compiled
+## function (Windows may still take longer to do this than OSX/Linux).
+## In that case, use `getNativeSymbolInfo("seir")` and pass that
+## through to `dopri` as the `func` argument.

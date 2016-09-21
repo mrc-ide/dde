@@ -4,9 +4,16 @@
 src/*.o
 src/*.so
 src/*.dll
+inst/examples/*.o
+inst/examples/*.so
+inst/examples/*.dll
 ignore/
 dde_*.tar.gz
 notes.md
 .valgrind_ignore
 src/dde.so.dSYM
 tests/testthat/*.so.dSYM
+src/*.gcda
+src/*.gcno
+inst/doc
+vignettes/*.html

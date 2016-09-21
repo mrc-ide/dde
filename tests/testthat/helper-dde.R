@@ -118,27 +118,13 @@ run_seir_dde <- function(times, tol = 1e-7, return_history = FALSE, ...,
         dllname = "seir", return_history = return_history, ...)
 }
 
-compile_shlib <- function(path) {
-  stdout <- if (interactive()) '' else FALSE
-  Sys.setenv("R_TESTS" = "")
-  R <- file.path(R.home(), "bin", "R")
-  message("Compiling ", path)
-  ok <- system2(R, c("CMD", "SHLIB", path), stdout=stdout, stderr=stdout)
-  if (ok != 0L) {
-    stop(sprintf("compilation of %s failed", path))
-  }
-  shlib <- sub("\\.c$", .Platform$dynlib.ext, basename(path))
-  base <- sub("\\.c$", "", basename(path))
-  if (base %in% names(getLoadedDLLs())) {
-    dyn.unload(shlib)
-  }
-  dyn.load(shlib)
-}
-
 cleanup_objects <- function() {
-  files <- dir(pattern="\\.(o|so|dll)$")
-  if (length(files) > 0L) {
-    file.remove(files)
+  dirs <- c(".", dde_example_path())
+  for (d in dirs) {
+    files <- dir(d, pattern="\\.(o|so|dll)$", full.names = TRUE)
+    if (length(files) > 0L) {
+      file.remove(files)
+    }
   }
   invisible()
 }
@@ -149,9 +135,11 @@ prepare_all <- function(reload = FALSE) {
     cleanup_objects()
     .first_time <- FALSE
   }
-  files <- dir(pattern = "\\.c$")
+  dirs <- c(".", dde_example_path())
+  files <- unlist(lapply(dirs, dir, pattern = "\\.c$", full.names = TRUE))
   if (!reload) {
-    files <- files[!(sub("\\.c$", "", files) %in% names(getLoadedDLLs()))]
+    base <- sub("\\.c$", "", basename(files))
+    files <- files[!(base %in% names(getLoadedDLLs()))]
   }
   for (f in files) {
     compile_shlib(f)
