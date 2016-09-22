@@ -45,6 +45,7 @@ test_that("dense output", {
     ## single row of output:
     expect_equal(dim(m2), c(3, 1))
     h2 <- attr(m2, "history")
+    expect_is(h2, "dopri_history")
     expect_equal(nrow(h2),
                  if (method == "dopri5") 17L else 26L) # c(5, 8) * 3 + 2
     expect_identical(attr(h2, "n"), 3L)
