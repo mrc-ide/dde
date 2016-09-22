@@ -352,7 +352,25 @@ dopri_continue <- function(obj, times, y = NULL, ...,
                  "time")
 }
 
+##' Interpolate the Dormand-Prince output after an integration.  This
+##' only interpolates the core integration variables and not any
+##' additional output variables.
+##' @title Interpolate Dormand-Prince output
+##' @param h The interpolation history.  This can be the output
+##'   running \code{dopri} with \code{return_history = TRUE}, or the
+##'   history attribute of this object (retrievable with
+##'   \code{attr(res, "history")}).
+##' @param t The times at which interpolated output is required.
+##'   These times must fall within the included history (i.e., the
+##'   times that the original simulation was run) or an error will be
+##'   thrown.
+##' @export
+##' @author Rich FitzJohn
 dopri_interpolate <- function(h, t) {
+  if (!inherits(h, "dopri_history")) {
+    h <- attr(h, "history", exact = TRUE)
+  }
+
   nd <- attr(h, "n") # number of equations
   if (is.null(nd)) {
     stop("Corrupt history object: 'n' is missing")
@@ -413,6 +431,20 @@ dopri_interpolate <- function(h, t) {
   }
 
   ret
+}
+
+##' @export
+print.dopri_history <- function(x, ...) {
+  nd <- attr(x, "n") # number of equations
+  nh <- ncol(x)
+  it <- nrow(x) - 1L
+  ih <- nrow(x)
+  order <- (nrow(x) - 2) / nd
+  cat("<dopri_history>\n")
+  cat(sprintf("  - equations: %d\n", nd))
+  cat(sprintf("  - time: [%s, %s]\n", x[it, 1L], x[it, nh] + x[ih, nh]))
+  cat(sprintf("  - entries: %d\n", nh))
+  cat(sprintf("  - order: %d\n", order))
 }
 
 ##' @export

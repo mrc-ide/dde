@@ -152,7 +152,7 @@ dim(h)
 ## change how things are represented at a future time).  However, the
 ## solution can be interpolated to any number of points using this
 ## matrix:
-yy2 <- dde:::dopri_interpolate(h, tt)
+yy2 <- dde::dopri_interpolate(h, tt)
 all.equal(yy2, yy[, -1], check.attributes = FALSE)
 
 ## ## Delay differential equation models

@@ -34,7 +34,6 @@ test_that("ode, 873 stepper", {
   expect_false(identical(m5, m8))
 })
 
-## TODO: Not exposed yet
 test_that("dense output", {
   tt <- seq(0, 1, length.out = 200)
   m1 <- run_lorenz_deSolve(tt)
@@ -56,8 +55,11 @@ test_that("dense output", {
     expect_equal(m3[-1,], t(m4), tolerance=1e-10)
     expect_equal(m3, m1, tolerance=1e-6)
 
+    expect_equal(dopri_interpolate(m2, tt), m3)
+
     ## Check column output:
-    m5 <- run_lorenz_dde(tt, n_history = 1000L, by_column = TRUE, method = method)
+    m5 <- run_lorenz_dde(tt, n_history = 1000L, by_column = TRUE,
+                         method = method)
     expect_identical(attr(m5, "history"), attr(m2, "history"))
     attr(m5, "history") <- NULL
     expect_identical(m5, t(m4))
@@ -71,6 +73,7 @@ test_that("dense output", {
                  "Corrupt history object")
     h2 <- h2[-1,]
     attr(h2, "n") <- 3L
+    class(h2) <- "dopri_history"
     expect_error(dopri_interpolate(h2, tt),
                  "Corrupt history object: incorrect number of rows")
   }
