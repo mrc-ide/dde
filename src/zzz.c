@@ -7,12 +7,12 @@
 #include <R_ext/Rdynload.h>
 
 static const R_CallMethodDef call_methods[] = {
-  {"Cdopri",          (DL_FUNC) &r_dopri,          21},
+  {"Cdopri",          (DL_FUNC) &r_dopri,          22},
   {"Cdopri_continue", (DL_FUNC) &r_dopri_continue, 10},
   {"Cdopri_copy",     (DL_FUNC) &r_dopri_copy,      1},
   {"Cylag",           (DL_FUNC) &r_ylag,            2},
 
-  {"Cdifeq",          (DL_FUNC) &r_difeq,          10},
+  {"Cdifeq",          (DL_FUNC) &r_difeq,          11},
   {"Cdifeq_continue", (DL_FUNC) &r_difeq_continue,  8},
   {"Cdifeq_copy",     (DL_FUNC) &r_difeq_copy,      1},
   {"Cyprev",          (DL_FUNC) &r_yprev,           2},

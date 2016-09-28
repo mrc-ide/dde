@@ -8,8 +8,11 @@ void fill_na(double *x, size_t n);
 
 difeq_data* difeq_data_alloc(difeq_target* target,
                              size_t n, size_t n_out, const void *data,
-                             size_t n_history) {
+                             size_t n_history, bool grow_history) {
   difeq_data *ret = (difeq_data*) R_Calloc(1, difeq_data);
+  overflow_action on_overflow =
+    grow_history ? OVERFLOW_GROW : OVERFLOW_OVERWRITE;
+
   ret->target = target;
   ret->data = data;
 
@@ -26,7 +29,8 @@ difeq_data* difeq_data_alloc(difeq_target* target,
   if (n_history > 0) {
     ret->history_len = 1 + n + n_out;
     ret->history =
-      ring_buffer_create(n_history, ret->history_len * sizeof(double));
+      ring_buffer_create(n_history, ret->history_len * sizeof(double),
+                         on_overflow);
     ret->history_idx_step = 0;
     ret->history_idx_y = 1;
     ret->history_idx_out = 1 + n;
@@ -43,8 +47,11 @@ difeq_data* difeq_data_alloc(difeq_target* target,
 
 difeq_data* difeq_data_copy(const difeq_data* obj) {
   size_t n_history = ring_buffer_size(obj->history, false);
+  bool grow_history =
+    obj->history && obj->history->on_overflow == OVERFLOW_GROW;
   difeq_data* ret = difeq_data_alloc(obj->target, obj->n, obj->n_out,
-                                     obj->data, n_history);
+                                     obj->data, n_history,
+                                     grow_history);
   // Then update a few things
   ret->step0 = obj->step0;
   ret->step  = obj->step;

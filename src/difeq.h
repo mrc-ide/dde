@@ -51,7 +51,7 @@ typedef struct {
 
 difeq_data* difeq_data_alloc(difeq_target * target,
                              size_t n, size_t n_out, const void *data,
-                             size_t n_history);
+                             size_t n_history, bool grow_history);
 void difeq_data_reset(difeq_data *obj, const double *y,
                       const size_t *steps, size_t n_steps);
 difeq_data* difeq_data_copy(const difeq_data* obj);

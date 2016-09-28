@@ -579,3 +579,20 @@ test_that("externalptr input", {
                dllname = "lorenz3")
   expect_identical(res, cmp)
 })
+
+## This is pretty baffling.  It really looks like I'm writing junk in
+## here or something.
+test_that("grow history", {
+  tt <- seq(0, 10, length.out = 101)
+  res <- run_lorenz_dde(tt, n_history = 5, grow_history = TRUE,
+                        return_history = TRUE, return_statistics = TRUE)
+  s <- attr(res, "statistics")
+  h <- attr(res, "history")
+
+  expect_equal(s[["n_accept"]], ncol(h))
+
+  cmp <- run_lorenz_dde(tt, n_history = s[["n_step"]] * 2,
+                        return_history = TRUE, return_statistics = TRUE)
+  expect_equal(h, attr(cmp, "history"))
+  expect_equal(s, attr(cmp, "statistics"))
+})

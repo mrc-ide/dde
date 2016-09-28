@@ -6,8 +6,12 @@
 dopri_data* dopri_data_alloc(deriv_func* target, size_t n,
                              output_func* output, size_t n_out,
                              const void *data,
-                             dopri_method method, size_t n_history) {
+                             dopri_method method,
+                             size_t n_history, bool grow_history) {
   dopri_data *ret = (dopri_data*) R_Calloc(1, dopri_data);
+  overflow_action on_overflow =
+    grow_history ? OVERFLOW_GROW : OVERFLOW_OVERWRITE;
+
   ret->target = target;
   ret->output = output;
   ret->data = data;
@@ -40,8 +44,9 @@ dopri_data* dopri_data_alloc(deriv_func* target, size_t n,
   }
 
   ret->history_len = 2 + ret->order * n;
-  ret->history =
-    ring_buffer_create(n_history, ret->history_len * sizeof(double));
+  ret->history = ring_buffer_create(n_history,
+                                    ret->history_len * sizeof(double),
+                                    on_overflow);
   ret->history_idx_time = ret->order * n;
 
   // NOTE: The numbers below are defaults only, but to alter them,
@@ -79,10 +84,11 @@ dopri_data* dopri_data_alloc(deriv_func* target, size_t n,
 
 dopri_data* dopri_data_copy(const dopri_data* obj) {
   size_t n_history = ring_buffer_size(obj->history, false);
+  bool grow_history = obj->history->on_overflow == OVERFLOW_GROW;
   dopri_data* ret = dopri_data_alloc(obj->target, obj->n,
                                      obj->output, obj->n_out,
                                      obj->data, obj->method,
-                                     n_history);
+                                     n_history, grow_history);
   // Then update a few things
   ret->t0 = obj->t0;
   ret->t  = obj->t;

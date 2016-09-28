@@ -50,7 +50,8 @@
 ##' @inheritParams dopri
 ##' @export
 difeq <- function(y, steps, target, parms, ...,
-                  n_out = 0L, n_history = 0L, return_history = n_history > 0,
+                  n_out = 0L, n_history = 0L, grow_history = FALSE,
+                  return_history = n_history > 0,
                   dllname = "", parms_are_real = TRUE,
                   ynames = TRUE, outnames = NULL,
                   by_column = FALSE, return_initial = FALSE,
@@ -81,6 +82,7 @@ difeq <- function(y, steps, target, parms, ...,
   }
 
   assert_size(n_history)
+  assert_scalar_logical(grow_history)
   assert_scalar_logical(return_history)
   assert_scalar_logical(parms_are_real)
   assert_scalar_logical(by_column)
@@ -108,7 +110,7 @@ difeq <- function(y, steps, target, parms, ...,
   ret <- .Call(Cdifeq, y, as.integer(steps), target, parms,
                as.integer(n_out), parms_are_real,
                ## Return information:
-               as.integer(n_history), return_history,
+               as.integer(n_history), grow_history, return_history,
                return_initial, restartable)
   has_output <- n_out > 0L
   ret <- prepare_output(ret, steps, ynames, outnames, has_output,

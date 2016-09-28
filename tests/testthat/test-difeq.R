@@ -345,3 +345,27 @@ test_that("externalptr input", {
 
   expect_identical(res, cmp)
 })
+
+## OK, this is totally incorrect; I am writing some junk into the
+## history it seems.
+test_that("grow history", {
+  skip("WIP")
+  rhs <- function(i, t, y, p) {
+    y + p
+  }
+  y0 <- runif(5)
+  p <- 1
+  i <- 0:50
+
+  ## This looks a lot like when I'm keeping pointers around that I
+  ## should not be in the growth case.  I probably should revisit how
+  ## this is being stored.
+  res <- difeq(y0, i, rhs, p, return_initial = FALSE,
+               n_history = 5, grow_history = TRUE)
+  h <- attr(res, "history")
+  expect_equal(ncol(h), length(i))
+
+  cmp <- difeq(y0, i, rhs, p, return_initial = FALSE, n_history = 100)
+  hc <- attr(cmp, "history")
+  expect_equal(h, hc)
+})

@@ -5,7 +5,7 @@
 SEXP r_difeq(SEXP r_y_initial, SEXP r_steps, SEXP r_target, SEXP r_data,
              SEXP r_n_out,
              SEXP r_data_is_real,
-             SEXP r_n_history, SEXP r_return_history,
+             SEXP r_n_history, SEXP r_grow_history, SEXP r_return_history,
              SEXP r_return_initial, SEXP r_return_pointer) {
   double *y_initial = REAL(r_y_initial);
   size_t n = length(r_y_initial);
@@ -29,6 +29,7 @@ SEXP r_difeq(SEXP r_y_initial, SEXP r_steps, SEXP r_target, SEXP r_data,
   bool return_history = INTEGER(r_return_history)[0];
   bool return_initial = INTEGER(r_return_initial)[0];
   bool return_pointer = INTEGER(r_return_pointer)[0];
+  bool grow_history = INTEGER(r_grow_history)[0];
   size_t nt = return_initial ? n_steps : n_steps - 1;
 
   size_t n_out = INTEGER(r_n_out)[0];
@@ -42,7 +43,8 @@ SEXP r_difeq(SEXP r_y_initial, SEXP r_steps, SEXP r_target, SEXP r_data,
   // TODO: as an option save the conditions here.  That's not too bad
   // because we just don't pass through REAL(r_y) but REAL(r_y) +
   // n.  We do have to run the output functions once more though.
-  difeq_data* obj = difeq_data_alloc(target, n, n_out, data, n_history);
+  difeq_data* obj = difeq_data_alloc(target, n, n_out, data,
+                                     n_history, grow_history);
 
   // This is to prevent leaks in case of early exit.  If we don't make
   // it to the end of the function (for any reason, including an error

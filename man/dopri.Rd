@@ -12,10 +12,10 @@ dopri(y, times, func, parms, ..., n_out = 0L, output = NULL, rtol = 1e-06,
   atol = 1e-06, step_size_min = 0, step_size_max = Inf,
   step_size_initial = 0, step_max_n = 100000L, tcrit = NULL,
   method = "dopri5", stiff_check = 0, n_history = 0,
-  return_history = n_history > 0, dllname = "", parms_are_real = TRUE,
-  ynames = TRUE, outnames = NULL, by_column = FALSE,
-  return_initial = FALSE, return_statistics = FALSE, return_time = FALSE,
-  return_output_with_y = FALSE, restartable = FALSE,
+  grow_history = FALSE, return_history = n_history > 0, dllname = "",
+  parms_are_real = TRUE, ynames = TRUE, outnames = NULL,
+  by_column = FALSE, return_initial = FALSE, return_statistics = FALSE,
+  return_time = FALSE, return_output_with_y = FALSE, restartable = FALSE,
   deSolve_compatible = FALSE)
 
 dopri5(y, times, func, parms, ...)
@@ -113,6 +113,21 @@ limited experience with it).}
 to be greater than zero for delay differential equations to
 work.  Alternatively, this may be greater than zero to return
 model outputs that can be inspected later.}
+
+\item{grow_history}{Logical indicating if history should be grown
+during the simulation.  If \code{FALSE} (the default) then when
+history is used it is overwritten as needed (so only the most
+recent \code{n_history} elements are saved.  This may require
+some tuning so that you have enough history to run your
+simulation (i.e. to the longest delay) or an error will be
+thrown when it underflows.  The required history length will
+vary with your delay sizes and with the timestep for dopri.  If
+\code{TRUE}, then history will grow as the buffer is exhausted.
+The growth is geometric, so every time it reaches the end of the
+buffer it will increase by a factor of about 1.6 (see the
+\code{ring} documentation).  This may consume more memory than
+necessary, but may be useful where you don't want to care about
+picking the history length carefully.}
 
 \item{return_history}{Logical indicating if history should be
 returned alongside the output or discarded.  By default, history

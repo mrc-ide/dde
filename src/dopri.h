@@ -145,7 +145,8 @@ typedef struct {
 dopri_data* dopri_data_alloc(deriv_func* target, size_t n,
                              output_func* output, size_t n_out,
                              const void *data,
-                             dopri_method method, size_t n_history);
+                             dopri_method method,
+                             size_t n_history, bool grow_history);
 void dopri_data_reset(dopri_data *obj, const double *y,
                       const double *times, size_t n_times,
                       const double *tcrit, size_t n_tcrit);
