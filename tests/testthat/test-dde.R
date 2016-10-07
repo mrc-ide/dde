@@ -425,11 +425,6 @@ test_that("change y on restart", {
                return_initial = TRUE, return_output_with_y = TRUE,
                tcrit = tt2[[1]], atol = 1e-8, rtol = 1e-8)
 
-  ## Here's the benchmark:
-  plot(tt, res[1, ])
-  lines(tt, res[2, ], col="red")
-  lines(tt - 2, res[2, ], col="blue")
-
   res1 <- dopri(y0, tt1, growth, r, n_out = length(y0), output = output,
                 n_history = 1000, return_history = FALSE,
                 return_initial = TRUE, return_output_with_y = TRUE,
