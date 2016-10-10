@@ -212,7 +212,7 @@ test_that("critical times", {
 
   s1 <- attr(res1, "statistics")
   s2 <- attr(res2, "statistics")
-  s3 <- attr(res2, "statistics")
+  s3 <- attr(res3, "statistics")
   expect_lt(s2[["n_step"]], s1[["n_step"]])
   expect_equal(s2, s3)
   expect_identical(res2, res3)
