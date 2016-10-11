@@ -39,7 +39,7 @@ test_that("dense output", {
   m1 <- run_lorenz_deSolve(tt)
   dimnames(m1) <- NULL
 
-  for (method in c(dopri_methods())) {
+  for (method in dopri_methods()) {
     m2 <- run_lorenz_dde(c(0, max(tt)), n_history = 1000L, method = method)
     ## single row of output:
     expect_equal(dim(m2), c(2, 4))
@@ -48,6 +48,8 @@ test_that("dense output", {
     expect_equal(nrow(h2),
                  if (method == "dopri5") 17L else 26L) # c(5, 8) * 3 + 2
     expect_identical(attr(h2, "n"), 3L)
+
+    expect_output(print(h2), "<dopri_history>", fixed = TRUE)
 
     m3 <- dopri_interpolate(h2, tt)
     m4 <- run_lorenz_dde(tt, method = method)
