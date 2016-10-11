@@ -1,5 +1,16 @@
 ##' Integrate an ODE or DDE with dopri.
 ##'
+##' The options \code{return_by_column}, \code{return_initial},
+##' \code{return_time}, \code{return_output_with_y} exist because
+##' these options all carry out modifications of the data at the end
+##' of solving the ODE and this can incur a small but measurable cost.
+##' When solving an ODE repeatedly (e.g., in the context of an MCMC or
+##' optimisation) it may be useful to do as little as possible.  For
+##' simple problems this can save around 5-10% of the total
+##' computational time (especially the transpose).  The shorthand
+##' option \code{return_minimal} will set all to \code{FALSE} when
+##' used.
+##'
 ##' @title Integrate ODE/DDE with dopri
 ##'
 ##' @param y Initial conditions for the integration
@@ -131,14 +142,24 @@
 ##' @param outnames An optional character vector, used when
 ##'   \code{n_out} is greater than 0, to name the model output matrix.
 ##'
-##' @param by_column Logical, indicating if the output should be
+##' @param return_by_column Logical, indicating if the output should be
 ##'   returned organised by column (rather than row).  This incurs a
 ##'   slight cost for transposing the matrices.  If you can work with
 ##'   matrices that are transposed relative to \code{deSolve}, then
 ##'   set this to \code{FALSE}.
 ##'
 ##' @param return_initial Logical, indicating if the output should
-##'   include the initial conditions (like deSolve).
+##'   include the initial conditions.  Specifying \code{FALSE} avoids
+##'   binding this onto the output.
+##'
+##' @param return_time Logical, indicating if a row (or column if
+##'   \code{return_by_column} is \code{TRUE}) representing time is included.
+##'   If \code{FALSE}, this is not added.
+##'
+##' @param return_output_with_y Logical, indicating if the output
+##'   should be bound together with the returned matrix \code{y} (as
+##'   it is with \code{deSolve}).  If \code{FALSE}, then output will
+##'   be returned as the attribute \code{output}.
 ##'
 ##' @param return_statistics Logical, indicating if statistics about
 ##'   the run should be included.  If \code{TRUE}, then an integer
@@ -146,14 +167,10 @@
 ##'   accepted steps and rejected steps is returned (the vector is
 ##'   named).
 ##'
-##' @param return_time Logical, indicating if a row (or column if
-##'   \code{by_column} is \code{TRUE}) representing time is included
-##'   (this matches deSolve).
-##'
-##' @param return_output_with_y Logical, indicating if the output
-##'   should be bound together with the returned matrix \code{y} (as
-##'   it is with \code{deSolve}).  Otherwise output will be returned
-##'   as the attribute \code{output}.
+##' @param return_minimal Shorthand option - if set to \code{TRUE}
+##'   then it sets all of \code{return_by_column},
+##'   \code{return_initial}, \code{return_time},
+##'   \code{return_output_with_y} to \code{FALSE}
 ##'
 ##' @param restartable Logical, indicating if the problem should be
 ##'   restartable.  If \code{TRUE}, then the return value of an
@@ -167,12 +184,6 @@
 ##'   where you want to keep the history but make changes to the
 ##'   parameters or to the state vector while keeping the history of
 ##'   the problem so far.
-##'
-##' @param deSolve_compatible Logical, indicating if we should run in
-##'   "deSolve compatible" output mode.  This enables the options
-##'   \code{by_column}, \code{return_initial}, \code{return_time} and
-##'   \code{return_output_with_y}.  This affects only some aspects of
-##'   the returned value, and not the calculations themselves.
 ##'
 ##' @return At present the return value is transposed relative to
 ##'   deSolve.  This might change in future.
@@ -189,22 +200,23 @@ dopri <- function(y, times, func, parms, ...,
                   n_history = 0, grow_history = FALSE,
                   return_history = n_history > 0, dllname = "",
                   parms_are_real = TRUE,
-                  ynames = TRUE, outnames = NULL,
-                  by_column = FALSE, return_initial = FALSE,
-                  return_statistics = FALSE, return_time = FALSE,
-                  return_output_with_y = FALSE, restartable = FALSE,
-                  deSolve_compatible = FALSE) {
+                  ynames = names(y), outnames = NULL,
+                  return_by_column = TRUE, return_initial = TRUE,
+                  return_time = TRUE, return_output_with_y = TRUE,
+                  return_statistics = FALSE, restartable = FALSE,
+                  return_minimal = FALSE) {
   ## TODO: include "deSolve" mode where we do the transpose, add the
   ## time column too?
   DOTS <- list(...)
   if (length(DOTS) > 0L) {
     stop("Invalid dot arguments!")
   }
-  if (deSolve_compatible) {
-    by_column <- TRUE
-    return_initial <- TRUE
-    return_time <- TRUE
-    return_output_with_y <- TRUE
+  if (return_minimal) {
+    return_by_column <- FALSE
+    return_initial <- FALSE
+    return_time <- FALSE
+    return_output_with_y <- FALSE
+    ynames <- NULL
   }
 
   func <- find_function_address(func, dllname)
@@ -233,7 +245,7 @@ dopri <- function(y, times, func, parms, ...,
   assert_scalar_logical(grow_history)
   assert_scalar_logical(return_history)
   assert_scalar_logical(parms_are_real)
-  assert_scalar_logical(by_column)
+  assert_scalar_logical(return_by_column)
   assert_scalar_logical(return_initial)
   assert_scalar_logical(return_statistics)
   assert_scalar_logical(return_time)
@@ -241,7 +253,7 @@ dopri <- function(y, times, func, parms, ...,
   assert_scalar_logical(restartable)
   assert_size(stiff_check)
 
-  ynames <- check_ynames(y, ynames, deSolve_compatible)
+  ynames <- check_ynames(y, ynames)
 
   assert_size(n_out)
   outnames <- check_outnames(n_out, outnames)
@@ -283,7 +295,7 @@ dopri <- function(y, times, func, parms, ...,
 
   has_output <- n_out > 0L
   ret <- prepare_output(ret, times, ynames, outnames, has_output,
-                        by_column, return_initial, return_time,
+                        return_by_column, return_initial, return_time,
                         return_output_with_y,
                         "time")
   if (restartable) {
@@ -292,7 +304,7 @@ dopri <- function(y, times, func, parms, ...,
                          has_output = has_output,
                          tcrit = tcrit,
                          return_history = return_history,
-                         by_column = by_column,
+                         return_by_column = return_by_column,
                          return_initial = return_initial,
                          return_statistics = return_statistics,
                          return_time = return_time,
@@ -331,7 +343,7 @@ dopri_continue <- function(obj, times, y = NULL, ...,
                            copy = FALSE,
                            parms = NULL,
                            tcrit = NULL, return_history = NULL,
-                           by_column = NULL, return_initial = NULL,
+                           return_by_column = NULL, return_initial = NULL,
                            return_statistics = NULL, return_time = NULL,
                            return_output_with_y = NULL, restartable = NULL) {
   DOTS <- list(...)
@@ -354,7 +366,7 @@ dopri_continue <- function(obj, times, y = NULL, ...,
 
   ## Process any given options, falling back on the previous values
   return_history <- logopt(return_history, dat$return_history)
-  by_column <- logopt(by_column, dat$by_column)
+  return_by_column <- logopt(return_by_column, dat$return_by_column)
   return_initial <- logopt(return_initial, dat$return_initial)
   return_statistics <- logopt(return_statistics, dat$return_statistics)
   return_time <- logopt(return_time, dat$return_time)
@@ -366,7 +378,7 @@ dopri_continue <- function(obj, times, y = NULL, ...,
                return_history, return_initial, return_statistics, restartable)
 
   prepare_output(ret, times, dat$ynames, dat$outnames, dat$has_output,
-                 by_column, return_initial, return_time, return_output_with_y,
+                 return_by_column, return_initial, return_time, return_output_with_y,
                  "time")
 }
 
@@ -413,7 +425,7 @@ dopri_continue <- function(obj, times, y = NULL, ...,
 ##' y <- dopri(y0, c(0, 50), lorenz, p,
 ##'            n_history = 5000, return_history = TRUE,
 ##'            return_time = FALSE, return_initial = FALSE,
-##'            by_column = FALSE)
+##'            return_by_column = FALSE)
 ##'
 ##' # Very little output is returned (just 3 numbers being the final
 ##' # state of the system), but the "history" attribute is fairly

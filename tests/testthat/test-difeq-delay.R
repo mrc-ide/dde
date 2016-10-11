@@ -10,14 +10,14 @@ test_that("fib", {
   }
   y0 <- 1
   i <- 0:10
-  res <- difeq(y0, i, fib, NULL, return_initial = TRUE, n_history = 2)
+  res <- difeq(y0, i, fib, NULL, n_history = 2, return_step = FALSE)
   expect_equal(res[1:11], c(1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144))
 
   h <- attr(res, "history")
   expect_equal(attr(h, "n"), 1L)
   expect_equal(dim(h), c(2, 2))
 
-  res2 <- difeq(y0, i, fib, NULL, return_initial = TRUE, n_history = 20)
+  res2 <- difeq(y0, i, fib, NULL, return_step = FALSE, n_history = 20)
   h2 <- attr(res2, "history")
   expect_equal(dim(h2), c(2, 11))
   expect_equal(h2[, 10:11], h, check.attributes = FALSE)
@@ -35,20 +35,20 @@ test_that("prev and output", {
   i <- 0:10
   i2 <- seq(0, 10, by = 2)
 
-  cmp <- y0 + outer(p, i)
-  cmp2 <- y0 + outer(p, i2)
+  cmp <- t(y0 + outer(p, i))
+  cmp2 <- t(y0 + outer(p, i2))
 
-  res <- difeq(y0, i, growth, p, return_initial = TRUE, n_out = 5,
-               n_history = 2L)
+  res <- difeq(y0, i, growth, p, return_step = FALSE, n_out = 5,
+               n_history = 2L, return_output_with_y = FALSE)
   expect_equal(res, cmp, check.attributes = FALSE)
   output <- attr(res, "output")
-  expect_equal(output, cbind(y0, cmp[, -ncol(cmp)], deparse.level = 0))
+  expect_equal(output, rbind(y0, cmp[-nrow(cmp), ], deparse.level = 0))
 
-  res2 <- difeq(y0, i2, growth, p, return_initial = TRUE, n_out = 5,
-                n_history = 2L)
+  res2 <- difeq(y0, i2, growth, p, return_step = FALSE, n_out = 5,
+                n_history = 2L, return_output_with_y = FALSE)
   expect_equal(res2, cmp2, check.attributes = FALSE)
   output2 <- attr(res2, "output")
-  expect_equal(output2, output[, i2 + 1])
+  expect_equal(output2, output[i2 + 1, ])
 })
 
 test_that("yprev permutations", {
@@ -72,12 +72,12 @@ test_that("yprev permutations", {
   res2 <- difeq(y0, i, rhs, "idx", return_initial = TRUE, n_history = 2L)
   res3 <- difeq(y0, i, rhs, "all", return_initial = TRUE, n_history = 2L)
 
-  cmp <- matrix(y0, length(y0), length(i))
+  cmp <- matrix(y0, length(i), length(y0), byrow = TRUE)
   for (j in 2:length(i)) {
-    cmp[, j] <- cmp[, j - 1] + cmp[, max(1, j - 2)]
+    cmp[j, ] <- cmp[j - 1, ] + cmp[max(1, j - 2), ]
   }
 
-  expect_equal(res1, cmp, check.attributes = FALSE)
+  expect_equal(res1[, -1], cmp, check.attributes = FALSE)
   expect_equal(res2, res1)
   expect_equal(res3, res1)
 })
@@ -109,14 +109,15 @@ test_that("yprev invalid input", {
   for (j in 2:length(i)) {
     cmp[, j] <- cmp[, j - 1] + cmp[, max(1, j - 2)]
   }
+  cmp <- t(cmp)
 
   p <- list(lag = 1.0, idx = as.numeric(seq_along(y0)), type = "one")
   res1 <- difeq(y0, i, rhs, p, n_history = 2L, return_initial = TRUE)
-  expect_equal(res1, cmp, check.attributes = FALSE)
+  expect_equal(res1[, -1], cmp, check.attributes = FALSE)
 
   p <- list(lag = 1.0, idx = as.numeric(seq_along(y0)), type = "idx")
   res1 <- difeq(y0, i, rhs, p, n_history = 2L, return_initial = TRUE)
-  expect_equal(res1, cmp, check.attributes = FALSE)
+  expect_equal(res1[, -1], cmp, check.attributes = FALSE)
 
   p <- list(lag = 1.0, idx = as.numeric(seq_along(y0) + 1), type = "one")
   expect_error(difeq(y0, i, rhs, p, n_history = 2L, return_initial = TRUE),
@@ -166,12 +167,13 @@ test_that("integer lag", {
   for (j in 2:length(i)) {
     cmp[, j] <- cmp[, j - 1] + cmp[, max(1, j - 2)]
   }
+  cmp <- t(cmp)
 
   res <- difeq(y0, i, growth, p, n_history = 2L,
-               return_history = FALSE, return_initial = TRUE)
+               return_history = FALSE, return_step = FALSE)
   expect_equal(res, cmp)
 
   res <- difeq(y0, i, "growth", p, n_history = 2L, dllname = "growth_int",
-               return_history = FALSE, return_initial = TRUE)
+               return_history = FALSE, return_step = FALSE)
   expect_equal(res, cmp)
 })

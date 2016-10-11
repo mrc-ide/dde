@@ -1,8 +1,8 @@
-check_ynames <- function(y, ynames, deSolve_compatible) {
+check_ynames <- function(y, ynames) {
   if (isTRUE(ynames)) {
     ynames <- names(y)
     ## This doesn't seem ideal but does produce more deSolve-like output
-    if (deSolve_compatible && is.null(ynames)) {
+    if (is.null(ynames)) {
       ynames <- as.character(seq_along(y))
     }
   } else if (is.null(ynames) || identical(as.vector(ynames), FALSE)) {
@@ -31,7 +31,7 @@ check_outnames <- function(n_out, outnames) {
 }
 
 prepare_output <- function(ret, times, ynames, outnames, has_output,
-                           by_column, return_initial,
+                           return_by_column, return_initial,
                            return_time, return_output_with_y,
                            time_name) {
   bind_output <- has_output && return_output_with_y
@@ -72,7 +72,7 @@ prepare_output <- function(ret, times, ynames, outnames, has_output,
     }
   }
 
-  if (by_column) {
+  if (return_by_column) {
     ret <- t.default(ret)
     if (has_output) {
       attr(ret, "output") <- t.default(attr(ret, "output"))

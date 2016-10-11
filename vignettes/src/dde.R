@@ -87,7 +87,7 @@ p <- list(sigma = 10.0,
 
 tt <- seq(0, 100, length.out = 50001)
 y0 <- c(1, 1, 1)
-yy <- dde::dopri(y0, tt, lorenz_dde, p, deSolve_compatible = TRUE)
+yy <- dde::dopri(y0, tt, lorenz_dde, p)
 
 ## Here is the iconic attractor
 par(mar=rep(.5, 4))
@@ -115,8 +115,7 @@ yy_ds <- deSolve::ode(y0, tt, lorenz_ds, p)
 ## One of the nice things about the `dopri` solvers is that they do
 ## not need to stop the integration at the times that you request
 ## output at:
-yy <- dde::dopri(y0, tt, lorenz_dde, p, deSolve_compatible = TRUE,
-                 return_statistics = TRUE)
+yy <- dde::dopri(y0, tt, lorenz_dde, p, return_statistics = TRUE)
 attr(yy, "statistics")
 
 ## Above, the number of function evaluations (~6 per step), steps, and
@@ -136,15 +135,12 @@ attr(yy, "statistics")
 ## silently overwritten to return the *last* steps in history.  (This
 ## is the behaviour required to support delay models without running
 ## out of memory).
-yy2 <- dde::dopri(y0, range(tt), lorenz_dde, p,
-                  return_initial = FALSE, return_time = FALSE,
-                  by_column = TRUE,
+yy2 <- dde::dopri(y0, range(tt), lorenz_dde, p, return_minimal = TRUE,
                   n_history = 5000, return_history = TRUE)
 
-## With these arguments `yy2` is a 1 x 3 matrix:
+## With these arguments `yy2` is a 3 x 1 matrix, but it comes with a
+## massive "history" matrix":
 dim(yy2)
-
-## But it comes with a massive "history" matrix:
 h <- attr(yy2, "history")
 dim(h)
 
@@ -246,8 +242,7 @@ seir <- function(t, y, p) {
 ##   you don't want to inspect it it's better to leave it off
 y0 <-  y0 <- c(1e7 - 1, 0, 1, 0)
 tt <- seq(0, 365, length.out = 100)
-yy <- dde::dopri(y0, tt, seir, NULL, n_history = 1000L, return_history = FALSE,
-                 deSolve_compatible = TRUE)
+yy <- dde::dopri(y0, tt, seir, NULL, n_history = 1000L, return_history = FALSE)
 matplot(tt, yy[, 2:5], type="l")
 
 ## ## Differences with deSolve
@@ -347,7 +342,7 @@ yy_ds <- deSolve::dede(y0, tt, seir_deSolve, initial)
 
 ## This produces output that the same as `dde`:
 yy_dde <- dde::dopri(y0, tt, seir, NULL, n_history = 1000L,
-                     return_history = FALSE, deSolve_compatible = TRUE)
+                     return_history = FALSE)
 op <- par(mfrow=c(1, 2), mar=c(4, .5, 1.4, .5), oma=c(0, 2, 0, 0))
 matplot(tt, yy_dde[, -1], type="l", main = "dde")
 matplot(tt, yy_ds[, -1], type="l", main = "deSolve", yaxt="n")
@@ -357,7 +352,7 @@ matplot(tt, yy_ds[, -1], type="l", main = "deSolve", yaxt="n")
 tR <- microbenchmark::microbenchmark(times = 30,
   deSolve = deSolve::dede(y0, tt, seir_deSolve, initial),
   dde = dde::dopri(y0, tt, seir, NULL, n_history = 1000L,
-                   return_history = FALSE, deSolve_compatible = TRUE))
+                   return_history = FALSE))
 tR
 
 ## ### Models implemented in C
@@ -399,8 +394,7 @@ initial <- c(0.0, y0[[1]], y0[[3]])
 zz_ds <- deSolve::dede(y0, tt, "seir_deSolve", initial,
                        initfunc = "seir_initmod", dllname = "seir_ds")
 zz_dde <- dde::dopri(y0, tt, "seir", numeric(), dllname = "seir",
-                     n_history = 1000L,
-                     return_history = FALSE, deSolve_compatible = TRUE)
+                     n_history = 1000L, return_history = FALSE)
 
 ## Check that outputs of these models are the same as the R version
 ## above:
@@ -414,8 +408,7 @@ tC <- microbenchmark::microbenchmark(
   deSolve = deSolve::dede(y0, tt, "seir_deSolve", initial,
                           initfunc = "seir_initmod", dllname = "seir_ds"),
   dde = dde::dopri(y0, tt, "seir", numeric(), dllname = "seir",
-                   n_history = 1000L,
-                   return_history = FALSE, deSolve_compatible = TRUE))
+                   n_history = 1000L, return_history = FALSE))
 tC
 
 ## The difference in speed will tend to increase as the models become
@@ -424,7 +417,7 @@ tC
 ## [odin](https://richfitz.github.io/odin) for a possible solution).
 
 ## You can extract a little more performance by tweaking options to
-## `dde::dopri`; in particular, dropping `deSolve_compatible = TRUE`
+## `dde::dopri`; in particular, adding `return_minimal = TRUE`
 ## will avoid transposing the output, binding the times on, and (if
 ## given) avoiding binding output variables.  These costs may be
 ## nontrivial with bigger models, though the cost of running a larger
@@ -433,3 +426,12 @@ tC
 ## function (Windows may still take longer to do this than OSX/Linux).
 ## In that case, use `getNativeSymbolInfo("seir")` and pass that
 ## through to `dopri` as the `func` argument.
+ptr <- getNativeSymbolInfo("seir")
+tC2 <- microbenchmark::microbenchmark(
+  deSolve = deSolve::dede(y0, tt, "seir_deSolve", initial,
+                          initfunc = "seir_initmod", dllname = "seir_ds"),
+  dde = dde::dopri(y0, tt, "seir", numeric(), dllname = "seir",
+                   n_history = 1000L, return_history = FALSE),
+  dde2 = dde::dopri(y0, tt, ptr, numeric(), n_history = 1000L,
+                    return_history = FALSE, return_minimal = TRUE))
+tC2

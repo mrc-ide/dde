@@ -8,28 +8,27 @@ test_that("increase", {
   y0 <- as.numeric(1:5)
   p <- 1
   i <- 0:10
-  res <- difeq(y0, i, rhs, p, return_initial = TRUE)
+  res <- difeq(y0, i, rhs, p)
 
-  expect_equal(res, outer(y0, i, "+"))
+  expect_equal(res[, 1], i)
+  expect_equal(unname(res[, -1]), outer(i, y0, "+"))
 
   y0 <- runif(5)
   p <- runif(5)
-  res <- difeq(y0, i, rhs, p, return_initial = TRUE)
-  cmp <- y0 + outer(p, i)
-  expect_equal(res, cmp)
+  res <- difeq(y0, i, rhs, p)
+  cmp <- t(y0 + outer(p, i))
+  expect_equal(unname(res[, -1]), cmp)
 
-  res <- difeq(y0, i, rhs, p,
-               return_initial = TRUE,
-               n_history = length(i))
+  res <- difeq(y0, i, rhs, p, n_history = length(i))
 
   ## Check the history buffer:
   h <- attr(res, "history")
   expect_equal(h[1, ], i)
-  expect_equal(h[-1, ], cmp)
+  expect_equal(h[-1, ], t(cmp))
 
   ## Check the returned values:
   attr(res, "history") <- NULL
-  expect_equal(res, cmp)
+  expect_equal(unname(res[, -1]), cmp)
 
   ## And again, but using the shortcut:
   res2 <- difeq(y0, max(i), rhs, p,
@@ -47,7 +46,7 @@ test_that("increase", {
   ## The history length should not change here.
   expect_identical(attr(res, "history"), h)
   attr(res, "history") <- NULL
-  expect_equal(res, cmp[, i2 + 1])
+  expect_equal(unname(res[, -1]), cmp[i2 + 1, ])
 })
 
 test_that("output (R)", {
@@ -68,11 +67,15 @@ test_that("output (R)", {
   ##   * res_o: coming off the output storage
   ##   * res_h: coming off history
   ##   * res_n: coming off of short history
-  res_o <- difeq(y0, i, rhs, p, return_initial = TRUE, n_out = 1)
-  res_h <- difeq(y0, i, rhs, p, return_initial = TRUE, n_out = 1,
-                 n_history = length(i))
-  res_n <- difeq(y0, i, rhs, p, return_initial = TRUE, n_out = 1,
-                 n_history = 2L)
+  res_o <- difeq(y0, i, rhs, p, return_by_column = FALSE, return_step = FALSE,
+                 return_output_with_y = FALSE,
+                 n_out = 1)
+  res_h <- difeq(y0, i, rhs, p, return_by_column = FALSE, return_step = FALSE,
+                 return_output_with_y = FALSE,
+                 n_out = 1, n_history = length(i))
+  res_n <- difeq(y0, i, rhs, p, return_by_column = FALSE, return_step = FALSE,
+                 return_output_with_y = FALSE,
+                 n_out = 1, n_history = 2L)
 
   expect_equal(res_o, cmp, check.attributes = FALSE)
   expect_equal(res_h, cmp, check.attributes = FALSE)
@@ -88,10 +91,16 @@ test_that("output (R)", {
 
   ## Also check with no initial condition; this changes things around
   ## a bit.
-  res_o <- difeq(y0, i, rhs, p, return_initial = FALSE, n_out = 1)
-  res_h <- difeq(y0, i, rhs, p, return_initial = FALSE, n_out = 1,
+  res_o <- difeq(y0, i, rhs, p, return_initial = FALSE,
+                 return_by_column = FALSE, return_step = FALSE,
+                 return_output_with_y = FALSE, n_out = 1)
+  res_h <- difeq(y0, i, rhs, p, return_initial = FALSE,
+                 return_by_column = FALSE, return_step = FALSE,
+                 return_output_with_y = FALSE, n_out = 1,
                  n_history = length(i))
-  res_n <- difeq(y0, i, rhs, p, return_initial = FALSE, n_out = 1,
+  res_n <- difeq(y0, i, rhs, p, return_initial = FALSE,
+                 return_by_column = FALSE, return_step = FALSE,
+                 return_output_with_y = FALSE, n_out = 1,
                  n_history = 2L)
 
   expect_equal(res_o, cmp[, -1], check.attributes = FALSE)
@@ -104,10 +113,13 @@ test_that("output (R)", {
 
   ## There's another huge class of bugs that turns up when output is
   ## filtered, so try that too.
-  res_o <- difeq(y0, i2, rhs, p, return_initial = TRUE, n_out = 1)
-  res_h <- difeq(y0, i2, rhs, p, return_initial = TRUE, n_out = 1,
+  res_o <- difeq(y0, i2, rhs, p, return_by_column = FALSE, return_step = FALSE,
+                 return_output_with_y = FALSE, n_out = 1)
+  res_h <- difeq(y0, i2, rhs, p, return_by_column = FALSE, return_step = FALSE,
+                 return_output_with_y = FALSE, n_out = 1,
                  n_history = length(i))
-  res_n <- difeq(y0, i2, rhs, p, return_initial = TRUE, n_out = 1,
+  res_n <- difeq(y0, i2, rhs, p, return_by_column = FALSE, return_step = FALSE,
+                 return_output_with_y = FALSE, n_out = 1,
                  n_history = 2L)
 
   expect_equal(res_o, cmp2, check.attributes = FALSE)
@@ -123,10 +135,16 @@ test_that("output (R)", {
   expect_equal(drop(attr(res_n, "output")), colSums(res_n))
 
   ## And while dropping initial conditions:
-  res_o <- difeq(y0, i2, rhs, p, return_initial = FALSE, n_out = 1)
-  res_h <- difeq(y0, i2, rhs, p, return_initial = FALSE, n_out = 1,
+  res_o <- difeq(y0, i2, rhs, p, return_initial = FALSE,
+                 return_by_column = FALSE, return_step = FALSE,
+                 return_output_with_y = FALSE, n_out = 1)
+  res_h <- difeq(y0, i2, rhs, p, return_initial = FALSE,
+                 return_by_column = FALSE, return_step = FALSE,
+                 return_output_with_y = FALSE, n_out = 1,
                  n_history = length(i))
-  res_n <- difeq(y0, i2, rhs, p, return_initial = FALSE, n_out = 1,
+  res_n <- difeq(y0, i2, rhs, p, return_initial = FALSE,
+                 return_by_column = FALSE, return_step = FALSE,
+                 return_output_with_y = FALSE, n_out = 1,
                  n_history = 2L)
 
   expect_equal(res_o, cmp2[, -1], check.attributes = FALSE)
@@ -152,21 +170,28 @@ test_that("transpose output", {
   cmp <- y0 + outer(p, i)
   cmp2 <- cmp[, i2 + 1L]
 
-  ## We run this three times:
-  ##   * res_o: coming off the output storage
-  ##   * res_h: coming off history
-  ##   * res_n: coming off of short history
-  res_o <- difeq(y0, i, rhs, p, deSolve_compatible = TRUE, n_out = 1)
-  res_h <- difeq(y0, i, rhs, p, deSolve_compatible = TRUE, n_out = 1,
+  res_mo <- difeq(y0, i, rhs, p, return_minimal = TRUE, n_out = 1)
+  res_mh <- difeq(y0, i, rhs, p, return_minimal = TRUE, n_out = 1,
+                 n_history = length(i), return_history = FALSE)
+  res_fo <- difeq(y0, i, rhs, p, n_out = 1, ynames = TRUE)
+  res_fh <- difeq(y0, i, rhs, p, n_out = 1, ynames = TRUE,
                  n_history = length(i), return_history = FALSE)
 
-  expect_equal(colnames(res_o), c("step", as.character(seq_along(y0)), ""))
-  expect_equal(res_o[, 1], i)
-  expect_equal(res_o[, -c(1, ncol(res_o))], t(cmp), check.attributes = FALSE)
-  expect_equal(res_o[, ncol(res_o)], colSums(cmp))
-  expect_null(attr(res_o, "output"))
+  expect_equal(colnames(res_fo), c("step", as.character(seq_along(y0)), ""))
+  expect_null(dimnames(res_mo))
 
-  expect_equal(res_o, res_h)
+  expect_equal(res_fo[, 1], i)
+  expect_equal(dim(res_fo), c(ncol(res_mo) + 1, nrow(res_mo) + 2))
+
+  expect_equal(res_mo, cmp[, -1], check.attributes = FALSE)
+  expect_equal(res_fo[, -c(1, ncol(res_fo))], t(cmp), check.attributes = FALSE)
+
+  expect_equal(res_fo[, ncol(res_fo)], colSums(cmp))
+  expect_equal(attr(res_mo, "output")[1, ], colSums(cmp)[-1])
+
+  expect_null(attr(res_fo, "output"))
+  expect_equal(res_fo, res_fh)
+  expect_equal(res_mo, res_mh)
 })
 
 test_that("incorrect output", {
@@ -177,7 +202,7 @@ test_that("incorrect output", {
   i <- 0:10
 
   ## Check that things generally work:
-  expect_equal(difeq(y0, i, f, NULL),
+  expect_equal(difeq(y0, i, f, NULL, return_minimal = TRUE),
                matrix(y0, length(y0), length(i) - 1L))
 
   ## These are going to cause leaks for now, but I need to handle
@@ -202,9 +227,8 @@ test_that("logistic", {
   r <- 1.5
   i <- 0:20
 
-  cmp <- difeq(y0, i, logistic, r, deSolve_compatible = TRUE)
-  res <- difeq(y0, i, "logistic", r, dllname = "logistic",
-               deSolve_compatible = TRUE)
+  cmp <- difeq(y0, i, logistic, r)
+  res <- difeq(y0, i, "logistic", r, dllname = "logistic")
   expect_equal(res, cmp)
 })
 
@@ -223,6 +247,8 @@ test_that("vector output (R)", {
 
   ## TODO: The NA in history here looks very fixable to me.
   res <- difeq(y0, i, growth, p, return_initial = TRUE, n_out = 5L,
+               return_by_column = FALSE, return_step = FALSE,
+               return_output_with_y = FALSE,
                n_history = length(i))
   expect_equal(res, cmp, check.attributes = FALSE)
   expect_equal(attr(res, "output"), cmp + 1)
@@ -233,6 +259,8 @@ test_that("vector output (R)", {
                cbind(NA, cmp[, -1], deparse.level = 0) + 1)
 
   res2 <- difeq(y0, i2, growth, p, return_initial = TRUE, n_out = 5L,
+               return_by_column = FALSE, return_step = FALSE,
+               return_output_with_y = FALSE,
                 n_history = length(i))
   j <- seq_len(length(y0) + 1)
   expect_equal(attr(res2, "history")[j, ], h[j, ])
@@ -297,10 +325,10 @@ test_that("names", {
   i <- 0:10
 
   nms <- letters[seq_along(y0)]
-  cmp <- list(nms, NULL)
+  cmp <- list(NULL, c("step", nms))
 
   ## These are duplicated from ode:
-  expect_null(dimnames(difeq(y0, i, rhs, p)))
+  expect_null(dimnames(difeq(y0, i, rhs, p, ynames = FALSE)))
   expect_equal(dimnames(difeq(y0, i, rhs, p, ynames = nms)), cmp)
   expect_equal(dimnames(difeq(setNames(y0, nms), i, rhs, p)), cmp)
   expect_null(dimnames(difeq(setNames(y0, nms), i, rhs, p, ynames = FALSE)),
@@ -308,12 +336,13 @@ test_that("names", {
 
   p$output <- runif(3)
   onms <- LETTERS[seq_along(p$output)]
-  ocmp <- list(onms, NULL)
+  ocmp <- list(NULL, onms)
 
-  f <- function(...) {
-    difeq(y0, i, rhs, p, n_out = length(p$output), ...)
+  f <- function(..., return_output_with_y = FALSE) {
+    difeq(y0, i, rhs, p, n_out = length(p$output),
+          return_output_with_y = return_output_with_y, ...)
   }
-  expect_equal(dim(attr(f(), "output")), c(length(p$output), length(i) - 1))
+  expect_equal(dim(attr(f(), "output")), c(length(i), length(p$output)))
   expect_null(dimnames(attr(f(), "output")))
   expect_null(dimnames(attr(f(outnames = NULL), "output")))
   expect_equal(dimnames(attr(f(outnames = onms), "output")), ocmp)
@@ -335,13 +364,12 @@ test_that("externalptr input", {
   r <- runif(length(y0))
   i <- 0:11
 
-  cmp <- difeq(y0, i, "logistic", r, dllname = "logistic",
-               deSolve_compatible = TRUE)
+  cmp <- difeq(y0, i, "logistic", r, dllname = "logistic")
 
   ptr <- .Call("logistic_init",  r, PACKAGE = "logistic2")
   expect_is(ptr, "externalptr")
   res <- difeq(y0, i, "logistic", ptr, parms_are_real = FALSE,
-               dllname = "logistic2", deSolve_compatible = TRUE)
+               dllname = "logistic2")
 
   expect_identical(res, cmp)
 })

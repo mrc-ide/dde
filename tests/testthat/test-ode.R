@@ -6,11 +6,11 @@ test_that("ode interface", {
   dimnames(m1) <- NULL
 
   m2 <- run_lorenz_dde(tt)
-  expect_equal(t(m2), m1[-1,], tolerance=1e-6)
+  expect_equal(m2, m1, tolerance=1e-6)
 
-  m3 <- run_lorenz_dde(tt, by_column = TRUE)
-  expect_equal(m3, m1[-1,], tolerance=1e-6)
-  expect_identical(m3, t(m2))
+  m3 <- run_lorenz_dde(tt, return_minimal = TRUE)
+  expect_equal(t(m3), m1[-1, -1, drop = FALSE], tolerance=1e-6)
+  expect_identical(m3, t(m2[-1, -1]))
 })
 
 test_that("integer time input", {
@@ -23,7 +23,7 @@ test_that("zero time difference", {
   tt <- c(0, 0, 1, 1, 2, 2, 2, 3, 3, 3)
   res1 <- run_lorenz_dde(tt, return_initial=TRUE)
   res2 <- run_lorenz_dde(unique(tt), return_initial=TRUE)
-  expect_identical(res1, res2[, tapply(tt, tt)])
+  expect_identical(res1, res2[tapply(tt, tt), ])
 })
 
 test_that("ode, 873 stepper", {
@@ -42,7 +42,7 @@ test_that("dense output", {
   for (method in c(dopri_methods())) {
     m2 <- run_lorenz_dde(c(0, max(tt)), n_history = 1000L, method = method)
     ## single row of output:
-    expect_equal(dim(m2), c(3, 1))
+    expect_equal(dim(m2), c(2, 4))
     h2 <- attr(m2, "history")
     expect_is(h2, "dopri_history")
     expect_equal(nrow(h2),
@@ -52,13 +52,13 @@ test_that("dense output", {
     m3 <- dopri_interpolate(h2, tt)
     m4 <- run_lorenz_dde(tt, method = method)
 
-    expect_equal(m3[-1,], t(m4), tolerance=1e-10)
-    expect_equal(m3, m1, tolerance=1e-6)
+    expect_equal(m3, m4[, -1], tolerance=1e-10)
+    expect_equal(m3, m1[, -1], tolerance=1e-6)
 
     expect_equal(dopri_interpolate(m2, tt), m3)
 
-    ## Check column output:
-    m5 <- run_lorenz_dde(tt, n_history = 1000L, by_column = TRUE,
+    ## Check row output:
+    m5 <- run_lorenz_dde(tt, n_history = 1000L, return_by_column = FALSE,
                          method = method)
     expect_identical(attr(m5, "history"), attr(m2, "history"))
     attr(m5, "history") <- NULL
@@ -87,39 +87,41 @@ test_that("output", {
 
   res1 <- dopri(y0, tt, "lorenz", p, dllname = "lorenz")
   res2 <- dopri(y0, tt, "lorenz", p, dllname = "lorenz",
+                return_output_with_y = FALSE,
                 n_out = 2L, output = "lorenz_output")
 
   expect_equal(names(attributes(res1)), "dim")
   output <- attr(res2, "output")
-  expect_equal(dim(output), c(2L, ncol(res1)))
-  expect_equal(output[1L, ], pmin(res1[1,], res1[2,], res1[3,]))
-  expect_equal(output[2L, ], pmax(res1[1,], res1[2,], res1[3,]))
+  expect_equal(dim(output), c(nrow(res1), 2L))
+  expect_equal(output[, 1L], pmin(res1[, 2], res1[, 3], res1[, 4]))
+  expect_equal(output[, 2L], pmax(res1[, 2], res1[, 3], res1[, 4]))
 
   attr(res2, "output") <- NULL
   expect_identical(res1, res2)
 
   res3 <- dopri(y0, tt, "lorenz", p, dllname = "lorenz",
-                n_out = 2L, output = "lorenz_output", by_column = TRUE)
+                n_out = 2L, output = "lorenz_output",
+                return_output_with_y = FALSE, return_by_column = FALSE)
   expect_equal(attr(res3, "output"), t(output))
   attr(res3, "output") <- NULL
   expect_identical(res3, t(res2))
 
   res4 <- dopri(y0, tt, "lorenz", p, dllname = "lorenz",
-                n_out = 2L, output = "lorenz_output", by_column = TRUE,
-                return_output_with_y = TRUE)
+                n_out = 2L, output = "lorenz_output",
+                return_by_column = FALSE, return_output_with_y = TRUE)
   expect_null(attr(res4, "output"))
-  expect_equal(dim(res4), c(length(tt) - 1L, 5))
-  expect_equal(res4[, 1:3], res3, check.attributes = FALSE)
-  expect_equal(res4[, 4:5], t(output), check.attributes = FALSE)
+  expect_equal(dim(res4), c(6, length(tt)))
+  expect_equal(res4[1:4, ], res3, check.attributes = FALSE)
+  expect_equal(res4[5:6, ], t(output), check.attributes = FALSE)
 
   res5 <- dopri(y0, tt, "lorenz", p, dllname = "lorenz",
-                n_out = 2L, output = "lorenz_output", by_column = TRUE,
-                return_output_with_y = TRUE, return_time = TRUE)
+                n_out = 2L, output = "lorenz_output",
+                return_by_column = FALSE, return_output_with_y = TRUE,
+                return_time = FALSE, return_initial = FALSE)
   expect_null(attr(res5, "output"))
-  expect_equal(dim(res5), c(length(tt) - 1L, 6))
-  expect_equal(res5[, 1], tt[-1])
-  expect_equal(res5[, 2:4], res3, check.attributes = FALSE)
-  expect_equal(res5[, 5:6], t(output), check.attributes = FALSE)
+  expect_equal(dim(res5), c(5, length(tt) - 1L))
+  expect_equal(res5[1:3, ], res3[-1, -1], check.attributes = FALSE)
+  expect_equal(res5[4:5, ], t(output[-1, ]), check.attributes = FALSE)
 })
 
 test_that("keep initial", {
@@ -132,28 +134,30 @@ test_that("keep initial", {
                 return_initial = TRUE)
   res2 <- dopri(y0, tt, "lorenz", p, dllname = "lorenz",
                 return_initial = FALSE)
-  expect_equal(ncol(res1), length(tt))
-  expect_identical(res1[, 1], y0)
-  expect_identical(res1[, -1], res2)
+  expect_equal(nrow(res1), length(tt))
+  expect_identical(res1[1, -1], y0)
+  expect_identical(res1[-1, ], res2)
 
   res3 <- dopri(y0, tt, "lorenz", p, dllname = "lorenz",
-                n_out = 2L, output = "lorenz_output", return_initial = TRUE)
+                n_out = 2L, output = "lorenz_output", return_initial = TRUE,
+                return_output_with_y = FALSE)
   res4 <- dopri(y0, tt, "lorenz", p, dllname = "lorenz",
-                n_out = 2L, output = "lorenz_output", return_initial = FALSE)
-  expect_equal(ncol(res3), length(tt))
-  expect_identical(res3[, 1], y0)
+                n_out = 2L, output = "lorenz_output", return_initial = FALSE,
+                return_output_with_y = FALSE)
+  expect_equal(nrow(res3), length(tt))
+  expect_identical(res3[1, -1], y0)
 
   out3 <- attr(res3, "output")
   out4 <- attr(res4, "output")
-  expect_equal(ncol(out3), length(tt))
-  expect_equal(out3[,1], range(y0)) # based on definition of output function
-  expect_equal(out3[, -1], out4)
+  expect_equal(nrow(out3), length(tt))
+  expect_equal(out3[1, ], range(y0)) # based on definition of output function
+  expect_equal(out3[-1, ], out4)
 
   output <- attr(res3, "output")
   attr(res3, "output") <- attr(res4, "output") <- NULL
-  expect_equal(ncol(res3), length(tt))
-  expect_identical(res3[, 1], y0)
-  expect_identical(res3[, -1], res4)
+  expect_equal(nrow(res3), length(tt))
+  expect_identical(res3[1, -1], y0)
+  expect_identical(res3[-1, ], res4)
 
   res5 <- dopri(y0, tt, "lorenz", p, dllname = "lorenz",
                 n_out = 2L, output = "lorenz_output", return_initial = TRUE,
@@ -163,10 +167,10 @@ test_that("keep initial", {
                 return_output_with_y = TRUE)
   expect_null(attr(res5, "output"))
   expect_null(attr(res6, "output"))
-  expect_equal(res5[1:3, ], res3)
-  expect_equal(res6[1:3, ], res4)
-  expect_equal(res5[4:5, ], output)
-  expect_equal(res6[4:5, ], output[, -1])
+  expect_equal(res5[, 1:4], res3)
+  expect_equal(res6[, 1:4], res4)
+  expect_equal(res5[, 5:6], output)
+  expect_equal(res6[, 5:6], output[-1, ])
 })
 
 test_that("R interface", {
@@ -254,12 +258,12 @@ test_that("names", {
   tt <- seq(0, 1, length.out = 200)
 
   nms <- letters[1:3]
-  cmp <- list(nms, NULL)
+  cmp <- list(NULL, c("time", nms))
 
   expect_null(dimnames(dopri(y0, tt, lorenz, p)))
-  expect_equal(dimnames(dopri(y0, tt, lorenz, p, ynames=nms)), cmp)
+  expect_equal(dimnames(dopri(y0, tt, lorenz, p, ynames = nms)), cmp)
   expect_equal(dimnames(dopri(setNames(y0, nms), tt, lorenz, p)), cmp)
-  expect_null(dimnames(dopri(setNames(y0, nms), tt, lorenz, p, ynames=FALSE)))
+  expect_null(dimnames(dopri(setNames(y0, nms), tt, lorenz, p, ynames = FALSE)))
 
   expect_error(dopri(y0, tt, lorenz, p, ynames=nms[1]),
                "ynames must be the same length as y")
@@ -268,10 +272,11 @@ test_that("names", {
 
   ## Similar for output names:
   onms <- LETTERS[1:2]
-  ocmp <- list(onms, NULL)
+  ocmp <- list(NULL, onms)
 
-  f <- function(...) {
-    dopri(y0, tt, lorenz, p, n_out = 2L, output = lorenz_output, ...)
+  f <- function(..., return_output_with_y = FALSE) {
+    dopri(y0, tt, lorenz, p, n_out = 2L, output = lorenz_output,
+          return_output_with_y = return_output_with_y, ...)
   }
   expect_null(dimnames(attr(f(), "output")))
   expect_null(dimnames(attr(f(outnames = NULL), "output")))
@@ -286,26 +291,26 @@ test_that("names", {
 
   ## And check when output is combined
   m <- f(ynames = nms, outnames = NULL, return_output_with_y = TRUE)
-  expect_equal(rownames(m), c(nms, rep("", length(onms))))
+  expect_equal(colnames(m), c("time", nms, rep("", length(onms))))
   m <- f(ynames = NULL, outnames = onms, return_output_with_y = TRUE)
-  expect_equal(rownames(m), c(rep("", length(nms)), onms))
+  expect_equal(colnames(m), c("time", rep("", length(nms)), onms))
   m <- f(ynames = nms, outnames = onms, return_output_with_y = TRUE)
-  expect_equal(rownames(m), c(nms, onms))
+  expect_equal(colnames(m), c("time", nms, onms))
 
   ## And check time
   expect_null(dimnames(f(return_time = TRUE)))
-  expect_equal(rownames(f(return_time = TRUE, ynames = nms)),
+  expect_equal(colnames(f(return_time = TRUE, ynames = nms)),
                c("time", nms))
-  expect_equal(rownames(f(return_time = TRUE, return_output_with_y = TRUE,
+  expect_equal(colnames(f(return_time = TRUE, return_output_with_y = TRUE,
                           ynames = nms)),
                c("time", nms, rep("", length(onms))))
-  expect_equal(rownames(f(return_time = TRUE, return_output_with_y = TRUE,
+  expect_equal(colnames(f(return_time = TRUE, return_output_with_y = TRUE,
                           ynames = nms, outnames = onms)),
                c("time", nms, onms))
-  expect_equal(rownames(f(return_time = TRUE, return_output_with_y = TRUE,
+  expect_equal(colnames(f(return_time = TRUE, return_output_with_y = TRUE,
                           ynames = NULL, outnames = onms)),
                c("time", rep("", length(nms)), onms))
-  expect_null(rownames(f(return_time = TRUE, return_output_with_y = TRUE,
+  expect_null(colnames(f(return_time = TRUE, return_output_with_y = TRUE,
                          ynames = NULL, outnames = NULL)))
 })
 
@@ -324,27 +329,27 @@ test_that("return_time", {
 
   tt <- seq(0, 1, length.out = 200)
 
-  expect_equal(nrow(dopri(y0, tt, lorenz, p)), 3)
-  res <- dopri(y0, tt, lorenz, p, return_time = TRUE)
-  expect_equal(nrow(res), 4)
-  expect_equal(res[1, ], tt[-1L])
+  res1 <- dopri(y0, tt, lorenz, p)
+  res2 <- dopri(y0, tt, lorenz, p, return_time = FALSE)
+  expect_equal(ncol(res1), 4)
+  expect_equal(ncol(res2), 3)
+  expect_equal(res1[, 1L], tt)
+  expect_equal(res1[, -1L], res2)
 
+  res3 <- dopri(y0, tt, lorenz, p, return_initial = FALSE)
   ## include the first time:
-  expect_equal(
-    dopri(y0, tt, lorenz, p, return_time = TRUE, return_initial = TRUE)[1, ],
-    tt)
+  expect_equal(res3[, 1], tt[-1])
 
   ## with names:
   nms <- letters[1:3]
-  res <- dopri(y0, tt, lorenz, p, return_time = TRUE, ynames = nms)
-  expect_equal(rownames(res), c("time", nms))
-
-  res <- dopri(y0, tt, lorenz, p, return_time = TRUE, ynames = nms,
-                by_column = TRUE)
+  res <- dopri(y0, tt, lorenz, p, ynames = nms)
   expect_equal(colnames(res), c("time", nms))
+
+  res <- dopri(y0, tt, lorenz, p, ynames = nms, return_by_column = FALSE)
+  expect_equal(rownames(res), c("time", nms))
 })
 
-test_that("deSolve mode", {
+test_that("minimal mode", {
   p <- c(10, 28, 8 / 3)
   y0 <- c(10, 1, 1)
 
@@ -358,11 +363,19 @@ test_that("deSolve mode", {
   }
 
   tt <- seq(0, 1, length.out = 200)
+  names(y0) <- letters[1:3]
 
-  res <- dopri(y0, tt, lorenz, p, deSolve_compatible = TRUE)
-  expect_equal(dim(res), c(length(tt), 4))
-  expect_equal(dimnames(res), list(NULL, c("time", 1:3)))
-  expect_equal(res[, 1], tt)
+  res1 <- dopri(y0, tt, lorenz, p)
+  res2 <- dopri(y0, tt, lorenz, p, return_minimal = TRUE)
+
+  expect_equal(dim(res1), c(length(tt), 4))
+  expect_equal(dim(res2), c(3, length(tt) - 1L))
+
+  expect_equal(dimnames(res1), list(NULL, c("time", names(y0))))
+  expect_null(dimnames(res2))
+
+  expect_equal(res1[, 1], tt)
+  expect_equal(t(unname(res1[-1, -1])), res2)
 })
 
 test_that("step tuning", {
@@ -433,9 +446,9 @@ test_that("always return history when asked", {
   expect_true(has_history(dopri(y0, tt, growth, r, n_history = 100)))
 
   expect_true(has_history(
-    dopri(y0, tt, growth, r, n_history = 100, deSolve_compatible=TRUE)))
+    dopri(y0, tt, growth, r, n_history = 100, return_minimal=TRUE)))
   expect_true(has_history(
-    dopri(y0, tt, growth, r, n_history = 100, by_column=TRUE)))
+    dopri(y0, tt, growth, r, n_history = 100, return_by_column=TRUE)))
   expect_true(has_history(
     dopri(y0, tt, growth, r, n_history = 100, return_initial=TRUE)))
   expect_true(has_history(
@@ -447,10 +460,10 @@ test_that("always return history when asked", {
 
   expect_true(has_statistics(
     dopri(y0, tt, growth, r, return_statistics = TRUE,
-          deSolve_compatible=TRUE)))
+          return_minimal=TRUE)))
   expect_true(has_statistics(
     dopri(y0, tt, growth, r, return_statistics = TRUE,
-          by_column=TRUE)))
+          return_by_column=TRUE)))
   expect_true(has_statistics(
     dopri(y0, tt, growth, r, return_statistics = TRUE,
           return_initial=TRUE)))
@@ -485,10 +498,8 @@ test_that("negative time", {
   expect_equal(cmp[, -1], cmp_fwd[, -1], tolerance=1e-16)
 
   ## and dde:
-  res <- dopri(y0, tt, growth, r, deSolve_compatible = TRUE,
-               n_history = 100)
-  res_fwd <- dopri(y0, -tt, growth, -r, deSolve_compatible = TRUE,
-                   n_history = 100)
+  res <- dopri(y0, tt, growth, r, n_history = 100)
+  res_fwd <- dopri(y0, -tt, growth, -r, n_history = 100)
 
   expect_equal(res[, -1], res_fwd[, -1], tolerance=1e-16)
 
@@ -503,9 +514,6 @@ test_that("negative time", {
 })
 
 test_that("negative time with tcrit", {
-  ## TODO: To be a really good test, this would need to test the case
-  ## with more than one critical time, as there are a couple of places
-  ## where the critical time gets advanced.
   target1 <- function(t, y, p) {
     if (t <= 1) y else -5 * y
   }
@@ -520,22 +528,20 @@ test_that("negative time with tcrit", {
   y2 <- deSolve::lsoda(y0, -tt, function(...) list(target2(...)), numeric())
   expect_equal(y1[, 2], y2[, 2], tolerance=1e-16)
 
-  res1a <- dopri(y0, tt,  target1, numeric(0),
-                 return_statistics = TRUE, return_initial=TRUE)
-  res2a <- dopri(y0, -tt, target2, numeric(0),
-                 return_statistics = TRUE, return_initial=TRUE)
+  res1a <- dopri(y0, tt,  target1, numeric(0), return_statistics = TRUE)
+  res2a <- dopri(y0, -tt, target2, numeric(0), return_statistics = TRUE)
 
   ## Not terribly accurate because of the nasty discontinuity
-  expect_equal(res1a[1, ], y1[, 2], tolerance=1e-4)
+  expect_equal(res1a[, 2], y1[, 2], tolerance=1e-4)
   ## As above, the dopri solutions should agree well
-  expect_equal(res1a[1, ], res2a[1, ], tolerance=1e-16)
+  expect_equal(res1a[, 2], res2a[, 2], tolerance=1e-16)
 
   ## Add the critical time in:
   res1b <- dopri(y0, tt,  target1, numeric(0), tcrit = 1,
-                 return_statistics = TRUE, return_initial = TRUE)
+                 return_statistics = TRUE)
   res2b <- dopri(y0, -tt, target2, numeric(0), tcrit = -1,
-                 return_statistics = TRUE, return_initial = TRUE)
-  expect_equal(res1b[1, ], res2b[1, ], tolerance=1e-16)
+                 return_statistics = TRUE)
+  expect_equal(res1b[, 2], res2b[, 2], tolerance=1e-16)
 
   s1a <- attr(res1a, "statistics")
   s2a <- attr(res2a, "statistics")
@@ -580,8 +586,6 @@ test_that("externalptr input", {
   expect_identical(res, cmp)
 })
 
-## This is pretty baffling.  It really looks like I'm writing junk in
-## here or something.
 test_that("grow history", {
   tt <- seq(0, 10, length.out = 101)
   res <- run_lorenz_dde(tt, n_history = 5, grow_history = TRUE,

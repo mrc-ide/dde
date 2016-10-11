@@ -8,13 +8,13 @@
 \usage{
 difeq(y, steps, target, parms, ..., n_out = 0L, n_history = 0L,
   grow_history = FALSE, return_history = n_history > 0, dllname = "",
-  parms_are_real = TRUE, ynames = TRUE, outnames = NULL,
-  by_column = FALSE, return_initial = FALSE, return_step = FALSE,
-  return_output_with_y = FALSE, restartable = FALSE,
-  deSolve_compatible = FALSE)
+  parms_are_real = TRUE, ynames = names(y), outnames = NULL,
+  return_by_column = TRUE, return_initial = TRUE, return_step = TRUE,
+  return_output_with_y = TRUE, restartable = FALSE,
+  return_minimal = FALSE)
 
 difeq_continue(obj, steps, y = NULL, ..., copy = FALSE, parms = NULL,
-  return_history = NULL, by_column = NULL, return_initial = NULL,
+  return_history = NULL, return_by_column = NULL, return_initial = NULL,
   return_time = NULL, return_output_with_y = NULL, restartable = NULL)
 
 yprev(step, i = NULL)
@@ -91,22 +91,23 @@ same length as \code{y}, these will be used as the output names.}
 \item{outnames}{An optional character vector, used when
 \code{n_out} is greater than 0, to name the model output matrix.}
 
-\item{by_column}{Logical, indicating if the output should be
+\item{return_by_column}{Logical, indicating if the output should be
 returned organised by column (rather than row).  This incurs a
 slight cost for transposing the matrices.  If you can work with
 matrices that are transposed relative to \code{deSolve}, then
 set this to \code{FALSE}.}
 
 \item{return_initial}{Logical, indicating if the output should
-include the initial conditions (like deSolve).}
+include the initial conditions.  Specifying \code{FALSE} avoids
+binding this onto the output.}
 
 \item{return_step}{Logical, indicating if a row (or column if
-\code{by_column} is \code{TRUE}) representing step is included.}
+\code{return_by_column} is \code{TRUE}) representing step is included.}
 
 \item{return_output_with_y}{Logical, indicating if the output
 should be bound together with the returned matrix \code{y} (as
-it is with \code{deSolve}).  Otherwise output will be returned
-as the attribute \code{output}.}
+it is with \code{deSolve}).  If \code{FALSE}, then output will
+be returned as the attribute \code{output}.}
 
 \item{restartable}{Logical, indicating if the problem should be
 restartable.  If \code{TRUE}, then the return value of a
@@ -117,11 +118,10 @@ difference equations where you want to keep the history but make
 changes to the parameters or to the state vector while keeping
 the history of the problem so far.}
 
-\item{deSolve_compatible}{Logical, indicating if we should run in
-"deSolve compatible" output mode.  This enables the options
-\code{by_column}, \code{return_initial}, \code{return_time} and
-\code{return_output_with_y}.  This affects only some aspects of
-the returned value, and not the calculations themselves.}
+\item{return_minimal}{Shorthand option - if set to \code{TRUE}
+then it sets all of \code{return_by_column},
+\code{return_initial}, \code{return_time},
+\code{return_output_with_y} to \code{FALSE}}
 
 \item{obj}{An object to continue from; this must be the results of
 running a simulation with the option \code{restartable =
@@ -137,8 +137,8 @@ becaue there is a (potentially very small) cost to this
 operation.}
 
 \item{return_time}{Logical, indicating if a row (or column if
-\code{by_column} is \code{TRUE}) representing time is included
-(this matches deSolve).}
+\code{return_by_column} is \code{TRUE}) representing time is included.
+If \code{FALSE}, this is not added.}
 
 \item{step}{The step to access (not that this is not an offset,
 but the actual step; within your target function you'd write

@@ -50,7 +50,7 @@ y0 <- c(10, 1, 1)
 y <- dopri(y0, c(0, 50), lorenz, p,
            n_history = 5000, return_history = TRUE,
            return_time = FALSE, return_initial = FALSE,
-           by_column = FALSE)
+           return_by_column = FALSE)
 
 # Very little output is returned (just 3 numbers being the final
 # state of the system), but the "history" attribute is fairly

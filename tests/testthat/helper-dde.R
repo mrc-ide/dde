@@ -9,6 +9,13 @@ if (nzchar(system.file("include", package = "dde"))) {
   Sys.setenv(DDE_INCLUDE = "../../inst/include")
 }
 
+undesolve <- function(x) {
+  x <- unclass(x)
+  at <- attributes(x)
+  attributes(x) <- at["dim"]
+  x
+}
+
 ## A simple Lorenz attractor
 run_lorenz_deSolve <- function(times, tol = 1e-7) {
   sigma <- 10.0
@@ -28,8 +35,7 @@ run_lorenz_deSolve <- function(times, tol = 1e-7) {
            -b * y3 + y1 * y2))
   }
 
-  deSolve::ode(initial(), times, derivs,
-               atol = tol, rtol = tol)[, -1, drop=FALSE]
+  undesolve(deSolve::ode(initial(), times, derivs, atol = tol, rtol = tol))
 }
 
 run_seir_deSolve <- function(times, tol = 1e-7) {
@@ -99,8 +105,7 @@ run_seir_deSolve <- function(times, tol = 1e-7) {
     }
   }
 
-  deSolve::dede(initial(), times, derivs,
-                atol = tol, rtol = tol)[, -1, drop=FALSE]
+  undesolve(deSolve::dede(initial(), times, derivs, atol = tol, rtol = tol))
 }
 
 run_lorenz_dde <- function(times, tol = 1e-7, ...) {

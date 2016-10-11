@@ -36,7 +36,7 @@
 ##'   refers to compiled function.
 ##'
 ##' @param return_step Logical, indicating if a row (or column if
-##'   \code{by_column} is \code{TRUE}) representing step is included.
+##'   \code{return_by_column} is \code{TRUE}) representing step is included.
 ##'
 ##' @param restartable Logical, indicating if the problem should be
 ##'   restartable.  If \code{TRUE}, then the return value of a
@@ -53,19 +53,19 @@ difeq <- function(y, steps, target, parms, ...,
                   n_out = 0L, n_history = 0L, grow_history = FALSE,
                   return_history = n_history > 0,
                   dllname = "", parms_are_real = TRUE,
-                  ynames = TRUE, outnames = NULL,
-                  by_column = FALSE, return_initial = FALSE,
-                  return_step = FALSE, return_output_with_y = FALSE,
-                  restartable = FALSE, deSolve_compatible = FALSE) {
+                  ynames = names(y), outnames = NULL,
+                  return_by_column = TRUE, return_initial = TRUE,
+                  return_step = TRUE, return_output_with_y = TRUE,
+                  restartable = FALSE, return_minimal = FALSE) {
   DOTS <- list(...)
   if (length(DOTS) > 0L) {
     stop("Invalid dot arguments!")
   }
-  if (deSolve_compatible) {
-    by_column <- TRUE
-    return_initial <- TRUE
-    return_step <- TRUE
-    return_output_with_y <- TRUE
+  if (return_minimal) {
+    return_by_column <- FALSE
+    return_initial <- FALSE
+    return_step <- FALSE
+    return_output_with_y <- FALSE
   }
 
   target <- find_function_address(target, dllname)
@@ -85,13 +85,13 @@ difeq <- function(y, steps, target, parms, ...,
   assert_scalar_logical(grow_history)
   assert_scalar_logical(return_history)
   assert_scalar_logical(parms_are_real)
-  assert_scalar_logical(by_column)
+  assert_scalar_logical(return_by_column)
   assert_scalar_logical(return_initial)
   assert_scalar_logical(return_step)
   assert_scalar_logical(return_output_with_y)
   assert_scalar_logical(restartable)
 
-  ynames <- check_ynames(y, ynames, deSolve_compatible)
+  ynames <- check_ynames(y, ynames)
 
   assert_size(n_out)
   outnames <- check_outnames(n_out, outnames)
@@ -114,12 +114,12 @@ difeq <- function(y, steps, target, parms, ...,
                return_initial, restartable)
   has_output <- n_out > 0L
   ret <- prepare_output(ret, steps, ynames, outnames, has_output,
-                        by_column, return_initial, return_step,
+                        return_by_column, return_initial, return_step,
                         return_output_with_y,
                         "step")
   if (restartable) {
     ret <- prepare_difeq_restart(ret, parms, parms_are_real, ynames, outnames,
-                                 has_output, return_history, by_column,
+                                 has_output, return_history, return_by_column,
                                  return_initial, return_step,
                                  return_output_with_y)
   }
@@ -144,7 +144,7 @@ difeq_continue <- function(obj, steps, y = NULL, ...,
                            copy = FALSE,
                            parms = NULL,
                            return_history = NULL,
-                           by_column = NULL, return_initial = NULL,
+                           return_by_column = NULL, return_initial = NULL,
                            return_time = NULL, return_output_with_y = NULL,
                            restartable = NULL) {
   DOTS <- list(...)
@@ -164,7 +164,7 @@ difeq_continue <- function(obj, steps, y = NULL, ...,
 
   ## Process any given options, falling back on the previous values
   return_history <- logopt(return_history, dat$return_history)
-  by_column <- logopt(by_column, dat$by_column)
+  return_by_column <- logopt(return_by_column, dat$return_by_column)
   return_initial <- logopt(return_initial, dat$return_initial)
   return_time <- logopt(return_time, dat$return_time)
   return_output_with_y <- logopt(return_output_with_y, dat$return_output_with_y)
@@ -175,11 +175,11 @@ difeq_continue <- function(obj, steps, y = NULL, ...,
                return_history, return_initial, return_statistics, restartable)
 
   ret <- prepare_output(ret, step, dat$ynames, dat$outnames, dat$has_output,
-                        by_column, return_initial, return_time,
+                        return_by_column, return_initial, return_time,
                         return_output_with_y, "step")
   if (restartable) {
     ret <- prepare_difeq_restart(ret, parms, parms_are_real, ynames, outnames,
-                                 has_output, return_history, by_column,
+                                 has_output, return_history, return_by_column,
                                  return_initial, return_step,
                                  return_output_with_y)
   }
@@ -202,14 +202,14 @@ yprev <- function(step, i = NULL) {
 }
 
 prepare_difeq_restart <- function(ret, parms, parms_are_real, ynames, outnames,
-                                  has_output, return_history, by_column,
+                                  has_output, return_history, return_by_column,
                                   return_initial, return_step,
                                   return_output_with_y) {
   restart_data <- list(parms = parms, parms_are_real = parms_are_real,
                        ynames = ynames, outnames = outnames,
                        has_output = has_output,
                        return_history = return_history,
-                       by_column = by_column,
+                       return_by_column = return_by_column,
                        return_initial = return_initial,
                        return_step = return_step,
                        return_output_with_y = return_output_with_y)
