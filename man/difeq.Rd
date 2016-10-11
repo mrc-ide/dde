@@ -15,7 +15,7 @@ difeq(y, steps, target, parms, ..., n_out = 0L, n_history = 0L,
 
 difeq_continue(obj, steps, y = NULL, ..., copy = FALSE, parms = NULL,
   return_history = NULL, return_by_column = NULL, return_initial = NULL,
-  return_time = NULL, return_output_with_y = NULL, restartable = NULL)
+  return_step = NULL, return_output_with_y = NULL, restartable = NULL)
 
 yprev(step, i = NULL)
 }
@@ -135,10 +135,6 @@ respect to the data in the original pointer so the problem can
 be restarted multiple times.  By default this is \code{FALSE}
 becaue there is a (potentially very small) cost to this
 operation.}
-
-\item{return_time}{Logical, indicating if a row (or column if
-\code{return_by_column} is \code{TRUE}) representing time is included.
-If \code{FALSE}, this is not added.}
 
 \item{step}{The step to access (not that this is not an offset,
 but the actual step; within your target function you'd write

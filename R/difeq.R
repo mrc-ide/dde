@@ -145,7 +145,7 @@ difeq_continue <- function(obj, steps, y = NULL, ...,
                            parms = NULL,
                            return_history = NULL,
                            return_by_column = NULL, return_initial = NULL,
-                           return_time = NULL, return_output_with_y = NULL,
+                           return_step = NULL, return_output_with_y = NULL,
                            restartable = NULL) {
   DOTS <- list(...)
   if (length(DOTS) > 0L) {
@@ -166,20 +166,22 @@ difeq_continue <- function(obj, steps, y = NULL, ...,
   return_history <- logopt(return_history, dat$return_history)
   return_by_column <- logopt(return_by_column, dat$return_by_column)
   return_initial <- logopt(return_initial, dat$return_initial)
-  return_time <- logopt(return_time, dat$return_time)
+  return_step <- logopt(return_step, dat$return_step)
   return_output_with_y <- logopt(return_output_with_y, dat$return_output_with_y)
   restartable <- logopt(restartable, TRUE)
 
   ret <- .Call(Cdifeq_continue, ptr, y, as.integer(steps),
                parms, dat$parms_are_real,
-               return_history, return_initial, return_statistics, restartable)
+               return_history, return_initial, restartable)
 
   ret <- prepare_output(ret, step, dat$ynames, dat$outnames, dat$has_output,
-                        return_by_column, return_initial, return_time,
+                        return_by_column, return_initial, return_step,
                         return_output_with_y, "step")
   if (restartable) {
-    ret <- prepare_difeq_restart(ret, parms, parms_are_real, ynames, outnames,
-                                 has_output, return_history, return_by_column,
+    ret <- prepare_difeq_restart(ret, parms, dat$parms_are_real,
+                                 dat$ynames, dat$outnames,
+                                 dat$has_output, return_history,
+                                 return_by_column,
                                  return_initial, return_step,
                                  return_output_with_y)
   }
