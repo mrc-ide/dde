@@ -2,6 +2,7 @@
 #include "dopri_5.h"
 #include "dopri_853.h"
 #include <R.h>
+#include <stdint.h>
 
 dopri_data* dopri_data_alloc(deriv_func* target, size_t n,
                              output_func* output, size_t n_out,
