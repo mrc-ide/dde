@@ -15,3 +15,5 @@
 ^src/dde\.so\.dSYM$
 ^appveyor\.yml$
 ^tests/testthat/.*\.so\.dSYM$
+^inst/web$
+^update_web\.sh$
