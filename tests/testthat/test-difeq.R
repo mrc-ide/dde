@@ -2,7 +2,7 @@ context("discrete")
 
 ## Solve some basic discrete time equations
 test_that("increase", {
-  rhs <- function(i, t, y, p) {
+  rhs <- function(i, y, p) {
     y + p
   }
   y0 <- as.numeric(1:5)
@@ -50,7 +50,7 @@ test_that("increase", {
 })
 
 test_that("output (R)", {
-  rhs <- function(i, t, y, p) {
+  rhs <- function(i, y, p) {
     ret <- y + p
     attr(ret, "output") <- sum(y)
     ret
@@ -157,7 +157,7 @@ test_that("output (R)", {
 })
 
 test_that("transpose output", {
-  rhs <- function(i, t, y, p) {
+  rhs <- function(i, y, p) {
     ret <- y + p
     attr(ret, "output") <- sum(y)
     ret
@@ -195,7 +195,7 @@ test_that("transpose output", {
 })
 
 test_that("incorrect output", {
-  f <- function(i, t, y, p) {
+  f <- function(i, y, p) {
     structure(y, output = p)
   }
   y0 <- runif(5)
@@ -220,7 +220,7 @@ test_that("incorrect output", {
 })
 
 test_that("logistic", {
-  logistic <- function(i, t, y, p) {
+  logistic <- function(i, y, p) {
     r * y * (1 - y)
   }
   y0 <- 0.1
@@ -233,7 +233,7 @@ test_that("logistic", {
 })
 
 test_that("vector output (R)", {
-  growth <- function(i, t, y, p) {
+  growth <- function(i, y, p) {
     structure(y + p, output = y + 1)
   }
 
@@ -274,7 +274,7 @@ test_that("vector output (R)", {
 })
 
 test_that("error conditions", {
-  rhs <- function(i, t, y, p) {
+  rhs <- function(i, y, p) {
     y + p
   }
   y0 <- as.numeric(1:5)
@@ -316,7 +316,7 @@ test_that("names", {
   p <- c(10, 28, 8 / 3)
   y0 <- c(10, 1, 1)
 
-  rhs <- function(i, t, y, p) {
+  rhs <- function(i, y, p) {
     structure(y + p$x, output = p$output)
   }
 
@@ -378,7 +378,7 @@ test_that("externalptr input", {
 ## history it seems.
 test_that("grow history", {
   skip("WIP")
-  rhs <- function(i, t, y, p) {
+  rhs <- function(i, y, p) {
     y + p
   }
   y0 <- runif(5)

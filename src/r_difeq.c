@@ -157,7 +157,7 @@ SEXP r_yprev(SEXP r_i, SEXP r_idx) {
   return r_y;
 }
 
-void difeq_r_harness(size_t n, size_t i, double t,
+void difeq_r_harness(size_t n, size_t step,
                      double *y,  double *ynext,
                      size_t n_out, double *output, void *data) {
   SEXP d = (SEXP)data;
@@ -165,11 +165,10 @@ void difeq_r_harness(size_t n, size_t i, double t,
     target = VECTOR_ELT(d, 0),
     parms = VECTOR_ELT(d, 1),
     rho = VECTOR_ELT(d, 2);
-  SEXP r_i = PROTECT(ScalarInteger(i));
-  SEXP r_t = PROTECT(ScalarReal(t));
+  SEXP r_step = PROTECT(ScalarInteger(step));
   SEXP r_y = PROTECT(allocVector(REALSXP, n));
   memcpy(REAL(r_y), y, n * sizeof(double));
-  SEXP call = PROTECT(lang5(target, r_i, r_t, r_y, parms));
+  SEXP call = PROTECT(lang4(target, r_step, r_y, parms));
   SEXP ans = PROTECT(eval(call, rho));
   memcpy(ynext, REAL(ans), n * sizeof(double));
   if (n_out > 0) {
@@ -184,7 +183,7 @@ void difeq_r_harness(size_t n, size_t i, double t,
     }
     memcpy(output, REAL(r_output), n_out * sizeof(double));
   }
-  UNPROTECT(5);
+  UNPROTECT(4);
 }
 
 void difeq_ptr_finalizer(SEXP r_ptr) {

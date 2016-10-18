@@ -5,7 +5,7 @@ test_that("fib", {
   ##
   ## TODO: Because I can't get the 0 into the history buffer to start
   ## with, this is not quite correct, so it's really fib(2) and up.
-  fib <- function(i, t, y, p) {
+  fib <- function(i, y, p) {
     y + yprev(i - 1L)
   }
   y0 <- 1
@@ -24,7 +24,7 @@ test_that("fib", {
 })
 
 test_that("prev and output", {
-  growth <- function(i, t, y, p) {
+  growth <- function(i, y, p) {
     ret <- y + p
     attr(ret, "output") <- yprev(i - 1L)
     ret
@@ -52,7 +52,7 @@ test_that("prev and output", {
 })
 
 test_that("yprev permutations", {
-  rhs <- function(i, t, y, p) {
+  rhs <- function(i, y, p) {
     iprev <- i - 1
     if (p == "one") {
       for (i in seq_along(y)) {
@@ -83,7 +83,7 @@ test_that("yprev permutations", {
 })
 
 test_that("yprev invalid input", {
-  rhs <- function(i, t, y, p) {
+  rhs <- function(i, y, p) {
     type <- p$type
     lag <- p$lag
     idx <- p$idx
@@ -155,7 +155,7 @@ test_that("yprev invalid input", {
 })
 
 test_that("integer lag", {
-  growth <- function(i, t, y, p) {
+  growth <- function(i, y, p) {
     y + yprev(i - 1L)
   }
 
