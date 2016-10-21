@@ -135,7 +135,7 @@ cleanup_objects <- function() {
 }
 
 .first_time <- TRUE
-prepare_all <- function(reload = FALSE) {
+prepare_all <- function(reload = FALSE, verbose = FALSE) {
   if (.first_time || reload) {
     cleanup_objects()
     .first_time <- FALSE
@@ -147,7 +147,8 @@ prepare_all <- function(reload = FALSE) {
     files <- files[!(base %in% names(getLoadedDLLs()))]
   }
   for (f in files) {
-    compile_shlib(f)
+    message("*** Building ", basename(f))
+    dyn.load(rcmdshlib::shlib(f, verbose = verbose)$dll)
   }
 }
 

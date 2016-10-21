@@ -362,7 +362,7 @@ local({
   build <- setdiff(c("seir", "seir_ds"), names(getLoadedDLLs()))
   files <- file.path(dde:::dde_example_path(), sprintf("%s.c", build))
   for (f in files) {
-    dde:::compile_shlib(f, FALSE)
+    dyn.load(rcmdshlib::shlib(f, quiet = TRUE, verbose = FALSE)$dll)
   }
 })
 
