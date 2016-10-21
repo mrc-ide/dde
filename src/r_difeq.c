@@ -169,7 +169,8 @@ void difeq_r_harness(size_t n, size_t step,
   SEXP ans = PROTECT(eval(call, rho));
   // Ensure that we get sensible output from the target function:
   if ((size_t)length(ans) != n) {
-    Rf_error("Unexpected length output");
+    Rf_error("Incorrect length variable output: expected %d, recieved %d",
+             n, length(ans));
   }
   memcpy(ynext, REAL(ans), n * sizeof(double));
   if (n_out > 0) {
