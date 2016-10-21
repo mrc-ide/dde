@@ -47,7 +47,8 @@ difeq_data* difeq_data_alloc(difeq_target* target,
 }
 
 difeq_data* difeq_data_copy(const difeq_data* obj) {
-  size_t n_history = ring_buffer_size(obj->history, false);
+  size_t n_history =
+    obj->history == NULL ? 0 : ring_buffer_size(obj->history, false);
   bool grow_history =
     obj->history && obj->history->on_overflow == OVERFLOW_GROW;
   difeq_data* ret = difeq_data_alloc(obj->target, obj->n, obj->n_out,
@@ -65,6 +66,7 @@ difeq_data* difeq_data_copy(const difeq_data* obj) {
 
   // Copy all of the internal state:
   memcpy(ret->y0, obj->y0, obj->n * sizeof(double));
+  memcpy(ret->y1, obj->y1, obj->n * sizeof(double));
 
   return ret;
 }

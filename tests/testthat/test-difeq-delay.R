@@ -205,7 +205,6 @@ test_that("restart", {
 
   res1 <- difeq(y0, tt1, growth, p,  n_out = n, n_history = 100L,
                 restartable = TRUE)
-  h1 <- attr(res1, "history")
 
   ## We have useful things here:
   expect_is(attr(res1, "ptr"), "externalptr")
@@ -220,4 +219,87 @@ test_that("restart", {
 
   expect_equal(res2[1, ], res1[nrow(res1), ])
   expect_equal(res, rbind(res1, res2[-1, ]), check.attributes = FALSE)
+})
+
+test_that("change y on restart", {
+  growth <- function(i, y, p) {
+    ret <- y + p
+    attr(ret, "output") <- yprev(i - 5L)
+    ret
+  }
+
+  n <- 5L
+  y0 <- runif(n)
+  p <- runif(n)
+
+  tt <- 0:50
+  tc <- 20
+  it2 <- tt >= tc
+  tt1 <- tt[tt <= tc]
+  tt2 <- tt[it2]
+
+  i <- seq_len(n) + 1L
+  j <- i + n
+
+  res <- difeq(y0, tt, growth, p, n_out = n, n_history = 100L,
+               restartable = FALSE)
+  h <- attr(res, "history")
+
+  res1 <- difeq(y0, tt1, growth, p,  n_out = n, n_history = 100L,
+                restartable = TRUE)
+  y1 <- res1[nrow(res1), i] + 1
+  res2 <- difeq_continue(res1, tt2, y1, copy = FALSE)
+  h2 <- attr(res2, "history")
+
+  expect_equal(res2[, 1], res[it2, 1])
+  ## All offset by one:
+  expect_equal(res2[, i], res[it2, i] + 1)
+
+  ## Need to work out what I did here to get the output confirmed;
+  ## it's lagged, but can't recall by what.
+  expect_equal(res[-(1:5), j],
+               res[seq_len(nrow(res) - 5), i])
+  ## Cool, we're off by one, which probably means that we failed to
+  ## get the correct number out, or it's set incorrectly in the
+  ## history (most likely).
+  ##
+  ## TODO: this would be easiest to debug with plain output rather
+  ## than lagged.  More testing will be added and I can pick that up
+  ## later.
+  ##
+  ##   expect_equal(res2[-(1:5), j],
+  ##                res2[seq_len(nrow(res2) - 5), i])
+})
+
+test_that("restart and copy", {
+  growth <- function(i, y, p) {
+    y + p
+  }
+
+  n <- 5L
+  y0 <- runif(n)
+  p <- runif(n)
+
+  tt <- 0:50
+  tc <- 20
+  tt1 <- tt[tt <= tc]
+  tt2 <- tt[tt >= tc]
+
+  cmp <- difeq(y0, tt, growth, p)
+  cmp2 <- cmp[tt >= tc, ]
+
+  res1 <- difeq(y0, tt1, growth, p, restartable = TRUE)
+
+  res2 <- difeq_continue(res1, tt2, copy = TRUE)
+  res3 <- difeq_continue(res1, tt2, copy = TRUE)
+
+  expect_equal(res2, cmp2, check.attributes = FALSE)
+  expect_equal(res2, res3)
+
+  res4 <- difeq_continue(res1, tt2, copy = FALSE)
+  expect_equal(res4, cmp2, check.attributes = FALSE)
+
+  ## Can't step forward now:
+  expect_error(difeq_continue(res1, tt2),
+               "Incorrect initial step on simulation restart")
 })

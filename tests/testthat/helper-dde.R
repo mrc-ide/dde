@@ -152,3 +152,9 @@ prepare_all <- function(reload = FALSE) {
 }
 
 prepare_all()
+
+drop_attributes <- function(x, keep = c("class", "dim")) {
+  at <- attributes(x)
+  attributes(x) <- at[names(at) %in% keep]
+  x
+}
