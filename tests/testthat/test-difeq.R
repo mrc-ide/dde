@@ -300,6 +300,10 @@ test_that("error conditions", {
   expect_error(difeq(y0, i, rhs, p, unknown = TRUE),
                "Invalid dot arguments")
 
+  res <- difeq(y0, i, rhs, p, restartable = TRUE)
+  expect_error(difeq_continue(res, i + 1, unknown = TRUE),
+               "Invalid dot arguments")
+
   expect_error(difeq(y0, i, rhs, p, dllname = "logistic"),
                "dllname must not be given")
 

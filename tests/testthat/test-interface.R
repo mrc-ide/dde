@@ -15,7 +15,8 @@ test_that("invalid args", {
   res <- dopri(y, times, "lorenz", p, dllname = "lorenz",
                restartable = TRUE)
   times2 <- seq(1, 2, length.out = 11)
-  expect_error(dopri_continue(res, times2, unknown = 1))
+  expect_error(dopri_continue(res, times2, unknown = 1),
+               "Invalid dot arguments")
 })
 
 test_that("R function with dllname", {
