@@ -20,13 +20,16 @@ difeq_continue(obj, steps, y = NULL, ..., copy = FALSE, parms = NULL,
 yprev(step, i = NULL)
 }
 \arguments{
-\item{y}{The initial state of the system.  Must be a numeric vector}
+\item{y}{The initial state of the system.  Must be a numeric
+vector (and will be passed through \code{as.numeric} by this
+function).}
 
-\item{steps}{Either a vector of steps to solve the system at or a
-positive integer.  If a vector of steps, then the \emph{first}
-step is taken as step zero, and the solution will be recorded at
-every other step in the vector.  So to step a system from time
-zero to times 1, 2, 3, ... use 0:n.}
+\item{steps}{A vector of steps to return the system at.  The
+\emph{first} step is taken as step zero, and the solution will
+be recorded at every other step in the vector.  So to step a
+system from time zero to times 1, 2, 3, ..., n use 0:n.  Must be
+integer values and will be passed through \code{as.integer}
+(which may truncate or otherwise butcher non-integer values).}
 
 \item{target}{The target function to advance.  This can either be
 an R function taking arguments \code{n, i, t, y, parms} or be a

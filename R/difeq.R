@@ -3,13 +3,16 @@
 ##'
 ##' @title Solve difference equation
 ##'
-##' @param y The initial state of the system.  Must be a numeric vector
+##' @param y The initial state of the system.  Must be a numeric
+##'   vector (and will be passed through \code{as.numeric} by this
+##'   function).
 ##'
-##' @param steps Either a vector of steps to solve the system at or a
-##'   positive integer.  If a vector of steps, then the \emph{first}
-##'   step is taken as step zero, and the solution will be recorded at
-##'   every other step in the vector.  So to step a system from time
-##'   zero to times 1, 2, 3, ... use 0:n.
+##' @param steps A vector of steps to return the system at.  The
+##'   \emph{first} step is taken as step zero, and the solution will
+##'   be recorded at every other step in the vector.  So to step a
+##'   system from time zero to times 1, 2, 3, ..., n use 0:n.  Must be
+##'   integer values and will be passed through \code{as.integer}
+##'   (which may truncate or otherwise butcher non-integer values).
 ##'
 ##' @param target The target function to advance.  This can either be
 ##'   an R function taking arguments \code{n, i, t, y, parms} or be a
@@ -107,7 +110,7 @@ difeq <- function(y, steps, target, parms, ...,
     stop("If given, n_history must be at least 2")
   }
 
-  ret <- .Call(Cdifeq, y, as.integer(steps), target, parms,
+  ret <- .Call(Cdifeq, as.numeric(y), as.integer(steps), target, parms,
                as.integer(n_out), parms_are_real,
                ## Return information:
                as.integer(n_history), grow_history, return_history,
@@ -168,7 +171,12 @@ difeq_continue <- function(obj, steps, y = NULL, ...,
   return_initial <- logopt(return_initial, dat$return_initial)
   return_step <- logopt(return_step, dat$return_step)
   return_output_with_y <- logopt(return_output_with_y, dat$return_output_with_y)
+  ## TODO: Simpler to use a default TRUE option, no?
   restartable <- logopt(restartable, TRUE)
+
+  if (!is.null(y)) {
+    y <- as.numeric(y)
+  }
 
   ret <- .Call(Cdifeq_continue, ptr, y, as.integer(steps),
                parms, dat$parms_are_real,

@@ -445,7 +445,7 @@ test_that("restart error handling", {
 
   y1 <- res1[nrow(res1), seq_len(n) + 1]
   expect_error(difeq_continue(res1, tt2, y1[-1], copy = FALSE),
-               "Incorrect size 'y' on integration restart", fixed = TRUE)
+               "Incorrect size 'y' on simulation restart", fixed = TRUE)
   expect_error(difeq_continue(res1, tt2[1], y1, copy = FALSE),
                "At least two steps must be given", fixed = TRUE)
   expect_error(difeq_continue(res1, numeric(0), y1, copy = FALSE),

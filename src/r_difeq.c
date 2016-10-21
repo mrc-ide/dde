@@ -84,7 +84,7 @@ SEXP r_difeq_continue(SEXP r_ptr, SEXP r_y_initial, SEXP r_steps,
     y_initial = obj->y1;
   } else {
     if ((size_t) length(r_y_initial) != n) {
-      Rf_error("Incorrect size 'y' on integration restart");
+      Rf_error("Incorrect size 'y' on simulation restart");
     }
     y_initial = REAL(r_y_initial);
   }
