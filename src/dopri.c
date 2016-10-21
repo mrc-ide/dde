@@ -431,8 +431,8 @@ void dopri_integrate(dopri_data *obj, const double *y,
         reject = false;
       }
       if (stop) {
-        while (obj->sign * tcrit[obj->tcrit_idx] <= obj->sign * obj->t &&
-               obj->tcrit_idx < n_tcrit) {
+        while (obj->tcrit_idx < n_tcrit &&
+               obj->sign * tcrit[obj->tcrit_idx] <= obj->sign * obj->t) {
           obj->tcrit_idx++;
         }
         if (obj->tcrit_idx < obj->n_tcrit &&
