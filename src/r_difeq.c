@@ -22,7 +22,7 @@ SEXP r_difeq(SEXP r_y_initial, SEXP r_steps, SEXP r_target, SEXP r_data,
 
   // TODO: check for NULL function pointers here to avoid crashes;
   // also test type?
-  difeq_target *target = (difeq_target*)R_ExternalPtrAddr(r_target);
+  difeq_target *target = (difeq_target*)ptr_fn_get(r_target);
   void *data = data_pointer(r_data, r_data_is_real);
 
   size_t n_history = (size_t)INTEGER(r_n_history)[0];

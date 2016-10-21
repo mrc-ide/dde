@@ -1,4 +1,5 @@
 #include "util.h"
+#include <Rversion.h>
 
 int scalar_int(SEXP x) {
   int ret;
@@ -87,4 +88,14 @@ void * ptr_get(SEXP r_ptr) {
     Rf_error("pointer has been freed (perhaps serialised?)");
   }
   return ret;
+}
+
+// This gets a function pointer from a data pointer and avoids some
+// compiler warnings.
+DL_FUNC ptr_fn_get(SEXP r_ptr) {
+#if defined(R_VERSION) && R_VERSION >= R_Version(3, 4, 0)
+  return R_ExternalPtrAddrFn(r_ptr);
+#else
+  return (DL_FUNC) R_ExternalPtrAddr(r_ptr);
+#endif
 }

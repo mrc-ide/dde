@@ -54,7 +54,7 @@ SEXP r_dopri(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
 
   // TODO: check for NULL function pointers here to avoid crashes;
   // also test type?
-  deriv_func *func = (deriv_func*)R_ExternalPtrAddr(r_func);
+  deriv_func *func = (deriv_func*)ptr_fn_get(r_func);
   if (func == NULL) {
     Rf_error("Was passed null pointer for 'func'");
   }
@@ -73,7 +73,7 @@ SEXP r_dopri(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
   double *out = NULL;
   SEXP r_out = R_NilValue;
   if (n_out > 0) {
-    output = (output_func*)R_ExternalPtrAddr(r_output);
+    output = (output_func*)ptr_fn_get(r_output);
     if (output == NULL) {
       Rf_error("Was passed null pointer for 'output'");
     }
