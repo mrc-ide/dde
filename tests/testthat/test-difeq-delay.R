@@ -303,3 +303,25 @@ test_that("restart and copy", {
   expect_error(difeq_continue(res1, tt2),
                "Incorrect initial step on simulation restart")
 })
+
+test_that("restart error handling", {
+  growth <- function(i, y, p) {
+    y + p
+  }
+  n <- 5L
+  y0 <- runif(n)
+  p <- runif(n)
+  tt1 <- 0:10
+  tt2 <- 10:20
+  res1 <- difeq(y0, tt1, growth, p, restartable = TRUE)
+
+  y1 <- res1[nrow(res1), seq_len(n) + 1]
+  expect_error(difeq_continue(res1, tt2, y1[-1], copy = FALSE),
+               "Incorrect size 'y' on integration restart", fixed = TRUE)
+  expect_error(difeq_continue(res1, tt2[1], y1, copy = FALSE),
+               "At least two steps must be given", fixed = TRUE)
+  expect_error(difeq_continue(res1, numeric(0), y1, copy = FALSE),
+               "At least two steps must be given", fixed = TRUE)
+  expect_error(difeq_continue(res1, tt2[-1], y1, copy = FALSE),
+               "Incorrect initial step on simulation restart", fixed = TRUE)
+})
