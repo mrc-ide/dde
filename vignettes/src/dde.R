@@ -359,10 +359,18 @@ tR
 
 ##+ echo = FALSE, results = "hide"
 local({
+  compile_shlib <- function(filename) {
+    owd <- setwd(dirname(filename))
+    on.exit(setwd(owd))
+    dll <-
+      rcmdshlib::shlib(basename(filename), quiet = TRUE, verbose = FALSE)$dll
+    file.path(dirname(filename), dll)
+  }
+
   build <- setdiff(c("seir", "seir_ds"), names(getLoadedDLLs()))
   files <- file.path(dde:::dde_example_path(), sprintf("%s.c", build))
   for (f in files) {
-    dyn.load(rcmdshlib::shlib(f, quiet = TRUE, verbose = FALSE)$dll)
+    dyn.load(compile_shlib(f))
   }
 })
 
