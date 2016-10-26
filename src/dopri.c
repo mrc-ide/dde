@@ -6,7 +6,7 @@
 
 dopri_data* dopri_data_alloc(deriv_func* target, size_t n,
                              output_func* output, size_t n_out,
-                             const void *data,
+                             void *data,
                              dopri_method method,
                              size_t n_history, bool grow_history) {
   dopri_data *ret = (dopri_data*) R_Calloc(1, dopri_data);

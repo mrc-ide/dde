@@ -42,12 +42,13 @@ typedef void deriv_func(size_t n_eq, double t, const double *y, double *dydt,
                         const void *data);
 typedef void output_func(size_t n_eq, double t, const double *y,
                          size_t n_out, double *out, const void *data);
-typedef void event_func(size_t n_eq, double t, double *y, const void *data);
+typedef void event_func(size_t n_eq, double t, double *y, void *data);
 
 typedef struct {
   deriv_func* target;  // core rhs function
   output_func* output; // optional output function
-  const void* data;
+
+  void* data; // model data
 
   dopri_method method; // switch between (4)5 and 8(5(3))
   size_t order;        // order of integration, based on method
@@ -149,7 +150,7 @@ typedef struct {
 
 dopri_data* dopri_data_alloc(deriv_func* target, size_t n,
                              output_func* output, size_t n_out,
-                             const void *data,
+                             void *data,
                              dopri_method method,
                              size_t n_history, bool grow_history);
 void dopri_data_reset(dopri_data *obj, const double *y,
