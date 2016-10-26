@@ -42,6 +42,7 @@ typedef void deriv_func(size_t n_eq, double t, const double *y, double *dydt,
                         const void *data);
 typedef void output_func(size_t n_eq, double t, const double *y,
                          size_t n_out, double *out, const void *data);
+typedef void event_func(size_t n_eq, double t, double *y, const void *data);
 
 typedef struct {
   deriv_func* target;  // core rhs function
@@ -66,6 +67,10 @@ typedef struct {
   const double *tcrit;
   size_t n_tcrit;
   size_t tcrit_idx;
+
+  // Event support
+  const bool *is_event;
+  event_func **events;
 
   double * y0; // initial state
   double * y;  // current state
@@ -149,12 +154,15 @@ dopri_data* dopri_data_alloc(deriv_func* target, size_t n,
                              size_t n_history, bool grow_history);
 void dopri_data_reset(dopri_data *obj, const double *y,
                       const double *times, size_t n_times,
-                      const double *tcrit, size_t n_tcrit);
+                      const double *tcrit, size_t n_tcrit,
+                      // TODO: naming here may change:
+                      const bool *is_event, event_func **events);
 dopri_data* dopri_data_copy(const dopri_data* obj);
 void dopri_data_free(dopri_data *obj);
 void dopri_integrate(dopri_data *obj, const double *y,
                      const double *times, size_t n_times,
                      const double *tcrit, size_t n_tcrit,
+                     const bool *is_event, event_func **events,
                      double *y_out, double *out,
                      bool return_initial);
 

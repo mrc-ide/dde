@@ -194,7 +194,7 @@ dopri <- function(y, times, func, parms, ...,
                   rtol = 1e-6, atol = 1e-6,
                   step_size_min = 0, step_size_max = Inf,
                   step_size_initial = 0, step_max_n = 100000L,
-                  tcrit = NULL,
+                  tcrit = NULL, events = NULL,
                   method = "dopri5",
                   stiff_check = 0,
                   n_history = 0, grow_history = FALSE,
@@ -280,6 +280,53 @@ dopri <- function(y, times, func, parms, ...,
     stop("If 'output' is given, then n_out must be specified")
   }
 
+  if (is.null(events)) {
+    events <- is_event <- NULL
+  } else {
+    ## There are lots of nasties to deal with here. I think that even
+    ## with an C target function we should be able to use an R event
+    ## function to modify the output vector.  More controversial would
+    ## be to modify the parameters too (that would also require doing
+    ## some bits with parms_is_real so that the original data can be
+    ## reconstructed and passing around a totally separate bit of
+    ## data, eew; or we could look at binding the parameters into a
+    ## closure around the R function which would be a fairly tidy
+    ## solution).
+    if (is.null(tcrit)) {
+      tcrit <- events$time
+      is_event <- rep(TRUE, length(tcrit))
+      ## TODO: this whole bit here needs vectorising to allow for
+      ## different functions here.
+      if (is.function(events$event)) {
+        ## TODO: major work here with vectorising; consider a
+        ## self-advancing closure; see events_call_and_advance below.
+        ##
+        ## TODO: Nasty undocumented indexing of parms here.
+        ##
+        ## C R what
+        ## 0 1 target
+        ## 1 2 parms
+        ## 2 3 environment
+        ## 3 4 output
+        ## 4 5 event -- and here we are
+        ##
+        ## TODO: do all the event checking etc in a separte
+        ## construction function for ease of testing, etc.
+        ##
+        parms[[5L]] <- events$event
+        events <- find_function_address("dde_r_event_harness", "dde")
+      } else if (!is_r_target) {
+        events <- find_function_address(events$event, dllname)
+      } else {
+        ## This error message will need help!  Mis-specifying the name
+        ## here would cause problems for example.
+        stop("Can't use non-R event function with R target function")
+      }
+    } else {
+      stop("FIXME")
+    }
+  }
+
   ret <- .Call(Cdopri, y, as.numeric(times), func, parms,
                as.integer(n_out), output, parms_are_real,
                ## Tolerance:
@@ -287,8 +334,10 @@ dopri <- function(y, times, func, parms, ...,
                ## Step control:
                step_size_min, step_size_max,
                step_size_initial, as.integer(step_max_n),
+               ## Critical and events
+               as.numeric(tcrit), is_event, events,
                ## Other:
-               tcrit, use_853, as.integer(stiff_check),
+               use_853, as.integer(stiff_check),
                ## Return information:
                as.integer(n_history), grow_history, return_history,
                return_initial, return_statistics, restartable)

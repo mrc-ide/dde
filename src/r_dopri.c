@@ -23,8 +23,9 @@ SEXP r_dopri(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
              // Step size control:
              SEXP r_step_size_min, SEXP r_step_size_max,
              SEXP r_step_size_initial, SEXP r_step_max_n,
+             // Critical times and events:
+             SEXP r_tcrit, SEXP r_is_event, SEXP r_events,
              // Other:
-             SEXP r_tcrit,
              SEXP r_use_853,
              SEXP r_stiff_check,
              // Return information:
@@ -46,6 +47,55 @@ SEXP r_dopri(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
   if (r_tcrit != R_NilValue) {
     n_tcrit = LENGTH(r_tcrit);
     tcrit = REAL(r_tcrit);
+  }
+
+  // TODO: I should probably overhaul the tcrit to critical_times or
+  // something less obscure.
+  //
+  // OK, the *simplest* way of implementing this is to indicate which
+  // of the critical times are going to also be events.  We could do
+  // this bit of interleaving in R, in the C/R wrapper, or in the C
+  // function itself.
+  //
+  // The trick is going to be to do the sort, then take the times that
+  // are *just about close enough*; we'll want to collapse times that
+  // are within eps of each other I think.  However, all of this only
+  // needs doing in the case that *both* tevents and tcrit are given.
+  // Otherwise it's fairly trivial.
+  //
+  // I'm increasingly thinking this will be easiest to process in R.
+  bool *is_event = (bool*)R_alloc(n_tcrit, sizeof(bool));
+  event_func **events = NULL;
+  if (r_is_event != R_NilValue) {
+    int *tmp = INTEGER(r_is_event);
+    size_t n_events = 0;
+    for (size_t i = 0; i < n_tcrit; ++i) {
+      is_event[i] = tmp[i];
+      n_events++;
+    }
+    // Here, I want to allow for the case where we have one function
+    // and where we have exactly n.  For now assume 1.
+    events = (event_func**)R_alloc(n_tcrit, sizeof(event_func*));
+    if (length(r_events) == 1) {
+      event_func* func = (event_func*)R_ExternalPtrAddr(r_events);
+      for (size_t i = 0; i < n_tcrit; ++i) {
+        if (is_event[i]) {
+          events[i] = func;
+        }
+      }
+      //} else if (length(r_events) == n_events) {
+      //for (size_t i = 0, j = 0; i < n_tcrit; ++i) {
+      //  if (is_event[i]) {
+      //    events[i] = R_ExternalPtrAddr(VECTOR_ELT(r_events, j++));
+      // }
+      //}
+    } else {
+      Rf_error("FIXME");
+    }
+  } else {
+    for (size_t i = 0; i < n_tcrit; ++i) {
+      is_event[i] = false;
+    }
   }
 
   // There is probably a nicer way of doing this, but while we have
@@ -105,8 +155,8 @@ SEXP r_dopri(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
   SEXP r_y = PROTECT(allocMatrix(REALSXP, n, nt));
 
   double *y = REAL(r_y);
-  dopri_integrate(obj, y_initial, times, n_times, tcrit, n_tcrit, y, out,
-                  return_initial);
+  dopri_integrate(obj, y_initial, times, n_times, tcrit, n_tcrit,
+                  is_event, events, y, out, return_initial);
 
   r_dopri_cleanup(obj, r_ptr, r_y, r_out,
                   return_history, return_statistics, return_pointer);
@@ -174,7 +224,13 @@ SEXP r_dopri_continue(SEXP r_ptr, SEXP r_y_initial, SEXP r_times,
     out = REAL(r_out);
   }
 
+  bool *is_event = (bool*)R_alloc(n_tcrit, sizeof(bool));
+  for (size_t i = 0; i < n_tcrit; ++i) {
+    is_event[i] = false;
+  }
+
   dopri_integrate(obj, y_initial, times, n_times, tcrit, n_tcrit,
+                  is_event, NULL, // FIXME
                   y, out, return_initial);
   r_dopri_cleanup(obj, r_ptr, r_y, r_out,
                   return_history, return_statistics, return_pointer);
@@ -271,6 +327,41 @@ void dde_r_output_harness(size_t n, double t, double *y,
   SEXP call = PROTECT(lang4(output, r_t, r_y, parms));
   SEXP ans = PROTECT(eval(call, rho));
   memcpy(out, REAL(ans), n_out * sizeof(double));
+  UNPROTECT(4);
+}
+
+void dde_r_event_harness(size_t n, double t, double *y, void *data) {
+  // TODO: modifying the data will not work because we'll have to
+  // provide a little more information about the *type* of the data so
+  // that an appropriate R object can be passed around.  In any case,
+  // we'll be getting the parameters from parms rather than data I
+  // think.
+  SEXP d = (SEXP)data;
+  SEXP
+    target = VECTOR_ELT(d, 4),
+    parms = VECTOR_ELT(d, 1),
+    rho = VECTOR_ELT(d, 2);
+  SEXP r_t = PROTECT(ScalarReal(t));
+  SEXP r_y = PROTECT(allocVector(REALSXP, n));
+  memcpy(REAL(r_y), y, n * sizeof(double));
+  SEXP call = PROTECT(lang4(target, r_t, r_y, parms));
+  SEXP ans = PROTECT(eval(call, rho));
+  memcpy(y, REAL(ans), n * sizeof(double));
+  SEXP parms_new = getAttrib(ans, install("parms"));
+  if (parms_new != R_NilValue) {
+    // push the data back
+    SET_VECTOR_ELT(d, 1, parms_new);
+    // I don't actually know if this is either *necessary* or
+    // *sufficient*.  We may get away with nothing.  We may need a
+    // double pointer.
+    //
+    // One thing is for sure though we will need to run duplicate on
+    // 'd' before doing this or we violate the pass-by-reference
+    // illusion.  But then given that the object is just created as
+    // the calling function runs (and that's not userspace) it may be
+    // OK.
+    data = (void*) d;
+  }
   UNPROTECT(4);
 }
 

@@ -129,7 +129,8 @@ dopri_data* dopri_data_copy(const dopri_data* obj) {
 // then we won't end up resetting t0/y0 the same way.
 void dopri_data_reset(dopri_data *obj, const double *y,
                       const double *times, size_t n_times,
-                      const double *tcrit, size_t n_tcrit) {
+                      const double *tcrit, size_t n_tcrit,
+                      const bool *is_event, event_func **events) {
   obj->error = false;
   obj->code = NOT_SET;
 
@@ -192,6 +193,9 @@ void dopri_data_reset(dopri_data *obj, const double *y,
       obj->tcrit_idx++;
     }
   }
+
+  obj->is_event = is_event;
+  obj->events = events;
 
   obj->n_eval = 0;
   obj->n_step = 0;
@@ -278,9 +282,11 @@ void dopri_save_history(dopri_data *obj, double h) {
 void dopri_integrate(dopri_data *obj, const double *y,
                      const double *times, size_t n_times,
                      const double *tcrit, size_t n_tcrit,
+                     const bool *is_event, event_func **events,
                      double *y_out, double *out,
                      bool return_initial) {
-  dopri_data_reset(obj, y, times, n_times, tcrit, n_tcrit);
+  dopri_data_reset(obj, y, times, n_times, tcrit, n_tcrit,
+                   is_event, events);
   if (obj->error) {
     return;
   }
@@ -431,6 +437,10 @@ void dopri_integrate(dopri_data *obj, const double *y,
         reject = false;
       }
       if (stop) {
+        if (obj->is_event[obj->tcrit_idx]) {
+          event_func *event = obj->events[obj->tcrit_idx];
+          event(obj->n, obj->t, obj->y, obj->data);
+        }
         while (obj->tcrit_idx < n_tcrit &&
                obj->sign * tcrit[obj->tcrit_idx] <= obj->sign * obj->t) {
           obj->tcrit_idx++;
