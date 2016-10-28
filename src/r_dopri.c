@@ -331,11 +331,6 @@ void dde_r_output_harness(size_t n, double t, double *y,
 }
 
 void dde_r_event_harness(size_t n, double t, double *y, void *data) {
-  // TODO: modifying the data will not work because we'll have to
-  // provide a little more information about the *type* of the data so
-  // that an appropriate R object can be passed around.  In any case,
-  // we'll be getting the parameters from parms rather than data I
-  // think.
   SEXP d = (SEXP)data;
   SEXP
     target = VECTOR_ELT(d, 4),
@@ -349,18 +344,7 @@ void dde_r_event_harness(size_t n, double t, double *y, void *data) {
   memcpy(y, REAL(ans), n * sizeof(double));
   SEXP parms_new = getAttrib(ans, install("parms"));
   if (parms_new != R_NilValue) {
-    // push the data back
     SET_VECTOR_ELT(d, 1, parms_new);
-    // I don't actually know if this is either *necessary* or
-    // *sufficient*.  We may get away with nothing.  We may need a
-    // double pointer.
-    //
-    // One thing is for sure though we will need to run duplicate on
-    // 'd' before doing this or we violate the pass-by-reference
-    // illusion.  But then given that the object is just created as
-    // the calling function runs (and that's not userspace) it may be
-    // OK.
-    data = (void*) d;
   }
   UNPROTECT(4);
 }
