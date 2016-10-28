@@ -312,7 +312,7 @@ dopri <- function(y, times, func, parms, ...,
                step_size_min, step_size_max,
                step_size_initial, as.integer(step_max_n),
                ## Critical and events
-               as.numeric(tcrit), is_event, events,
+               as.numeric(tcrit), is_event, event,
                ## Other:
                use_853, as.integer(stiff_check),
                ## Return information:

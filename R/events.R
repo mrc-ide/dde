@@ -40,6 +40,7 @@ check_events <- function(time, event, tcrit = NULL, dllname = "") {
         stop("event must be a compiled function (name or address)")
       }
     }
+    event
   }
 
   is_r_target <- !nzchar(dllname)

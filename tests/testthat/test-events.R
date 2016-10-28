@@ -19,12 +19,43 @@ test_that("change variables (R)", {
   expect_equal(cmp1, cmp2, tolerance = 1e-6)
 
   events1 <- list(time = 1:5, event = function(t, y, p) y)
+  events2 <- list(time = 1:5, event = myevent)
+
   res1 <- dopri(y0, tt, target, p, events = events1, atol = tol, rtol = tol)
   expect_equal(res1, cmp2, tolerance = 1e-12)
 
-  events2 <- list(time = 1:5, event = myevent)
   res2 <- dopri(y0, tt, target, p, events = events2, atol = tol, rtol = tol)
 
+  ## This does seem to throw the tolerances out of whack quite badly,
+  ## but then they're being computed on totally different quantities.
+  m <- 2^findInterval(tt, events2$time + 1e-8,
+                      rightmost.closed = TRUE)
+  expect_equal(res2[, -1], cmp2[, -1] * m, tolerance = 1e-5)
+})
+
+test_that("change variables (C)", {
+  target <- "growth"
+  dllname <- "growth"
+  set.seed(1)
+  y0 <- runif(5)
+  p <- rep(1, length(y0))
+  tol <- 1e-8
+  tt <- seq(0, 5, length.out = 51) # 5001
+
+  cmp1 <- dopri(y0, tt, target, p, dllname = dllname, atol = tol, rtol = tol)
+  cmp2 <- dopri(y0, tt, target, p, dllname = dllname, tcrit = 1:5,
+                atol = tol, rtol = tol)
+  expect_equal(cmp1, cmp2, tolerance = 1e-6)
+
+  events1 <- list(time = 1:5, event = "identity")
+  events2 <- list(time = 1:5, event = "growth_double")
+
+  res1 <- dopri(y0, tt, target, p, dllname = dllname, events = events1,
+                atol = tol, rtol = tol)
+  expect_equal(res1, cmp2, tolerance = 1e-12)
+
+  res2 <- dopri(y0, tt, target, p, dllname = dllname, events = events2,
+                atol = tol, rtol = tol)
   ## This does seem to throw the tolerances out of whack quite badly,
   ## but then they're being computed on totally different quantities.
   m <- 2^findInterval(tt, events2$time + 1e-8,
