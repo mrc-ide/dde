@@ -46,11 +46,45 @@ check_events <- function(time, event, tcrit = NULL, dllname = "") {
   is_r_target <- !nzchar(dllname)
 
   event_function <- if (is_r_target) event else NULL
-  event <- get_event_function(event)
+
+  ## This should allow passing in:
+  ##   function
+  ##   NativeSymbolInfo
+  ##   pointer
+  ##   list of any of the above
+  ## and do the right thing
+  if (is.list(event) && !inherits(event, "NativeSymbolInfo")) {
+    event <- lapply(event, get_event_function)
+  } else {
+    event <- list(get_event_function(event))
+  }
+
+  nt <- length(time)
+  ne <- length(event)
+  if (ne == nt) {
+    if (is_r_target) {
+      event_function <- events_call_and_advance(event_function)
+    }
+  } else if (ne == 1L) {
+    event <- rep(event, nt)
+  } else {
+    stop("'event' must be a single event or a list of length ", nt)
+  }
 
   list(tcrit = tcrit,
        is_event = is_event,
        event = event,
        event_function = event_function,
        is_r_target = is_r_target)
+}
+
+
+## for the events function
+events_call_and_advance <- function(funs) {
+  force(funs)
+  i <- 0L
+  function(...) {
+    i <<- i + 1L
+    funs[[i]](...)
+  }
 }

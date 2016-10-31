@@ -68,29 +68,18 @@ SEXP r_dopri(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
   event_func **events = NULL;
   if (r_is_event != R_NilValue) {
     int *tmp = INTEGER(r_is_event);
-    size_t n_events = 0;
     for (size_t i = 0; i < n_tcrit; ++i) {
       is_event[i] = tmp[i];
-      n_events++;
     }
-    // Here, I want to allow for the case where we have one function
-    // and where we have exactly n.  For now assume 1.
+    // Transient storage here; will be reclaimed at the end
     events = (event_func**)R_alloc(n_tcrit, sizeof(event_func*));
-    if (length(r_events) == 1) {
-      event_func* func = (event_func*)R_ExternalPtrAddr(r_events);
-      for (size_t i = 0; i < n_tcrit; ++i) {
-        if (is_event[i]) {
-          events[i] = func;
+    for (size_t i = 0, j = 0; i < n_tcrit; ++i) {
+      if (is_event[i]) {
+        events[i] = (event_func*)ptr_fn_get(VECTOR_ELT(r_events, j++));
+        if (events[i] == NULL) {
+          Rf_error("Was passed null pointer for events[%d]", j);
         }
       }
-      //} else if (length(r_events) == n_events) {
-      //for (size_t i = 0, j = 0; i < n_tcrit; ++i) {
-      //  if (is_event[i]) {
-      //    events[i] = R_ExternalPtrAddr(VECTOR_ELT(r_events, j++));
-      // }
-      //}
-    } else {
-      Rf_error("FIXME");
     }
   } else {
     for (size_t i = 0; i < n_tcrit; ++i) {
