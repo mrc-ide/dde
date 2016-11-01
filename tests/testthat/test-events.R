@@ -169,3 +169,56 @@ test_that("vector of events", {
   expect_equal(res_r[, -1], cmp * m, tolerance = 1e-5)
   expect_equal(res_r, res_c, tolerance = 1e-12)
 })
+
+test_that("interleave events and critical", {
+  ## We'll use the same trick as earlier to detect if tcrit was used;
+  ## check the number of steps taken as it should be smaller.  This
+  ## means that our target is going to be a step function.
+  target <- function(t, y, p) {
+    if (t > 2) -p else p
+  }
+  event1 <- function(t, y, p) {
+    y * 2
+  }
+  ## This is not firing...
+  event2 <- function(t, y, p) {
+    y / 2
+  }
+
+  te <- c(1, 3)
+  tcrit <- 2
+  events <- list(event1, event2)
+
+  set.seed(1)
+  y0 <- runif(5)
+  p <- runif(length(y0))
+  tol <- 1e-8
+  tt <- seq(0, 4, length.out = 41) # 5001
+
+  res1 <- dopri(y0, tt, target, p,
+                event_time = te, event_function = events,
+                atol = tol, rtol = tol, return_statistics = TRUE)
+
+  res2 <- dopri(y0, tt, target, p,
+                event_time = te, event_function = events, tcrit = 2,
+                atol = tol, rtol = tol, return_statistics = TRUE)
+
+  s1 <- attr(res1, "statistics")
+  s2 <- attr(res2, "statistics")
+  expect_lt(s2[["n_step"]], s1[["n_step"]])
+  expect_lt(s2[["n_reject"]], s1[["n_reject"]])
+
+  cmp <- outer(p, tt) + y0
+  ## The first double
+  j <- which(tt >= 1 & tt <= 2)
+  cmp[, j[-1]] <- cmp[, j[-1]] + cmp[, j[[1]]]
+  ## Flips around:
+  j <- which(tt >= 2)
+  cmp[, j[-1]] <- outer(-p, tt[j[-1]] - tt[j[[1]]]) + cmp[, j[[1]]]
+  ## The halve
+  j <- which(tt >= 3)
+  cmp[, j[-1]] <- cmp[, j[-1]] - cmp[, j[[1]]] / 2
+
+  expect_equal(res2[, -1], t(cmp), tolerance = 1e-5)
+  expect_equal(res1[, -1], res2[, -1], tolerance = 1e-5)
+})

@@ -31,7 +31,8 @@ check_events <- function(time, event, tcrit = NULL, dllname = "") {
     tcrit <- time
     is_event <- rep(TRUE, length(tcrit))
   } else {
-    stop("FIXME")
+    tcrit <- unique(sort(c(tcrit, time)))
+    is_event <- tcrit %in% time
   }
 
   get_event_function <- function(event) {

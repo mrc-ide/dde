@@ -340,13 +340,15 @@ void dopri_integrate(dopri_data *obj, const double *y,
       obj->code = ERR_STEP_SIZE_VANISHED;
       break;
     }
+    // TODO: remember to port this over to rlsoda!
+    if ((obj->t + 1.01 * h - t_stop) * obj->sign > 0.0) {
+      h = t_stop - obj->t;
+      stop = true;
+    }
     if ((obj->t + 1.01 * h - t_end) * obj->sign > 0.0) {
       h_save = h;
       h = t_end - obj->t;
       last = true;
-    } else if ((obj->t + 1.01 * h - t_stop) * obj->sign > 0.0) {
-      h = t_stop - obj->t;
-      stop = true;
     }
     // NOTE: in retard.f there is an else condition:
     //
