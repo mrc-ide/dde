@@ -11,12 +11,12 @@
 dopri(y, times, func, parms, ..., n_out = 0L, output = NULL, rtol = 1e-06,
   atol = 1e-06, step_size_min = 0, step_size_max = Inf,
   step_size_initial = 0, step_max_n = 100000L, tcrit = NULL,
-  method = "dopri5", stiff_check = 0, n_history = 0,
-  grow_history = FALSE, return_history = n_history > 0, dllname = "",
-  parms_are_real = TRUE, ynames = names(y), outnames = NULL,
-  return_by_column = TRUE, return_initial = TRUE, return_time = TRUE,
-  return_output_with_y = TRUE, return_statistics = FALSE,
-  restartable = FALSE, return_minimal = FALSE)
+  event_time = NULL, event_function = NULL, method = "dopri5",
+  stiff_check = 0, n_history = 0, grow_history = FALSE,
+  return_history = n_history > 0, dllname = "", parms_are_real = TRUE,
+  ynames = names(y), outnames = NULL, return_by_column = TRUE,
+  return_initial = TRUE, return_time = TRUE, return_output_with_y = TRUE,
+  return_statistics = FALSE, restartable = FALSE, return_minimal = FALSE)
 
 dopri5(y, times, func, parms, ...)
 
@@ -69,9 +69,9 @@ from the treatment of \code{hmin} in \code{deSolve::lsoda}).}
 
 \item{step_size_max}{The largest step size.  By default there is
 no maximum step size (Inf) so the solver can take as large a
-step as it wants to.  If you have short events you want the
-solver to notice, then specify a smaller maximim step size here
-(or use \code{tcrit} below).}
+step as it wants to.  If you have short-lived fluctuations in
+your rhs that the solver may skip over by accident, then specify
+a smaller maximum step size here (or use \code{tcrit} below).}
 
 \item{step_size_initial}{The initial step size.  By default the
 integrator will guess the step size automatically, but one can
@@ -93,6 +93,16 @@ from the interpretation of this parameter in deSolve; there
 -- with dde we never go past the final time, and this is just
 for times that fall \emph{within} the range of times in
 \code{times}.}
+
+\item{event_time}{Vector of times to fire events listed in
+\code{event_function} at}
+
+\item{event_function}{Function to fire at events.  For R models
+(\code{func} is an R function and \code{dllname} is empty), this
+must be either a single R function (same function for all
+events) or a \code{list} of R functions.  For C models, this
+must be a singe C function (same requirements as \code{func} or
+\code{output} or a list/vector of these as appropriate).}
 
 \item{method}{The integration method to use, as a string.  The
 supported methods are \code{"dopri5"} (5th order method with 4th
@@ -232,6 +242,10 @@ At present the return value is transposed relative to
 Integrate an ODE or DDE with dopri.
 }
 \details{
+Like \code{deSolve::lsoda}, this function has \emph{many}
+arguments.  This is far from ideal, and I would welcome any
+approach for simplifying it a bit.
+
 The options \code{return_by_column}, \code{return_initial},
 \code{return_time}, \code{return_output_with_y} exist because
 these options all carry out modifications of the data at the end

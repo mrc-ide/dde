@@ -1,5 +1,9 @@
 ##' Integrate an ODE or DDE with dopri.
 ##'
+##' Like \code{deSolve::lsoda}, this function has \emph{many}
+##' arguments.  This is far from ideal, and I would welcome any
+##' approach for simplifying it a bit.
+##'
 ##' The options \code{return_by_column}, \code{return_initial},
 ##' \code{return_time}, \code{return_output_with_y} exist because
 ##' these options all carry out modifications of the data at the end
@@ -52,9 +56,9 @@
 ##'
 ##' @param step_size_max The largest step size.  By default there is
 ##'   no maximum step size (Inf) so the solver can take as large a
-##'   step as it wants to.  If you have short events you want the
-##'   solver to notice, then specify a smaller maximim step size here
-##'   (or use \code{tcrit} below).
+##'   step as it wants to.  If you have short-lived fluctuations in
+##'   your rhs that the solver may skip over by accident, then specify
+##'   a smaller maximum step size here (or use \code{tcrit} below).
 ##'
 ##' @param step_size_initial The initial step size.  By default the
 ##'   integrator will guess the step size automatically, but one can
@@ -76,6 +80,16 @@
 ##'   -- with dde we never go past the final time, and this is just
 ##'   for times that fall \emph{within} the range of times in
 ##'   \code{times}.
+##'
+##' @param event_time Vector of times to fire events listed in
+##'   \code{event_function} at
+##'
+##' @param event_function Function to fire at events.  For R models
+##'   (\code{func} is an R function and \code{dllname} is empty), this
+##'   must be either a single R function (same function for all
+##'   events) or a \code{list} of R functions.  For C models, this
+##'   must be a singe C function (same requirements as \code{func} or
+##'   \code{output} or a list/vector of these as appropriate).
 ##'
 ##' @param method The integration method to use, as a string.  The
 ##'   supported methods are \code{"dopri5"} (5th order method with 4th
@@ -194,7 +208,7 @@ dopri <- function(y, times, func, parms, ...,
                   rtol = 1e-6, atol = 1e-6,
                   step_size_min = 0, step_size_max = Inf,
                   step_size_initial = 0, step_max_n = 100000L,
-                  tcrit = NULL, events = NULL,
+                  tcrit = NULL, event_time = NULL, event_function = NULL,
                   method = "dopri5",
                   stiff_check = 0,
                   n_history = 0, grow_history = FALSE,
@@ -279,7 +293,7 @@ dopri <- function(y, times, func, parms, ...,
     stop("If 'output' is given, then n_out must be specified")
   }
 
-  dat <- check_events(events$time, events$event, tcrit, dllname)
+  dat <- check_events(event_time, event_function, tcrit, dllname)
   tcrit <- dat$tcrit
   ## This is needed to allow things like `tcrit = 1:5` (which is int)
   if (!is.null(tcrit)) {
