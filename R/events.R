@@ -10,6 +10,15 @@
 ## (if appropriate); it's all a bit much really!  For now, let's just
 ## do the single case.
 check_events <- function(time, event, tcrit = NULL, dllname = "") {
+  if (!is.null(tcrit)) {
+    assert_numeric(tcrit)
+    tcrit <- as.numeric(tcrit)
+  }
+  if (!is.null(time)) {
+    assert_numeric(time)
+    time <- as.numeric(time)
+  }
+
   ## Early exit if there are no event:
   if (is.null(event)) {
     if (!is.null(time)) {

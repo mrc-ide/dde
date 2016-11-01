@@ -124,3 +124,41 @@ test_that("change parameters", {
                   atol = tol, rtol = tol)
   expect_equal(res2_c, res2_r, tolerance = 1e-12)
 })
+
+test_that("vector of events", {
+  target_r <- function(t, y, p) {
+    -y * p
+  }
+  event_r1 <- function(t, y, p) {
+    y * 2
+  }
+  event_r2 <- function(t, y, p) {
+    y / 2
+  }
+  target_c <- "exponential"
+  event_c1 <- "double_variables"
+  event_c2 <- "halve_variables"
+  dllname <- "growth"
+
+  set.seed(1)
+  y0 <- runif(5)
+  p <- rep(1, length(y0))
+  tol <- 1e-8
+  tt <- seq(0, 3, length.out = 31) # 5001
+
+  te <- c(1, 2)
+
+  events_r <- list(time = te, event = list(event_r1, event_r2))
+  events_c <- list(time = te, event = list(event_c1, event_c2))
+
+  res_r <- dopri(y0, tt, target_r, p, events = events_r,
+                 atol = tol, rtol = tol)
+  res_c <- dopri(y0, tt, target_c, p, events = events_c, dllname = dllname,
+                 atol = tol, rtol = tol)
+
+  cmp <- t(y0 * exp(outer(-p, tt)))
+  m <- 1 + findInterval(tt, te + 1e-8, rightmost.closed = TRUE) %% 2
+
+  expect_equal(res_r[, -1], cmp * m, tolerance = 1e-5)
+  expect_equal(res_r, res_c, tolerance = 1e-12)
+})

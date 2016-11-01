@@ -4,6 +4,14 @@
 #include <Rinternals.h>
 #include "util.h"
 
+enum dopri_idx {
+  DOPRI_IDX_TARGET,
+  DOPRI_IDX_PARMS,
+  DOPRI_IDX_ENV,
+  DOPRI_IDX_OUTPUT,
+  DOPRI_IDX_EVENT,
+};
+
 // There are more arguments from lsoda not implemented here that will
 // be needed:
 //
@@ -291,14 +299,14 @@ SEXP r_ylag(SEXP r_t, SEXP r_idx) {
 void dde_r_harness(size_t n, double t, double *y, double *dydt, void *data) {
   SEXP d = (SEXP)data;
   SEXP
-    target = VECTOR_ELT(d, 0),
-    parms = VECTOR_ELT(d, 1),
-    rho = VECTOR_ELT(d, 2);
+    target = VECTOR_ELT(d, DOPRI_IDX_TARGET),
+    parms = VECTOR_ELT(d, DOPRI_IDX_PARMS),
+    env = VECTOR_ELT(d, DOPRI_IDX_ENV);
   SEXP r_t = PROTECT(ScalarReal(t));
   SEXP r_y = PROTECT(allocVector(REALSXP, n));
   memcpy(REAL(r_y), y, n * sizeof(double));
   SEXP call = PROTECT(lang4(target, r_t, r_y, parms));
-  SEXP ans = PROTECT(eval(call, rho));
+  SEXP ans = PROTECT(eval(call, env));
   memcpy(dydt, REAL(ans), n * sizeof(double));
   UNPROTECT(4);
 }
@@ -307,14 +315,14 @@ void dde_r_output_harness(size_t n, double t, double *y,
                           size_t n_out, double *out, void *data) {
   SEXP d = (SEXP)data;
   SEXP
-    parms = VECTOR_ELT(d, 1),
-    rho = VECTOR_ELT(d, 2),
-    output = VECTOR_ELT(d, 3);
+    parms = VECTOR_ELT(d, DOPRI_IDX_PARMS),
+    env = VECTOR_ELT(d, DOPRI_IDX_ENV),
+    output = VECTOR_ELT(d, DOPRI_IDX_OUTPUT);
   SEXP r_t = PROTECT(ScalarReal(t));
   SEXP r_y = PROTECT(allocVector(REALSXP, n));
   memcpy(REAL(r_y), y, n * sizeof(double));
   SEXP call = PROTECT(lang4(output, r_t, r_y, parms));
-  SEXP ans = PROTECT(eval(call, rho));
+  SEXP ans = PROTECT(eval(call, env));
   memcpy(out, REAL(ans), n_out * sizeof(double));
   UNPROTECT(4);
 }
@@ -322,14 +330,14 @@ void dde_r_output_harness(size_t n, double t, double *y,
 void dde_r_event_harness(size_t n, double t, double *y, void *data) {
   SEXP d = (SEXP)data;
   SEXP
-    target = VECTOR_ELT(d, 4),
-    parms = VECTOR_ELT(d, 1),
-    rho = VECTOR_ELT(d, 2);
+    event = VECTOR_ELT(d, DOPRI_IDX_EVENT),
+    parms = VECTOR_ELT(d, DOPRI_IDX_PARMS),
+    env = VECTOR_ELT(d, DOPRI_IDX_ENV);
   SEXP r_t = PROTECT(ScalarReal(t));
   SEXP r_y = PROTECT(allocVector(REALSXP, n));
   memcpy(REAL(r_y), y, n * sizeof(double));
-  SEXP call = PROTECT(lang4(target, r_t, r_y, parms));
-  SEXP ans = PROTECT(eval(call, rho));
+  SEXP call = PROTECT(lang4(event, r_t, r_y, parms));
+  SEXP ans = PROTECT(eval(call, env));
   memcpy(y, REAL(ans), n * sizeof(double));
   SEXP parms_new = getAttrib(ans, install("parms"));
   if (parms_new != R_NilValue) {

@@ -268,14 +268,13 @@ dopri <- function(y, times, func, parms, ...,
       if (!is.function(output)) {
         stop("output must be an R function")
       }
-      parms <- c(parms, output)
+      parms[[DOPRI_IDX_OUTPUT]] <- output
       output <- find_function_address("dde_r_output_harness", "dde")
     } else {
       if (is.function(output)) {
         stop("output must be a compiled function (name or address)")
       }
     }
-    ## Here, if fun is an R function we need to be careful...
   } else if (!is.null(output)) {
     stop("If 'output' is given, then n_out must be specified")
   }
@@ -292,16 +291,7 @@ dopri <- function(y, times, func, parms, ...,
   event <- dat$event
 
   if (!is.null(event) && is_r_target) {
-    ## TODO: Nasty undocumented indexing of parms here.
-    ##
-    ## C R what
-    ## 0 1 target
-    ## 1 2 parms
-    ## 2 3 environment
-    ## 3 4 output
-    ## 4 5 event -- and here we are
-    parms[[5L]] <- events$event
-    events <- find_function_address("dde_r_event_harness", "dde")
+    parms[[DOPRI_IDX_EVENT]] <- dat$event_function
   }
 
   ret <- .Call(Cdopri, y, as.numeric(times), func, parms,
@@ -571,3 +561,9 @@ ylag <- function(t, i = NULL) {
 dopri_methods <- function() {
   c("dopri5", "dopri853")
 }
+
+DOPRI_IDX_TARGET <- 1L
+DOPRI_IDX_PARMS <- 2L
+DOPRI_IDX_ENV <- 3L
+DOPRI_IDX_OUTPUT <- 4L
+DOPRI_IDX_EVENT <- 5L
