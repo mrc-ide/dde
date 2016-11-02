@@ -87,3 +87,7 @@ logopt <- function(value, default, name = deparse(substitute(value))) {
     value
   }
 }
+
+is_native_symbol_info <- function(x) {
+  inherits(x, "NativeSymbolInfo")
+}

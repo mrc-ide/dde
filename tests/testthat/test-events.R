@@ -295,3 +295,29 @@ test_that("no crash after serialisation", {
                      event_time = 1, event_function = event0),
                "Was passed null pointer for events[1]", fixed = TRUE)
 })
+
+test_that("error cases", {
+  target <- function(t, y, p) {
+    0
+  }
+  event <- function(t, y, p) {
+    message("this is an event")
+    y
+  }
+
+  expect_error(dopri(0, 0:4, target, NULL,
+                     event_time = NULL, event_function = event),
+               "'event_function' given without 'event_time'")
+  expect_error(dopri(0, 0:4, target, NULL,
+                     event_time = 1, event_function = NULL),
+               "'event_time' given without 'event_function'")
+  expect_error(dopri(0, 0:4, target, NULL,
+                     event_time = 1, event_function = "double_variables"),
+               "'event_function' must be an R function")
+  expect_error(dopri(0, 0:4, "exponential", NULL, dllname = "growth",
+                     event_time = 1, event_function = event),
+               "'event_function' must be a compiled function")
+  expect_error(dopri(0, 0:4, target, NULL,
+                     event_time = 1:3, event_function = list(event, event)),
+               "'event_function' must be a single event or a list of length 3")
+})

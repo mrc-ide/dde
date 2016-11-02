@@ -305,7 +305,7 @@ dopri <- function(y, times, func, parms, ...,
   event <- dat$event
 
   if (!is.null(event) && is_r_target) {
-    parms[[DOPRI_IDX_EVENT]] <- dat$event_function
+    parms[[DOPRI_IDX_EVENT]] <- dat$event_r
   }
 
   ret <- .Call(Cdopri, y, as.numeric(times), func, parms,

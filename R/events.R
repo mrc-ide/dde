@@ -9,34 +9,37 @@
 ## convert to a list, tidy away the R function and create a closure
 ## (if appropriate); it's all a bit much really!  For now, let's just
 ## do the single case.
-check_events <- function(time, event, tcrit = NULL, dllname = "") {
+check_events <- function(event_time, event_function, tcrit = NULL,
+                         dllname = "") {
   if (!is.null(tcrit)) {
     assert_numeric(tcrit)
     tcrit <- as.numeric(tcrit)
   }
-  if (!is.null(time)) {
-    assert_numeric(time)
-    time <- as.numeric(time)
+  if (!is.null(event_time)) {
+    assert_numeric(event_time)
+    event_time <- as.numeric(event_time)
   }
 
   ## Early exit if there are no event:
-  if (is.null(event)) {
-    if (!is.null(time)) {
-      stop("confused") # TODO: proper error
+  if (is.null(event_function)) {
+    if (!is.null(event_time)) {
+      stop("'event_time' given without 'event_function'")
     }
     return(list(event = NULL, is_event = NULL, tcrit = tcrit))
+  } else if (is.null(event_time)) {
+    stop("'event_function' given without 'event_time'")
   }
 
   if (is.null(tcrit)) {
-    tcrit <- time
+    tcrit <- event_time
     is_event <- rep(TRUE, length(tcrit))
   } else {
-    ## NOTE: We do want to preserve duplicated times within 'time',
+    ## NOTE: We do want to preserve duplicated times within 'event_time',
     ## but filter out those that interact with tcrit.  The other way
     ## of doing this would be simply to sort all the tcrit times into
-    ## time with no event.
-    tcrit <- sort(c(setdiff(tcrit, time), time))
-    is_event <- tcrit %in% time
+    ## event_time with no event_function.
+    tcrit <- sort(c(setdiff(tcrit, event_time), event_time))
+    is_event <- tcrit %in% event_time
   }
 
   get_event_function <- function(event) {
@@ -46,12 +49,12 @@ check_events <- function(time, event, tcrit = NULL, dllname = "") {
     ## relaxed in future.
     if (is_r_target) {
       if (!is.function(event)) {
-        stop("event must be an R function")
+        stop("'event_function' must be an R function")
       }
       event <- find_function_address("dde_r_event_harness", "dde")
     } else {
       if (is.function(event)) {
-        stop("event must be a compiled function (name or address)")
+        stop("'event_function' must be a compiled function (name or address)")
       }
     }
     event
@@ -59,7 +62,7 @@ check_events <- function(time, event, tcrit = NULL, dllname = "") {
 
   is_r_target <- !nzchar(dllname)
 
-  event_function <- if (is_r_target) event else NULL
+  event_function_r <- if (is_r_target) event_function else NULL
 
   ## This should allow passing in:
   ##   function
@@ -67,28 +70,28 @@ check_events <- function(time, event, tcrit = NULL, dllname = "") {
   ##   pointer
   ##   list of any of the above
   ## and do the right thing
-  if (is.list(event) && !inherits(event, "NativeSymbolInfo")) {
-    event <- lapply(event, get_event_function)
+  if (is.list(event_function) && !is_native_symbol_info(event_function)) {
+    event_function <- lapply(event_function, get_event_function)
   } else {
-    event <- list(get_event_function(event))
+    event_function <- list(get_event_function(event_function))
   }
 
-  nt <- length(time)
-  ne <- length(event)
+  nt <- length(event_time) # not tcrit!
+  ne <- length(event_function)
   if (ne == nt) {
     if (is_r_target && ne != 1L) {
-      event_function <- events_call_and_advance(event_function)
+      event_function_r <- events_call_and_advance(event_function_r)
     }
   } else if (ne == 1L) {
-    event <- rep(event, nt)
+    event_function <- rep(event_function, nt)
   } else {
-    stop("'event' must be a single event or a list of length ", nt)
+    stop("'event_function' must be a single event or a list of length ", nt)
   }
 
   list(tcrit = tcrit,
        is_event = is_event,
-       event = event,
-       event_function = event_function,
+       event = event_function,
+       event_r = event_function_r,
        is_r_target = is_r_target)
 }
 
