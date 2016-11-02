@@ -222,3 +222,45 @@ test_that("interleave events and critical", {
   expect_equal(res2[, -1], t(cmp), tolerance = 1e-5)
   expect_equal(res1[, -1], res2[, -1], tolerance = 1e-5)
 })
+
+test_that("event ordering when stacked", {
+  target <- function(t, y, p) {
+    0
+  }
+  called <- numeric(0)
+  event1 <- function(t, y, p) {
+    called <<- c(called, c(1, t))
+    y
+  }
+  event2 <- function(t, y, p) {
+    called <<- c(called, c(2, t))
+    y
+  }
+
+  te <- c(1, 1)
+  events <- list(event1, event2)
+
+  set.seed(1)
+  y0 <- runif(5)
+  p <- runif(length(y0))
+  tol <- 1e-8
+  tt <- seq(0, 2, length.out = 21) # 5001
+
+  res1 <- dopri(y0, tt, target, p,
+                event_time = te, event_function = events,
+                atol = tol, rtol = tol, return_statistics = TRUE)
+  m <- matrix(called, 2)
+  expect_equal(m[1, ], c(1, 2))
+  expect_equal(m[2, ], te)
+
+  ## And again, with more events:
+  called <- numeric(0)
+  te <- rep(c(0.8, 1.1), each = 4)
+  i <- sample(2, length(te), replace = TRUE)
+  res2 <- dopri(y0, tt, target, p,
+                event_time = te, event_function = events[i],
+                atol = tol, rtol = tol, return_statistics = TRUE)
+  m <- matrix(called, 2)
+  expect_equal(m[1, ], i)
+  expect_equal(m[2, ], te)
+})

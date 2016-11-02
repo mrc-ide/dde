@@ -439,12 +439,12 @@ void dopri_integrate(dopri_data *obj, const double *y,
         reject = false;
       }
       if (stop) {
-        if (obj->is_event[obj->tcrit_idx]) {
-          event_func *event = obj->events[obj->tcrit_idx];
-          event(obj->n, obj->t, obj->y, obj->data);
-        }
         while (obj->tcrit_idx < n_tcrit &&
                obj->sign * tcrit[obj->tcrit_idx] <= obj->sign * obj->t) {
+          if (obj->is_event[obj->tcrit_idx]) {
+            event_func *event = obj->events[obj->tcrit_idx];
+            event(obj->n, obj->t, obj->y, obj->data);
+          }
           obj->tcrit_idx++;
         }
         if (obj->tcrit_idx < obj->n_tcrit &&

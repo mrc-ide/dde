@@ -31,7 +31,11 @@ check_events <- function(time, event, tcrit = NULL, dllname = "") {
     tcrit <- time
     is_event <- rep(TRUE, length(tcrit))
   } else {
-    tcrit <- unique(sort(c(tcrit, time)))
+    ## NOTE: We do want to preserve duplicated times within 'time',
+    ## but filter out those that interact with tcrit.  The other way
+    ## of doing this would be simply to sort all the tcrit times into
+    ## time with no event.
+    tcrit <- sort(c(setdiff(tcrit, time), time))
     is_event <- tcrit %in% time
   }
 
