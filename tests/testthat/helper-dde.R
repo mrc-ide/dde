@@ -159,3 +159,7 @@ drop_attributes <- function(x, keep = c("class", "dim")) {
   attributes(x) <- at[names(at) %in% keep]
   x
 }
+
+make_null_pointer <- function(p) {
+  unserialize(serialize(p, NULL))
+}

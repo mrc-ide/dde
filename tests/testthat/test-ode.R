@@ -422,7 +422,7 @@ test_that("NULL pointer safety", {
   times <- seq(0, 10, length.out=101)
 
   func <- getNativeSymbolInfo("lorenz", PACKAGE="lorenz")
-  func <- unserialize(serialize(func, NULL))
+  func <- make_null_pointer(func)
 
   expect_error(dopri(y, times, func, p), "null pointer")
   expect_error(dopri(y, times, "lorenz", p, output = func, n_out = 2L),

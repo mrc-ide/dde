@@ -276,3 +276,22 @@ test_that("single event", {
                        event_time = 1, event_function = event),
                  "this is an event")
 })
+
+test_that("no crash after serialisation", {
+  dllname <- "growth"
+  target <- "exponential"
+  ## TODO: passing in $address here does not work:
+  event <- getNativeSymbolInfo("double_variables", dllname)
+
+  y0 <- 1
+  p <- 0
+  tt <- seq(0, 2, length.out = 21)
+  res1 <- dopri(y0, tt, target, p, dllname = dllname,
+                event_time = 1, event_function = event)
+  expect_equal(res1[, 2], ifelse(tt > 1.0, 2, 1))
+
+  event0 <- make_null_pointer(event)
+  expect_error(dopri(y0, tt, target, p, dllname = dllname,
+                     event_time = 1, event_function = event0),
+               "Was passed null pointer for events[1]", fixed = TRUE)
+})

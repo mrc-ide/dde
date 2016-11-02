@@ -372,7 +372,7 @@ test_that("restart errors", {
 
   ptr <- attr(res1, "ptr")
   ## Make a NULL pointer:
-  attr(res1, "ptr") <- unserialize(serialize(ptr, NULL))
+  attr(res1, "ptr") <- make_null_pointer(ptr)
   expect_error(dopri_continue(res1, tt2, copy = TRUE),
                "pointer has been freed")
   ## Delete the pointer:
