@@ -180,7 +180,6 @@ test_that("interleave events and critical", {
   event1 <- function(t, y, p) {
     y * 2
   }
-  ## This is not firing...
   event2 <- function(t, y, p) {
     y / 2
   }
@@ -263,4 +262,17 @@ test_that("event ordering when stacked", {
   m <- matrix(called, 2)
   expect_equal(m[1, ], i)
   expect_equal(m[2, ], te)
+})
+
+test_that("single event", {
+  target <- function(t, y, p) {
+    0
+  }
+  event <- function(t, y, p) {
+    message("this is an event")
+    y
+  }
+  expect_message(dopri(0, 0:4, target, NULL,
+                       event_time = 1, event_function = event),
+                 "this is an event")
 })

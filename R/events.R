@@ -76,7 +76,7 @@ check_events <- function(time, event, tcrit = NULL, dllname = "") {
   nt <- length(time)
   ne <- length(event)
   if (ne == nt) {
-    if (is_r_target) {
+    if (is_r_target && ne != 1L) {
       event_function <- events_call_and_advance(event_function)
     }
   } else if (ne == 1L) {
