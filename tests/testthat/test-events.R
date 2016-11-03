@@ -264,6 +264,38 @@ test_that("event ordering when stacked", {
   expect_equal(m[2, ], te)
 })
 
+test_that("events colliding with tcrit", {
+  target <- function(t, y, p) {
+    0
+  }
+  called <- numeric(0)
+  event1 <- function(t, y, p) {
+    called <<- c(called, c(1, t))
+    y
+  }
+  event2 <- function(t, y, p) {
+    called <<- c(called, c(2, t))
+    y
+  }
+  events <- rep(list(event1, event2), 5)
+
+  te <- rep(1:5, each = 2)
+  tcrit <- c(2, 3.5, 4)
+  ans <- check_events(te, events, tcrit)
+  expect_equal(ans$tcrit, sort(c(te, setdiff(tcrit, te))))
+
+  set.seed(1)
+  y0 <- 0
+  p <- NULL
+  tt <- seq(0, 6)
+
+  res <- dopri(y0, tt, target, p,
+               tcrit = tcrit, event_time = te, event_function = events)
+  m <- matrix(called, 2)
+  expect_equal(m[1, ], rep(1:2, 5))
+  expect_equal(m[2, ], te)
+})
+
 test_that("single event", {
   target <- function(t, y, p) {
     0
