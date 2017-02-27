@@ -341,7 +341,7 @@ void dde_r_event_harness(size_t n, double t, double *y, void *data) {
   memcpy(y, REAL(ans), n * sizeof(double));
   SEXP parms_new = getAttrib(ans, install("parms"));
   if (parms_new != R_NilValue) {
-    SET_VECTOR_ELT(d, 1, parms_new);
+    SET_VECTOR_ELT(d, DOPRI_IDX_PARMS, parms_new);
   }
   UNPROTECT(4);
 }

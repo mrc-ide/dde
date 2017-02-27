@@ -340,7 +340,6 @@ void dopri_integrate(dopri_data *obj, const double *y,
       obj->code = ERR_STEP_SIZE_VANISHED;
       break;
     }
-    // TODO: remember to port this over to rlsoda!
     if ((obj->t + 1.01 * h - t_stop) * obj->sign > 0.0) {
       h = t_stop - obj->t;
       stop = true;
