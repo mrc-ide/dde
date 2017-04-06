@@ -19,7 +19,7 @@ Suggests:
     deSolve,
     knitr,
     microbenchmark,
-    rcmdshlib,
+    rcmdshlib (>= 0.0.2),
     rmarkdown,
     testthat
 RoxygenNote: 5.0.1

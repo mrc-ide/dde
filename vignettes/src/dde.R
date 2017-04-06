@@ -16,9 +16,9 @@ output_lang <- function(x, lang) {
 output_r <- function(x) output_lang(x, "r")
 output_c <- function(x) output_lang(x, "c")
 knitr::opts_chunk$set(
-  error=FALSE,
-  fig.width=7,
-  fig.height=5)
+  error = FALSE,
+  fig.width = 7,
+  fig.height = 5)
 set.seed(1)
 
 ## The `dde` package implements solvers for ordinary differential
@@ -359,18 +359,11 @@ tR
 
 ##+ echo = FALSE, results = "hide"
 local({
-  compile_shlib <- function(filename) {
-    owd <- setwd(dirname(filename))
-    on.exit(setwd(owd))
-    dll <-
-      rcmdshlib::shlib(basename(filename), verbose = FALSE)$dll
-    file.path(dirname(filename), dll)
-  }
-
   build <- setdiff(c("seir", "seir_ds"), names(getLoadedDLLs()))
   files <- file.path(dde:::dde_example_path(), sprintf("%s.c", build))
   for (f in files) {
-    dyn.load(compile_shlib(f))
+    dyn.load(rcmdshlib::shlib(f, chdir = TRUE, verbose = FALSE,
+                              warn_on_warning = FALSE)$dll)
   }
 })
 

@@ -146,9 +146,11 @@ prepare_all <- function(reload = FALSE, verbose = FALSE) {
     base <- sub("\\.c$", "", basename(files))
     files <- files[!(base %in% names(getLoadedDLLs()))]
   }
+  not_cran <- Sys.getenv("NOT_CRAN", "") == "true"
   for (f in files) {
     message("*** Building ", basename(f))
-    dyn.load(rcmdshlib::shlib(f, verbose = verbose)$dll)
+    dyn.load(rcmdshlib::shlib(f, verbose = verbose,
+                              warn_on_warning = not_cran)$dll)
   }
 }
 
