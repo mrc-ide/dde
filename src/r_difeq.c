@@ -20,9 +20,15 @@ SEXP r_difeq(SEXP r_y_initial, SEXP r_steps, SEXP r_target, SEXP r_data,
     steps[i] = (size_t) tmp[i];
   }
 
-  // TODO: check for NULL function pointers here to avoid crashes;
-  // also test type?
-  difeq_target *target = (difeq_target*)ptr_fn_get(r_target);
+  difeq_target *target = NULL;
+  if (r_target == R_NilValue) {
+    target = difeq_r_harness;
+  } else {
+    target = (difeq_target*)ptr_fn_get(r_target);
+    if (target == NULL) {
+      Rf_error("Was passed null pointer for 'target'");
+    }
+  }
   void *data = data_pointer(r_data, r_data_is_real);
 
   size_t n_history = (size_t)INTEGER(r_n_history)[0];
@@ -155,8 +161,8 @@ SEXP r_yprev(SEXP r_i, SEXP r_idx) {
 }
 
 void difeq_r_harness(size_t n, size_t step,
-                     double *y, double *ynext,
-                     size_t n_out, double *output, void *data) {
+                     const double *y, double *ynext,
+                     size_t n_out, double *output, const void *data) {
   SEXP d = (SEXP)data;
   SEXP
     target = VECTOR_ELT(d, 0),

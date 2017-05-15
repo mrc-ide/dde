@@ -240,7 +240,7 @@ dopri <- function(y, times, func, parms, ...,
   if (is_r_target) {
     parms_are_real <- FALSE
     parms <- list(func = func, parms = parms, rho = parent.frame())
-    func <- find_function_address("dde_r_harness", "dde")
+    func <- NULL
     if (nzchar(dllname)) {
       stop("dllname must not be given when using an R function for 'func'")
     }
@@ -276,14 +276,13 @@ dopri <- function(y, times, func, parms, ...,
     output <- find_function_address(output, dllname)
     ## NOTE: The same-typedness of output/func is not really
     ## necessary, but I think it's simplest to think about if we
-    ## enforce it.  We should be able to put anything into a harness
-    ## either way.
+    ## enforce it.
     if (is_r_target) {
       if (!is.function(output)) {
         stop("output must be an R function")
       }
       parms[[DOPRI_IDX_OUTPUT]] <- output
-      output <- find_function_address("dde_r_output_harness", "dde")
+      output <- NULL
     } else {
       if (is.function(output)) {
         stop("output must be a compiled function (name or address)")

@@ -83,9 +83,14 @@ SEXP r_dopri(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
     events = (event_func**)R_alloc(n_tcrit, sizeof(event_func*));
     for (size_t i = 0, j = 0; i < n_tcrit; ++i) {
       if (is_event[i]) {
-        events[i] = (event_func*)ptr_fn_get(VECTOR_ELT(r_events, j++));
-        if (events[i] == NULL) {
-          Rf_error("Was passed null pointer for events[%d]", j);
+        SEXP el = VECTOR_ELT(r_events, j++);
+        if (el == R_NilValue) {
+          events[i] = dde_r_event_harness;
+        } else {
+          events[i] = (event_func*)ptr_fn_get(el);
+          if (events[i] == NULL) {
+            Rf_error("Was passed null pointer for events[%d]", j);
+          }
         }
       }
     }
@@ -99,11 +104,14 @@ SEXP r_dopri(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
   // exactly two methods, this is not too bad.
   dopri_method method = INTEGER(r_use_853)[0] ? DOPRI_853 : DOPRI_5;
 
-  // TODO: check for NULL function pointers here to avoid crashes;
-  // also test type?
-  deriv_func *func = (deriv_func*)ptr_fn_get(r_func);
-  if (func == NULL) {
-    Rf_error("Was passed null pointer for 'func'");
+  deriv_func *func = NULL;
+  if (r_func == R_NilValue) {
+    func = dde_r_harness;
+  } else {
+    func = (deriv_func*)ptr_fn_get(r_func);
+    if (func == NULL) {
+      Rf_error("Was passed null pointer for 'func'");
+    }
   }
   void *data = data_pointer(r_data, r_data_is_real);
 
@@ -120,9 +128,13 @@ SEXP r_dopri(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
   double *out = NULL;
   SEXP r_out = R_NilValue;
   if (n_out > 0) {
-    output = (output_func*)ptr_fn_get(r_output);
-    if (output == NULL) {
-      Rf_error("Was passed null pointer for 'output'");
+    if (r_output == R_NilValue) {
+      output = dde_r_output_harness;
+    } else {
+      output = (output_func*)ptr_fn_get(r_output);
+      if (output == NULL) {
+        Rf_error("Was passed null pointer for 'output'");
+      }
     }
     r_out = PROTECT(allocMatrix(REALSXP, n_out, nt));
     out = REAL(r_out);
@@ -296,7 +308,8 @@ SEXP r_ylag(SEXP r_t, SEXP r_idx) {
   return r_y;
 }
 
-void dde_r_harness(size_t n, double t, double *y, double *dydt, void *data) {
+void dde_r_harness(size_t n, double t, const double *y, double *dydt,
+                   const void *data) {
   SEXP d = (SEXP)data;
   SEXP
     target = VECTOR_ELT(d, DOPRI_IDX_TARGET),
@@ -311,8 +324,8 @@ void dde_r_harness(size_t n, double t, double *y, double *dydt, void *data) {
   UNPROTECT(4);
 }
 
-void dde_r_output_harness(size_t n, double t, double *y,
-                          size_t n_out, double *out, void *data) {
+void dde_r_output_harness(size_t n, double t, const double *y,
+                          size_t n_out, double *out, const void *data) {
   SEXP d = (SEXP)data;
   SEXP
     parms = VECTOR_ELT(d, DOPRI_IDX_PARMS),

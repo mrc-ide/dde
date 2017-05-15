@@ -25,6 +25,12 @@ SEXP r_dopri_continue(SEXP r_ptr, SEXP r_y_initial, SEXP r_times,
 SEXP r_dopri_copy(SEXP r_ptr);
 SEXP r_ylag(SEXP r_t, SEXP r_idx);
 
+void dde_r_harness(size_t n, double t, const double *y, double *dydt,
+                   const void *data);
+void dde_r_output_harness(size_t n, double t, const double *y,
+                          size_t n_out, double *out, const void *data);
+void dde_r_event_harness(size_t n, double t, double *y, void *data);
+
 // Internal
 SEXP dopri_ptr_create(dopri_data *obj);
 void dopri_ptr_finalizer(SEXP extPtr);

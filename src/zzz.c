@@ -5,19 +5,20 @@
 #include <R.h>
 #include <Rinternals.h>
 #include <R_ext/Rdynload.h>
+#include <Rversion.h>
 
 static const R_CallMethodDef call_methods[] = {
-  {"Cdopri",          (DL_FUNC) &r_dopri,          24},
-  {"Cdopri_continue", (DL_FUNC) &r_dopri_continue, 10},
-  {"Cdopri_copy",     (DL_FUNC) &r_dopri_copy,      1},
-  {"Cylag",           (DL_FUNC) &r_ylag,            2},
+  {"Cdopri",          (DL_FUNC) &r_dopri,             24},
+  {"Cdopri_continue", (DL_FUNC) &r_dopri_continue,    10},
+  {"Cdopri_copy",     (DL_FUNC) &r_dopri_copy,         1},
+  {"Cylag",           (DL_FUNC) &r_ylag,               2},
 
-  {"Cdifeq",          (DL_FUNC) &r_difeq,          11},
-  {"Cdifeq_continue", (DL_FUNC) &r_difeq_continue,  8},
-  {"Cdifeq_copy",     (DL_FUNC) &r_difeq_copy,      1},
-  {"Cyprev",          (DL_FUNC) &r_yprev,           2},
+  {"Cdifeq",          (DL_FUNC) &r_difeq,             11},
+  {"Cdifeq_continue", (DL_FUNC) &r_difeq_continue,     8},
+  {"Cdifeq_copy",     (DL_FUNC) &r_difeq_copy,         1},
+  {"Cyprev",          (DL_FUNC) &r_yprev,              2},
 
-  {NULL,              NULL,                         0}
+  {NULL,              NULL,                            0}
 };
 
 void R_init_dde(DllInfo *info) {
@@ -35,4 +36,9 @@ void R_init_dde(DllInfo *info) {
 
   // Register C routines to be called from R:
   R_registerRoutines(info, NULL, call_methods, NULL, NULL);
+
+#if defined(R_VERSION) && R_VERSION >= R_Version(3, 3, 0)
+  R_useDynamicSymbols(info, FALSE);
+  R_forceSymbols(info, TRUE);
+#endif
 }

@@ -51,7 +51,7 @@ check_events <- function(event_time, event_function, tcrit = NULL,
       if (!is.function(event)) {
         stop("'event_function' must be an R function")
       }
-      event <- find_function_address("dde_r_event_harness", "dde")
+      event <- NULL
     } else {
       if (is.function(event)) {
         stop("'event_function' must be a compiled function (name or address)")

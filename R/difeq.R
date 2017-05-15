@@ -78,7 +78,7 @@ difeq <- function(y, steps, target, parms, ...,
   if (is_r_target) {
     parms_are_real <- FALSE
     parms <- list(target = target, parms = parms, rho = parent.frame())
-    target <- find_function_address("difeq_r_harness", "dde")
+    target <- NULL
     if (nzchar(dllname)) {
       stop("dllname must not be given when using an R function for 'target'")
     }
