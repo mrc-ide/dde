@@ -16,9 +16,9 @@ output_lang <- function(x, lang) {
 output_r <- function(x) output_lang(x, "r")
 output_c <- function(x) output_lang(x, "c")
 knitr::opts_chunk$set(
-  error=FALSE,
-  fig.width=7,
-  fig.height=5)
+  error = FALSE,
+  fig.width = 7,
+  fig.height = 5)
 set.seed(1)
 ```
 
