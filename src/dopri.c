@@ -537,7 +537,7 @@ double dopri_interpolate_1(const double *history, dopri_method method,
   const double t_old = history[idx_t], h = history[idx_t + 1];
   const double theta = (t - t_old) / h;
   const double theta1 = 1 - theta;
-  double ret;
+  double ret = 0.0;
   switch (method) {
   case DOPRI_5:
     ret = dopri5_interpolate(n, theta, theta1, history + i);
