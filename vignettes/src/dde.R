@@ -363,7 +363,7 @@ local({
     owd <- setwd(dirname(filename))
     on.exit(setwd(owd))
     dll <-
-      rcmdshlib::shlib(basename(filename), quiet = TRUE, verbose = FALSE)$dll
+      rcmdshlib::shlib(basename(filename), verbose = FALSE)$dll
     file.path(dirname(filename), dll)
   }
 
