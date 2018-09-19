@@ -6,23 +6,23 @@ test_that("ode interface", {
   dimnames(m1) <- NULL
 
   m2 <- run_lorenz_dde(tt)
-  expect_equal(m2, m1, tolerance=1e-6)
+  expect_equal(m2, m1, tolerance = 1e-6)
 
   m3 <- run_lorenz_dde(tt, return_minimal = TRUE)
-  expect_equal(t(m3), m1[-1, -1, drop = FALSE], tolerance=1e-6)
+  expect_equal(t(m3), m1[-1, -1, drop = FALSE], tolerance = 1e-6)
   expect_identical(m3, t(m2[-1, -1]))
 })
 
 test_that("integer time input", {
-  tt <- seq(0, 10, by=1)
+  tt <- seq(0, 10, by = 1)
   expect_identical(run_lorenz_dde(as.integer(tt)),
                    run_lorenz_dde(tt))
 })
 
 test_that("zero time difference", {
   tt <- c(0, 0, 1, 1, 2, 2, 2, 3, 3, 3)
-  res1 <- run_lorenz_dde(tt, return_initial=TRUE)
-  res2 <- run_lorenz_dde(unique(tt), return_initial=TRUE)
+  res1 <- run_lorenz_dde(tt, return_initial = TRUE)
+  res2 <- run_lorenz_dde(unique(tt), return_initial = TRUE)
   expect_identical(res1, res2[tapply(tt, tt), ])
 })
 
@@ -30,7 +30,7 @@ test_that("ode, 873 stepper", {
   tt <- seq(0, 1, length.out = 200)
   m5 <- run_lorenz_dde(tt)
   m8 <- run_lorenz_dde(tt, method = "dopri853")
-  expect_equal(m5, m8, tolerance=1e-7)
+  expect_equal(m5, m8, tolerance = 1e-7)
   expect_false(identical(m5, m8))
 })
 
@@ -54,8 +54,8 @@ test_that("dense output", {
     m3 <- dopri_interpolate(h2, tt)
     m4 <- run_lorenz_dde(tt, method = method)
 
-    expect_equal(m3, m4[, -1], tolerance=1e-10)
-    expect_equal(m3, m1[, -1], tolerance=1e-6)
+    expect_equal(m3, m4[, -1], tolerance = 1e-10)
+    expect_equal(m3, m1[, -1], tolerance = 1e-6)
 
     expect_equal(dopri_interpolate(m2, tt), m3)
 
@@ -71,9 +71,9 @@ test_that("dense output", {
     expect_error(dopri_interpolate(h2, tt + 1),
                  "Time falls outside of range of known history")
 
-    expect_error(dopri_interpolate(h2[-1,], tt),
+    expect_error(dopri_interpolate(h2[-1, ], tt),
                  "Corrupt history object")
-    h2 <- h2[-1,]
+    h2 <- h2[-1, ]
     attr(h2, "n") <- 3L
     class(h2) <- "dopri_history"
     expect_error(dopri_interpolate(h2, tt),
@@ -212,8 +212,8 @@ test_that("critical times", {
   }
   tt <- seq(0, 2, length.out = 200)
   res1 <- dopri(1, tt, target, numeric(0), return_statistics = TRUE)
-  res2 <- dopri(1, tt, target, numeric(0), tcrit=1, return_statistics = TRUE)
-  res3 <- dopri(1, tt, target, numeric(0), tcrit=c(-1, 1),
+  res2 <- dopri(1, tt, target, numeric(0), tcrit = 1, return_statistics = TRUE)
+  res3 <- dopri(1, tt, target, numeric(0), tcrit = c(-1, 1),
                 return_statistics = TRUE)
 
   s1 <- attr(res1, "statistics")
@@ -226,17 +226,17 @@ test_that("critical times", {
   expect_is(attr(res1, "step_size"), "numeric")
 
   ## I also need to check a pathology here:
-  res4 <- dopri(1, tt, target, numeric(0), tcrit=c(tt[[1]], 1),
+  res4 <- dopri(1, tt, target, numeric(0), tcrit = c(tt[[1]], 1),
                 return_statistics = TRUE)
   expect_equal(res4, res3)
 
   ## Bunch of pathalogical times:
-  res5 <- dopri(1, tt, target, numeric(0), tcrit=rep(tt[[1]], 3),
+  res5 <- dopri(1, tt, target, numeric(0), tcrit = rep(tt[[1]], 3),
                 return_statistics = TRUE)
   expect_equal(res5, res1)
 
   ## Pile up some times in the middle:
-  res6 <- dopri(1, tt, target, numeric(0), tcrit=rep(1, 3),
+  res6 <- dopri(1, tt, target, numeric(0), tcrit = rep(1, 3),
                 return_statistics = TRUE)
   expect_equal(res4, res3)
 })
@@ -267,9 +267,9 @@ test_that("names", {
   expect_equal(dimnames(dopri(setNames(y0, nms), tt, lorenz, p)), cmp)
   expect_null(dimnames(dopri(setNames(y0, nms), tt, lorenz, p, ynames = FALSE)))
 
-  expect_error(dopri(y0, tt, lorenz, p, ynames=nms[1]),
+  expect_error(dopri(y0, tt, lorenz, p, ynames = nms[1]),
                "ynames must be the same length as y")
-  expect_error(dopri(y0, tt, lorenz, p, ynames=1),
+  expect_error(dopri(y0, tt, lorenz, p, ynames = 1),
                "Invalid value for ynames")
 
   ## Similar for output names:
@@ -410,8 +410,8 @@ test_that("step tuning", {
 test_that("Native Symbol interface", {
   p <- c(10, 28, 8 / 3)
   y <- c(10, 1, 1)
-  times <- seq(0, 10, length.out=101)
-  func <- getNativeSymbolInfo("lorenz", PACKAGE="lorenz")
+  times <- seq(0, 10, length.out = 101)
+  func <- getNativeSymbolInfo("lorenz", PACKAGE = "lorenz")
   y <- dopri(y, times, func, p)
   expect_equal(y, run_lorenz_dde(times, tol = 1e-6))
 })
@@ -419,9 +419,9 @@ test_that("Native Symbol interface", {
 test_that("NULL pointer safety", {
   p <- c(10, 28, 8 / 3)
   y <- c(10, 1, 1)
-  times <- seq(0, 10, length.out=101)
+  times <- seq(0, 10, length.out = 101)
 
-  func <- getNativeSymbolInfo("lorenz", PACKAGE="lorenz")
+  func <- getNativeSymbolInfo("lorenz", PACKAGE = "lorenz")
   func <- make_null_pointer(func)
 
   expect_error(dopri(y, times, func, p), "null pointer")
@@ -448,13 +448,13 @@ test_that("always return history when asked", {
   expect_true(has_history(dopri(y0, tt, growth, r, n_history = 100)))
 
   expect_true(has_history(
-    dopri(y0, tt, growth, r, n_history = 100, return_minimal=TRUE)))
+    dopri(y0, tt, growth, r, n_history = 100, return_minimal = TRUE)))
   expect_true(has_history(
-    dopri(y0, tt, growth, r, n_history = 100, return_by_column=TRUE)))
+    dopri(y0, tt, growth, r, n_history = 100, return_by_column = TRUE)))
   expect_true(has_history(
-    dopri(y0, tt, growth, r, n_history = 100, return_initial=TRUE)))
+    dopri(y0, tt, growth, r, n_history = 100, return_initial = TRUE)))
   expect_true(has_history(
-    dopri(y0, tt, growth, r, n_history = 100, return_time=TRUE)))
+    dopri(y0, tt, growth, r, n_history = 100, return_time = TRUE)))
 
   expect_false(has_statistics(dopri(y0, tt, growth, r)))
   expect_true(has_statistics(dopri(y0, tt, growth, r,
@@ -462,16 +462,16 @@ test_that("always return history when asked", {
 
   expect_true(has_statistics(
     dopri(y0, tt, growth, r, return_statistics = TRUE,
-          return_minimal=TRUE)))
+          return_minimal = TRUE)))
   expect_true(has_statistics(
     dopri(y0, tt, growth, r, return_statistics = TRUE,
-          return_by_column=TRUE)))
+          return_by_column = TRUE)))
   expect_true(has_statistics(
     dopri(y0, tt, growth, r, return_statistics = TRUE,
-          return_initial=TRUE)))
+          return_initial = TRUE)))
   expect_true(has_statistics(
     dopri(y0, tt, growth, r, return_statistics = TRUE,
-          return_time=TRUE)))
+          return_time = TRUE)))
 })
 
 test_that("negative time", {
@@ -497,22 +497,22 @@ test_that("negative time", {
   cmp <- deSolve::ode(y0, tt, function(...) list(growth(...)), r)
   cmp_fwd <- deSolve::ode(y0, -tt, function(...) list(growth(...)), -r)
   expect_equal(unname(cmp[, -1]), real, 5e-6)
-  expect_equal(cmp[, -1], cmp_fwd[, -1], tolerance=1e-16)
+  expect_equal(cmp[, -1], cmp_fwd[, -1], tolerance = 1e-16)
 
   ## and dde:
   res <- dopri(y0, tt, growth, r, n_history = 100)
   res_fwd <- dopri(y0, -tt, growth, -r, n_history = 100)
 
-  expect_equal(res[, -1], res_fwd[, -1], tolerance=1e-16)
+  expect_equal(res[, -1], res_fwd[, -1], tolerance = 1e-16)
 
   ## Interestingly, we do stop at the same points here, so the error
   ## calculation and underlying stepping is probably OK.
   t_idx <- length(y0) * 5 + 1
   h1 <- attr(res, "history")
   h2 <- attr(res_fwd, "history")
-  expect_equal(-h1[t_idx, ], h2[t_idx, ], tolerance=1e-16)
-  expect_equal(-h1[t_idx + 1, ], h2[t_idx + 1, ], tolerance=1e-16)
-  expect_equal(h1[1:20,], h2[1:20,], tolerance=1e-16)
+  expect_equal(-h1[t_idx, ], h2[t_idx, ], tolerance = 1e-16)
+  expect_equal(-h1[t_idx + 1, ], h2[t_idx + 1, ], tolerance = 1e-16)
+  expect_equal(h1[1:20, ], h2[1:20, ], tolerance = 1e-16)
 })
 
 test_that("negative time with tcrit", {
@@ -528,22 +528,22 @@ test_that("negative time with tcrit", {
   y0 <- 1
   y1 <- deSolve::lsoda(y0, tt, function(...) list(target1(...)), numeric())
   y2 <- deSolve::lsoda(y0, -tt, function(...) list(target2(...)), numeric())
-  expect_equal(y1[, 2], y2[, 2], tolerance=1e-16)
+  expect_equal(y1[, 2], y2[, 2], tolerance = 1e-16)
 
   res1a <- dopri(y0, tt,  target1, numeric(0), return_statistics = TRUE)
   res2a <- dopri(y0, -tt, target2, numeric(0), return_statistics = TRUE)
 
   ## Not terribly accurate because of the nasty discontinuity
-  expect_equal(res1a[, 2], y1[, 2], tolerance=1e-4)
+  expect_equal(res1a[, 2], y1[, 2], tolerance = 1e-4)
   ## As above, the dopri solutions should agree well
-  expect_equal(res1a[, 2], res2a[, 2], tolerance=1e-16)
+  expect_equal(res1a[, 2], res2a[, 2], tolerance = 1e-16)
 
   ## Add the critical time in:
   res1b <- dopri(y0, tt,  target1, numeric(0), tcrit = 1,
                  return_statistics = TRUE)
   res2b <- dopri(y0, -tt, target2, numeric(0), tcrit = -1,
                  return_statistics = TRUE)
-  expect_equal(res1b[, 2], res2b[, 2], tolerance=1e-16)
+  expect_equal(res1b[, 2], res2b[, 2], tolerance = 1e-16)
 
   s1a <- attr(res1a, "statistics")
   s2a <- attr(res2a, "statistics")

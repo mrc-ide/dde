@@ -2,11 +2,11 @@ context("dde")
 
 test_that("dde", {
   ## The pre-lag part of the integration
-  tt1 <- seq(0, 14, length.out=101)
+  tt1 <- seq(0, 14, length.out = 101)
   ## Post lag, but the first bit
-  tt2 <- seq(0, 30, length.out=301)
+  tt2 <- seq(0, 30, length.out = 301)
   ## The entire interesting phase
-  tt3 <- seq(0, 200, length.out=301)
+  tt3 <- seq(0, 200, length.out = 301)
 
   yy1 <- run_seir_deSolve(tt1)
   yy2 <- run_seir_deSolve(tt2)
@@ -23,8 +23,8 @@ test_that("dde", {
   }
 
   ## Confirm that different integrators were actually run here:
-  y5 <- run_seir_dde(tt3, return_statistics=TRUE)
-  y8 <- run_seir_dde(tt3, method="dopri853", return_statistics=TRUE)
+  y5 <- run_seir_dde(tt3, return_statistics = TRUE)
+  y8 <- run_seir_dde(tt3, method = "dopri853", return_statistics = TRUE)
   expect_false(identical(y5, y8))
 
   ## The 853 stepper should take fewer steps (though in this case it's
@@ -36,8 +36,8 @@ test_that("dde", {
   expect_lt(s5[["n_eval"]], s8[["n_eval"]])
 
   ## Run again with a critical time at the point the delay starts:
-  y5_2 <- run_seir_dde(tt3, return_statistics=TRUE, tcrit = 14)
-  y8_2 <- run_seir_dde(tt3, method="dopri853", return_statistics=TRUE,
+  y5_2 <- run_seir_dde(tt3, return_statistics = TRUE, tcrit = 14)
+  y8_2 <- run_seir_dde(tt3, method = "dopri853", return_statistics = TRUE,
                        tcrit = 14)
   s5_2 <- attr(y5_2, "statistics")
   s8_2 <- attr(y8_2, "statistics")
@@ -47,7 +47,7 @@ test_that("dde", {
 })
 
 test_that("output", {
-  tt <- seq(0, 200, length.out=301)
+  tt <- seq(0, 200, length.out = 301)
   p <- numeric(0)
   y0 <- c(1e7 - 1, 0, 1, 0)
   res1 <- dopri(y0, tt, "seir", p, n_history = 1000L,
@@ -79,7 +79,7 @@ test_that("output", {
 })
 
 test_that("R interface", {
-  tt <- seq(0, 200, length.out=301)
+  tt <- seq(0, 200, length.out = 301)
   p <- numeric(0)
   y0 <- c(1e7 - 1, 0, 1, 0)
   res1 <- dopri(y0, tt, "seir", p, n_history = 1000L,
@@ -167,7 +167,7 @@ test_that("R interface with output", {
     tau <- t - 2.0
     ylag(tau, 1L)
   }
-  tt <- seq(0, 20, length.out=501)
+  tt <- seq(0, 20, length.out = 501)
   p <- 0.1
   y0 <- c(.1, .1)
   for (method in dopri_methods()) {
@@ -187,7 +187,7 @@ test_that("R interface with output", {
       ## time that causes the discontinutites in the solution and all
       ## the bits that the integration relies on; this should be dealt
       ## with using some sort of discontinuty pruning approach I think.
-      tcrit <- seq(2, 20, by=2)
+      tcrit <- seq(2, 20, by = 2)
       res <- dopri(y0, tt, growth, p,
                    n_out = 1, output = output,
                    n_history = 1000L, return_output_with_y = FALSE,
@@ -198,14 +198,14 @@ test_that("R interface with output", {
     tol <- 1e-7
     i <- tt <= 2.0
     ## The first entry is easy:
-    expect_equal(res[, 2], y0[1] * exp(p * tt), tolerance=tol)
+    expect_equal(res[, 2], y0[1] * exp(p * tt), tolerance = tol)
     ## The second entry is in two parts, and only the first part is easy
     ## (for me) to compute:
-    expect_equal(res[i, 3], y0[2] + y0[2] * p * tt[i], tolerance=tol)
+    expect_equal(res[i, 3], y0[2] + y0[2] * p * tt[i], tolerance = tol)
     ## The output:
     out <- drop(attr(res, "output"))
     expect_equal(out[i], rep(y0[2], sum(i)))
-    expect_equal(out[!i], y0[1] * exp(p * (tt[!i] - 2.0)), tolerance=tol)
+    expect_equal(out[!i], y0[1] * exp(p * (tt[!i] - 2.0)), tolerance = tol)
   }
 })
 
@@ -222,7 +222,7 @@ test_that("delay, negative time", {
   }
 
   set.seed(1)
-  tt <- seq(0, 5, length.out=501)
+  tt <- seq(0, 5, length.out = 501)
   r <- runif(2)
   y0 <- runif(2)
   ih <- seq_len(length(y0) * 5)
@@ -237,8 +237,8 @@ test_that("delay, negative time", {
   res_back <- dopri(y0, -tt, growth0, -r, n_history = 1000L,
                    atol = 1e-8, rtol = 1e-8)
 
-  expect_true(all.equal(res_fwd[, -1], real_fwd, check.attributes=FALSE))
-  expect_true(all.equal(res_back[, -1], real_back, check.attributes=FALSE))
+  expect_true(all.equal(res_fwd[, -1], real_fwd, check.attributes = FALSE))
+  expect_true(all.equal(res_back[, -1], real_back, check.attributes = FALSE))
   expect_identical(attr(res_fwd, "history")[ih, ],
                    attr(res_back, "history")[ih, ])
 
@@ -263,7 +263,7 @@ test_that("delay, negative time", {
 })
 
 test_that("failure to fetch history", {
-  tt <- seq(0, 30, length.out=301)
+  tt <- seq(0, 30, length.out = 301)
   expect_error(run_seir_dde(tt, n_history = 2L),
                "Integration failure: did not find time")
 })
@@ -286,7 +286,7 @@ test_that("Zero lag time", {
   growth <- function(t, y, p) {
     c(y[[1L]], ylag(t, 2L)) * p
   }
-  tt <- seq(0, 20, length.out=501)
+  tt <- seq(0, 20, length.out = 501)
   p <- 0.1
   y0 <- c(.1, .1)
   expect_error(dopri(y0, tt, growth, p, n_history = 1000L),
@@ -298,7 +298,7 @@ test_that("Zero lag time", {
 ## should have been a TRUE/FALSE).  Once this is basically working,
 ## I'll get this going for the difeq version too.
 test_that("restart", {
-  tt <- seq(0, 200, length.out=101)
+  tt <- seq(0, 200, length.out = 101)
   tt1 <- tt[tt < 80]
   tt2 <- tt[tt >= tt1[length(tt1)]]
 
@@ -323,7 +323,7 @@ test_that("restart", {
 })
 
 test_that("restart and copy", {
-  tt <- seq(0, 200, length.out=101)
+  tt <- seq(0, 200, length.out = 101)
   tt1 <- tt[tt < 80]
   tt2 <- tt[tt >= tt1[length(tt1)]]
 
@@ -349,7 +349,7 @@ test_that("restart and copy", {
 })
 
 test_that("restart errors", {
-  tt <- seq(0, 200, length.out=101)
+  tt <- seq(0, 200, length.out = 101)
   tt1 <- tt[tt < 80]
   tt2 <- tt[tt >= tt1[length(tt1)]]
 
@@ -393,7 +393,7 @@ test_that("change y on restart", {
     ylag(t - 2.0)
   }
 
-  tt <- seq(0, 10, length.out=101)
+  tt <- seq(0, 10, length.out = 101)
   tc <- 4
   i1 <- tt <= tc
   i2 <- tt >= tc
@@ -451,7 +451,7 @@ test_that("change y on restart", {
 ## values as multiples of 14 and drop tolerance to 1e-5 you can get as
 ## far as t = 56 before it gives up.
 test_that("stiffness detection", {
-  tt <- seq(0, 200, length.out=301)
+  tt <- seq(0, 200, length.out = 301)
   yy <- run_seir_dde(tt)
   expect_equal(run_seir_dde(tt, stiff_check = 1), yy)
   expect_error(run_seir_dde(tt, method = "dopri853", stiff_check = 1),

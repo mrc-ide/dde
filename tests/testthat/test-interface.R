@@ -109,7 +109,7 @@ test_that("Missing output function", {
 test_that("Zero history in a lag model", {
   growth <- function(t, y, p) y
   output <- function(t, y, p) ylag(t - 2.0)
-  tt <- seq(0, 10, length.out=101)
+  tt <- seq(0, 10, length.out = 101)
   expect_error(dopri(1, tt, growth, NULL, n_out = 1, output = output),
                "Integration failure: can't use ylag in model with no history")
 })

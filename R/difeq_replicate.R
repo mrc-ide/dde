@@ -46,7 +46,7 @@ difeq_replicate <- function(n, y, ..., as_array = TRUE) {
   ## sized and named array (with zero in the last dimension) but it
   ## seems weird to me.  For the non-simplified case it's not so bad
   ## because we can just return a zero-length list.
-  assert_positive(n)
+  assert_positive_integer(n)
 
   varying_initial_state <- is.list(y)
 

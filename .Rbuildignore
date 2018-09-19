@@ -19,3 +19,4 @@
 ^update_web\.sh$
 ^src/*\.gcda$
 ^src/*\.gcno$
+^\.lintr$

@@ -17,6 +17,7 @@ check_ynames <- function(y, ynames) {
   ynames
 }
 
+
 check_outnames <- function(n_out, outnames) {
   if (!is.null(outnames)) {
     if (is.character(outnames)) {
@@ -29,6 +30,7 @@ check_outnames <- function(n_out, outnames) {
   }
   outnames
 }
+
 
 prepare_output <- function(ret, times, ynames, outnames, has_output,
                            return_by_column, return_initial,
@@ -50,7 +52,7 @@ prepare_output <- function(ret, times, ynames, outnames, has_output,
     at <- attributes(ret)
     if (return_time) {
       time <- matrix(if (return_initial) times else times[-1L], 1L,
-                     dimnames=if (named) list(time_name, NULL) else NULL)
+                     dimnames = if (named) list(time_name, NULL) else NULL)
     } else {
       time <- NULL
     }
@@ -81,6 +83,7 @@ prepare_output <- function(ret, times, ynames, outnames, has_output,
 
   ret
 }
+
 
 find_function_address <- function(fun, dllname = "") {
   if (is.character(fun)) {

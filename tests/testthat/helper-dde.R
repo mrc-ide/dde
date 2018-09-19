@@ -22,7 +22,7 @@ run_lorenz_deSolve <- function(times, tol = 1e-7) {
   R     <- 28.0
   b     <-  8.0 / 3.0
 
-  initial <- function(t=0, pars=NULL) {
+  initial <- function(t = 0, pars = NULL) {
     c(10, 1, 1)
   }
 
@@ -47,15 +47,15 @@ run_seir_deSolve <- function(times, tol = 1e-7) {
   lat_hum <- 14
   I0 <- 1
 
-  Births <- N*b
+  Births <- N * b
   ## i.e. proportion of humans surviving the latent period
-  surv <- exp(-b*lat_hum)
+  surv <- exp(-b * lat_hum)
 
   t0 <- NULL
   y0 <- NULL
   lag <- NULL
 
-  initial <- function(t=0, pars=NULL) {
+  initial <- function(t = 0, pars = NULL) {
     if ("I0" %in% names(pars)) {
       I0 <<- pars$I0
     }
@@ -72,7 +72,7 @@ run_seir_deSolve <- function(times, tol = 1e-7) {
     R <- y[[4L]]
 
     ## people developing latent infection
-    new_inf <- beta*S*I/N
+    new_inf <- beta * S * I / N
 
     ## people that become latent 'lat_hum' days ago, less those that
     ## died during that time
@@ -126,7 +126,7 @@ run_seir_dde <- function(times, tol = 1e-7, return_history = FALSE, ...,
 cleanup_objects <- function() {
   dirs <- c(".", dde_example_path())
   for (d in dirs) {
-    files <- dir(d, pattern="\\.(o|so|dll)$", full.names = TRUE)
+    files <- dir(d, pattern = "\\.(o|so|dll)$", full.names = TRUE)
     if (length(files) > 0L) {
       file.remove(files)
     }

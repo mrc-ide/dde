@@ -343,16 +343,20 @@ dopri <- function(y, times, func, parms, ...,
   ret
 }
 
+
 ##' @export
 ##' @rdname dopri
 dopri5 <- function(y, times, func, parms, ...) {
-  dopri(y, times, func, parms, ..., method="dopri5")
+  dopri(y, times, func, parms, ..., method = "dopri5")
 }
+
+
 ##' @export
 ##' @rdname dopri
 dopri853 <- function(y, times, func, parms, ...) {
-  dopri(y, times, func, parms, ..., method="dopri853")
+  dopri(y, times, func, parms, ..., method = "dopri853")
 }
+
 
 ##' @export
 ##' @rdname dopri
@@ -408,9 +412,10 @@ dopri_continue <- function(obj, times, y = NULL, ...,
 
   ## TODO: make this work as restartable
   prepare_output(ret, times, dat$ynames, dat$outnames, dat$has_output,
-                 return_by_column, return_initial, return_time, return_output_with_y,
-                 "time")
+                 return_by_column, return_initial, return_time,
+                 return_output_with_y, "time")
 }
+
 
 ##' Interpolate the Dormand-Prince output after an integration.  This
 ##' only interpolates the core integration variables and not any
@@ -516,7 +521,7 @@ dopri_interpolate <- function(h, t) {
   h5 <- history[, 5L, ]
   if (order == 5) {
     for (i in seq_len(nd)) {
-      ret[, i] = h1[i, idx] + theta *
+      ret[, i] <- h1[i, idx] + theta *
         (h2[i, idx] + theta1 *
          (h3[i, idx] + theta *
           (h4[i, idx] + theta1 *
@@ -542,6 +547,7 @@ dopri_interpolate <- function(h, t) {
   ret
 }
 
+
 ##' @export
 print.dopri_history <- function(x, ...) {
   nd <- attr(x, "n") # number of equations
@@ -555,6 +561,7 @@ print.dopri_history <- function(x, ...) {
   cat(sprintf("  - entries: %d\n", nh))
   cat(sprintf("  - order: %d\n", order))
 }
+
 
 ##' @export
 ##' @rdname dopri
@@ -571,9 +578,11 @@ ylag <- function(t, i = NULL) {
   .Call(Cylag, t, i)
 }
 
+
 dopri_methods <- function() {
   c("dopri5", "dopri853")
 }
+
 
 DOPRI_IDX_TARGET <- 1L
 DOPRI_IDX_PARMS <- 2L

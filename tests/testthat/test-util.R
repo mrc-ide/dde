@@ -20,7 +20,7 @@ test_that("assertions work", {
   expect_error(assert_scalar_character(NA_character_), "must not be NA")
 
   expect_error(match_value("a", c("b", "c")),
-               "must be one of {b, c}", fixed=TRUE)
+               "must be one of {b, c}", fixed = TRUE)
 
   expect_error(assert_numeric("a"), "must be numeric")
   expect_error(assert_numeric(TRUE), "must be numeric")

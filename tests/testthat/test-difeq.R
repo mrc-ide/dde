@@ -265,7 +265,7 @@ test_that("vector output (R)", {
   j <- seq_len(length(y0) + 1)
   expect_equal(attr(res2, "history")[j, ], h[j, ])
 
-  expect_equal(res2, cmp2, check.attributes=FALSE)
+  expect_equal(res2, cmp2, check.attributes = FALSE)
   expect_equal(attr(res2, "output"), cmp2 + 1)
 
   ## NOTE: At the moment the status of output within history is a bit
