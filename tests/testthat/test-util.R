@@ -27,4 +27,7 @@ test_that("assertions work", {
   expect_error(assert_scalar_numeric(NA_real_), "must not be NA")
   expect_error(assert_scalar_numeric(c(1, 2)), "must be a scalar")
   expect_silent(assert_numeric(1L))
+
+  expect_error(assert_positive(0L), "must be positive")
+  expect_silent(assert_positive(1L))
 })

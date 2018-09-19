@@ -53,9 +53,25 @@ assert_size <- function(x, strict=FALSE, name=deparse(substitute(x))) {
   assert_nonnegative(x, name)
 }
 
+
+assert_positive_integer <- function(x, strict=FALSE,
+                                    name=deparse(substitute(x))) {
+  assert_scalar(x, name)
+  assert_integer(x, strict, name)
+  assert_nonmissing(x, name)
+  assert_positive(x, name)
+}
+
+
 assert_nonnegative <- function(x, name=deparse(substitute(x))) {
   if (x < 0) {
     stop(sprintf("%s must be nonnegative", name), call.=FALSE)
+  }
+}
+
+assert_positive <- function(x, name=deparse(substitute(x))) {
+  if (x <= 0) {
+    stop(sprintf("%s must be positive", name), call.=FALSE)
   }
 }
 
@@ -68,6 +84,15 @@ assert_integer <- function(x, strict=FALSE, name=deparse(substitute(x))) {
     }
   }
 }
+
+
+assert_length <- function(x, n, name = deparse(substitute(x))) {
+  if (length(x) != n) {
+    stop(sprintf("'%s' must have %d elements (recieved %d)",
+                 name, n, length(x)), call. = FALSE)
+  }
+}
+
 
 match_value <- function(x, choices, name=deparse(substitute(x))) {
   assert_scalar_character(x, name)
