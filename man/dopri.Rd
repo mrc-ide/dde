@@ -257,4 +257,3 @@ computational time (especially the transpose).  The shorthand
 option \code{return_minimal} will set all to \code{FALSE} when
 used.
 }
-

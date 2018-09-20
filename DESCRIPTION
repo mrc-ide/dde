@@ -21,6 +21,6 @@ Suggests:
     rcmdshlib (>= 0.0.2),
     rmarkdown,
     testthat
-RoxygenNote: 5.0.1
+RoxygenNote: 6.0.1
 VignetteBuilder: knitr
 Encoding: UTF-8

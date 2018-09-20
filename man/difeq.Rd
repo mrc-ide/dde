@@ -152,4 +152,3 @@ return all the elements or a vector longer than one.}
 Solve a difference (or recurrence) equation by iterating it a
 number of times.
 }
-

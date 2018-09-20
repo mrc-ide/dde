@@ -74,4 +74,3 @@ plot(yy[, c(1, 3)], type="l")
 \author{
 Rich FitzJohn
 }
-
