@@ -378,6 +378,24 @@ test_that("externalptr input", {
   expect_identical(res, cmp)
 })
 
+test_that("externalptr target", {
+  y0 <- runif(5)
+  r <- runif(length(y0))
+  i <- 0:11
+  cmp <- difeq(y0, i, "logistic", r, dllname = "logistic")
+  ptr <- getNativeSymbolInfo("logistic", PACKAGE = "logistic")
+  expect_identical(difeq(y0, i, ptr, r), cmp)
+})
+
+test_that("externalptr target safety", {
+  y0 <- runif(5)
+  r <- runif(length(y0))
+  i <- 0:11
+  ptr <- getNativeSymbolInfo("logistic", PACKAGE = "logistic")
+  expect_error(difeq(y0, i, make_null_pointer(ptr), r),
+               "Was passed null pointer for 'target'")
+})
+
 test_that("grow history", {
   rhs <- function(i, y, p) {
     y + p
