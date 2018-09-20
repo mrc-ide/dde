@@ -378,6 +378,17 @@ test_that("externalptr input", {
   expect_identical(res, cmp)
 })
 
+test_that("externalptr input safety", {
+  y0 <- runif(5)
+  r <- runif(length(y0))
+  i <- 0:11
+  ptr <- .Call("logistic_init",  r, PACKAGE = "logistic2")
+  expect_error(difeq(y0, i, "logistic", make_null_pointer(ptr),
+                     parms_are_real = FALSE,
+                     dllname = "logistic2"),
+               "Was passed null pointer for 'parms'")
+})
+
 test_that("externalptr target", {
   y0 <- runif(5)
   r <- runif(length(y0))

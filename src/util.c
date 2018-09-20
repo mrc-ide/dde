@@ -73,6 +73,11 @@ void * data_pointer(SEXP r_data, SEXP r_data_is_real) {
     data = (void*) REAL(r_data);
   } else if (TYPEOF(r_data) == EXTPTRSXP) {
     data = R_ExternalPtrAddr(r_data);
+    if (data == NULL) {
+      // NOTE: in the underlying interface this will have come in as
+      // 'parms', not 'data'.
+      Rf_error("Was passed null pointer for 'parms'");
+    }
   } else {
     data = (void*) r_data;
   }
