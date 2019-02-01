@@ -10,7 +10,7 @@
 ##' of solving the ODE and this can incur a small but measurable cost.
 ##' When solving an ODE repeatedly (e.g., in the context of an MCMC or
 ##' optimisation) it may be useful to do as little as possible.  For
-##' simple problems this can save around 5-10% of the total
+##' simple problems this can save around 5-10\% of the total
 ##' computational time (especially the transpose).  The shorthand
 ##' option \code{return_minimal} will set all to \code{FALSE} when
 ##' used.
