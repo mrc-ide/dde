@@ -141,7 +141,7 @@ difeq <- function(y, steps, target, parms, ...,
 ##'   before continuing.  If \code{TRUE}, this is non-destructive with
 ##'   respect to the data in the original pointer so the problem can
 ##'   be restarted multiple times.  By default this is \code{FALSE}
-##'   becaue there is a (potentially very small) cost to this
+##'   because there is a (potentially very small) cost to this
 ##'   operation.
 difeq_continue <- function(obj, steps, y = NULL, ...,
                            copy = FALSE,

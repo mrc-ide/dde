@@ -32,7 +32,7 @@ set.seed(1)
 ## where delays are on the order of the step size (vanishing delays)
 ## are difficult to solve.
 ##
-## This package is aimed at solving nonstiff ODEs and DDEs with simple
+## This package is aimed at solving non-stiff ODEs and DDEs with simple
 ## delays.
 ##
 ## The `deSolve` package already allows for solving delay differential
@@ -163,7 +163,7 @@ all.equal(yy2, yy[, -1], check.attributes = FALSE)
 ## This is a simple SEIR (Susceptible - Exposed - Infected -
 ## Resistant) model from epidemiology.  Once exposed to the disease,
 ## an individual exists in an "Exposed" state for exactly 14 days
-## before beoming "Infected" (you could model this with a series of
+## before becoming "Infected" (you could model this with a series of
 ## compartments and get a distribution of exposed times).
 seir <- function(t, y, p) {
   b <- 0.1
@@ -226,7 +226,7 @@ seir <- function(t, y, p) {
 ## going to be reasonable for many applications but will lead to
 ## discontinuities in the *derivative* of your solution (and the
 ## second derivative and so on).  This can make the problem hard to
-## solve, and it may be prefereable to provide your own information
+## solve, and it may be preferable to provide your own information
 ## (see the deSolve implementation below for one possible way of
 ## implementing this).
 
@@ -364,7 +364,7 @@ tR
   lapply(files, dde:::shlib, "dde_")
 })
 
-## The compiled code inteface for `deSolve` has greatly influenced
+## The compiled code interface for `deSolve` has greatly influenced
 ## `dde` and models implemented in either framework will be similar.
 ## Eventually `dde` may support a fully `deSolve` compatible interface
 ## but for now there are a few differences.
@@ -382,7 +382,7 @@ output_c(readLines(system.file("examples/seir_ds.c", package = "dde")))
 ##   an argument `double *yout` for additional output variables (of
 ##   length `*ip`; in `dde` these are handled via a separate function.
 ## * The lagvalue function must be explicitly defined (which requires
-##   loading some R-related headers (in `dde` this is achived by
+##   loading some R-related headers (in `dde` this is achieved by
 ##   including `<dde/dde.h>` and `<dde/dde.c>`.
 ##
 ## Apart from these logicstical differences, the model definition
@@ -400,7 +400,7 @@ all.equal(zz_ds, yy_ds, check.attributes = FALSE)
 all.equal(zz_dde, yy_dde, check.attributes = FALSE)
 
 ## Here, the timings are even closer and have dropped from on the
-## order of 20 milliseconds to 0.5 millseconds; so we're getting a
+## order of 20 milliseconds to 0.5 milliseconds; so we're getting a
 ## ~40x speed up from using compiled code.
 tC <- microbenchmark::microbenchmark(
   deSolve = deSolve::dede(y0, tt, "seir_deSolve", initial,

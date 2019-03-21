@@ -224,7 +224,7 @@ in time (unless \code{copy = TRUE}, and that the incoming time
 before continuing.  If \code{TRUE}, this is non-destructive with
 respect to the data in the original pointer so the problem can
 be restarted multiple times.  By default this is \code{FALSE}
-becaue there is a (potentially very small) cost to this
+because there is a (potentially very small) cost to this
 operation.}
 
 \item{t}{The time to access (not that this is not an offset,
