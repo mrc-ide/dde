@@ -357,7 +357,7 @@ tR
 
 ## ### Models implemented in C
 
-##+ echo = FALSE, results = "hide"
+##+ include = FALSE
 .dlls <- local({
   build <- sprintf("%s.c", c("seir", "seir_ds"))
   files <- file.path(dde:::dde_example_path(), build)
@@ -369,7 +369,7 @@ tR
 ## Eventually `dde` may support a fully `deSolve` compatible interface
 ## but for now there are a few differences.
 
-##+ echo=FALSE, results="asis"
+##+ echo = FALSE, results = "asis"
 output_c(readLines(system.file("examples/seir_ds.c", package = "dde")))
 
 ## This looks very similar to the `dde` version above but:

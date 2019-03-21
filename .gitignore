@@ -17,4 +17,6 @@ src/*.gcda
 src/*.gcno
 inst/doc
 vignettes/*.html
+vignettes/*.md
+vignettes/figure
 inst/web

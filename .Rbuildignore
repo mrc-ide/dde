@@ -20,3 +20,4 @@
 ^src/*\.gcda$
 ^src/*\.gcno$
 ^\.lintr$
+^vignettes/figure$

@@ -11,7 +11,10 @@ shlib <- function(filename, prefix) {
   path <- tempfile()
   dir.create(path, FALSE, TRUE)
   file.copy(filename, path)
-  writeLines("PKG_CFLAGS = -I${DDE_INCLUDE} -g", file.path(path, "Makevars"))
+
+  makevars <- sprintf("PKG_CFLAGS = -I%s -g",
+                      system.file("include", package = "dde"))
+  writeLines(makevars, file.path(path, "Makevars"))
 
   Sys.setenv(R_TESTS = "")
   owd <- setwd(path)
