@@ -21,3 +21,5 @@
 ^src/*\.gcno$
 ^\.lintr$
 ^vignettes/figure$
+^scripts$
+^docs$

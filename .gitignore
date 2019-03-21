@@ -20,3 +20,4 @@ vignettes/*.html
 vignettes/*.md
 vignettes/figure
 inst/web
+docs

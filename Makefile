@@ -62,10 +62,9 @@ vignettes: vignettes/dde.Rmd
 	mkdir -p inst/doc
 	cp vignettes/*.html vignettes/*.Rmd inst/doc
 
-staticdocs:
-	@mkdir -p inst/staticdocs
-	${RSCRIPT} -e "library(methods); staticdocs::build_site()"
-	rm -f vignettes/*.html
-	@rmdir inst/staticdocs
-website: staticdocs
-	./update_web.sh
+pkgdown:
+	${RSCRIPT} -e "library(methods); pkgdown::build_site()"
+	rm -f README.html
+
+website: pkgdown
+	./scripts/update_web.sh
