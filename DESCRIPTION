@@ -1,6 +1,6 @@
 Package: dde
 Title: Solve Delay Differential Equations
-Version: 0.0.6
+Version: 0.0.7
 Author: Rich FitzJohn
 Maintainer: Rich FitzJohn <rich.fitzjohn@gmail.com>
 Description: Solves delay differential equations, where objective
@@ -10,7 +10,6 @@ Description: Solves delay differential equations, where objective
 License: MIT + file LICENSE
 URL: https://github.com/richfitz/dde
 BugReports: https://github.com/richfitz/dde/issues
-Depends: R (>= 3.0.2)
 LinkingTo: ring (>= 1.0.0)
 Suggests:
     deSolve,
