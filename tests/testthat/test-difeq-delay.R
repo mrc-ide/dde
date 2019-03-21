@@ -174,7 +174,7 @@ test_that("integer lag", {
                return_history = FALSE, return_step = FALSE)
   expect_equal(res, cmp)
 
-  res <- difeq(y0, i, "growth", p, n_history = 2L, dllname = "growth_int",
+  res <- difeq(y0, i, "growth", p, n_history = 2L, dllname = "dde_growth_int",
                return_history = FALSE, return_step = FALSE)
   expect_equal(res, cmp)
 })

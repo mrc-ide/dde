@@ -1,6 +1,7 @@
 context("ode")
 
 test_that("ode interface", {
+  skip_if_not_installed("deSolve")
   tt <- seq(0, 1, length.out = 200)
   m1 <- run_lorenz_deSolve(tt)
   dimnames(m1) <- NULL
@@ -35,6 +36,7 @@ test_that("ode, 873 stepper", {
 })
 
 test_that("dense output", {
+  skip_if_not_installed("deSolve")
   tt <- seq(0, 1, length.out = 200)
   m1 <- run_lorenz_deSolve(tt)
   dimnames(m1) <- NULL
@@ -87,8 +89,8 @@ test_that("output", {
   p <- c(10, 28, 8 / 3)
   y0 <- c(10, 1, 1)
 
-  res1 <- dopri(y0, tt, "lorenz", p, dllname = "lorenz")
-  res2 <- dopri(y0, tt, "lorenz", p, dllname = "lorenz",
+  res1 <- dopri(y0, tt, "lorenz", p, dllname = "dde_lorenz")
+  res2 <- dopri(y0, tt, "lorenz", p, dllname = "dde_lorenz",
                 return_output_with_y = FALSE,
                 n_out = 2L, output = "lorenz_output")
 
@@ -101,14 +103,14 @@ test_that("output", {
   attr(res2, "output") <- NULL
   expect_identical(res1, res2)
 
-  res3 <- dopri(y0, tt, "lorenz", p, dllname = "lorenz",
+  res3 <- dopri(y0, tt, "lorenz", p, dllname = "dde_lorenz",
                 n_out = 2L, output = "lorenz_output",
                 return_output_with_y = FALSE, return_by_column = FALSE)
   expect_equal(attr(res3, "output"), t(output))
   attr(res3, "output") <- NULL
   expect_identical(res3, t(res2))
 
-  res4 <- dopri(y0, tt, "lorenz", p, dllname = "lorenz",
+  res4 <- dopri(y0, tt, "lorenz", p, dllname = "dde_lorenz",
                 n_out = 2L, output = "lorenz_output",
                 return_by_column = FALSE, return_output_with_y = TRUE)
   expect_null(attr(res4, "output"))
@@ -116,7 +118,7 @@ test_that("output", {
   expect_equal(res4[1:4, ], res3, check.attributes = FALSE)
   expect_equal(res4[5:6, ], t(output), check.attributes = FALSE)
 
-  res5 <- dopri(y0, tt, "lorenz", p, dllname = "lorenz",
+  res5 <- dopri(y0, tt, "lorenz", p, dllname = "dde_lorenz",
                 n_out = 2L, output = "lorenz_output",
                 return_by_column = FALSE, return_output_with_y = TRUE,
                 return_time = FALSE, return_initial = FALSE)
@@ -132,18 +134,18 @@ test_that("keep initial", {
   p <- c(10, 28, 8 / 3)
   y0 <- c(10, 1, 1)
 
-  res1 <- dopri(y0, tt, "lorenz", p, dllname = "lorenz",
+  res1 <- dopri(y0, tt, "lorenz", p, dllname = "dde_lorenz",
                 return_initial = TRUE)
-  res2 <- dopri(y0, tt, "lorenz", p, dllname = "lorenz",
+  res2 <- dopri(y0, tt, "lorenz", p, dllname = "dde_lorenz",
                 return_initial = FALSE)
   expect_equal(nrow(res1), length(tt))
   expect_identical(res1[1, -1], y0)
   expect_identical(res1[-1, ], res2)
 
-  res3 <- dopri(y0, tt, "lorenz", p, dllname = "lorenz",
+  res3 <- dopri(y0, tt, "lorenz", p, dllname = "dde_lorenz",
                 n_out = 2L, output = "lorenz_output", return_initial = TRUE,
                 return_output_with_y = FALSE)
-  res4 <- dopri(y0, tt, "lorenz", p, dllname = "lorenz",
+  res4 <- dopri(y0, tt, "lorenz", p, dllname = "dde_lorenz",
                 n_out = 2L, output = "lorenz_output", return_initial = FALSE,
                 return_output_with_y = FALSE)
   expect_equal(nrow(res3), length(tt))
@@ -161,10 +163,10 @@ test_that("keep initial", {
   expect_identical(res3[1, -1], y0)
   expect_identical(res3[-1, ], res4)
 
-  res5 <- dopri(y0, tt, "lorenz", p, dllname = "lorenz",
+  res5 <- dopri(y0, tt, "lorenz", p, dllname = "dde_lorenz",
                 n_out = 2L, output = "lorenz_output", return_initial = TRUE,
                 return_output_with_y = TRUE)
-  res6 <- dopri(y0, tt, "lorenz", p, dllname = "lorenz",
+  res6 <- dopri(y0, tt, "lorenz", p, dllname = "dde_lorenz",
                 n_out = 2L, output = "lorenz_output", return_initial = FALSE,
                 return_output_with_y = TRUE)
   expect_null(attr(res5, "output"))
@@ -192,11 +194,11 @@ test_that("R interface", {
   }
 
   tt <- seq(0, 1, length.out = 200)
-  res1 <- dopri(y0, tt, "lorenz", p, dllname = "lorenz")
+  res1 <- dopri(y0, tt, "lorenz", p, dllname = "dde_lorenz")
   res2 <- dopri(y0, tt, lorenz, p)
   expect_equal(res1, res2, tolerance = 1e-10)
 
-  res3 <- dopri(y0, tt, "lorenz", p, dllname = "lorenz",
+  res3 <- dopri(y0, tt, "lorenz", p, dllname = "dde_lorenz",
                 n_out = 2L, output = "lorenz_output")
   res4 <- dopri(y0, tt, lorenz, p, n_out = 2L, output = lorenz_output)
   expect_equal(res3, res4, tolerance = 1e-10)
@@ -411,7 +413,7 @@ test_that("Native Symbol interface", {
   p <- c(10, 28, 8 / 3)
   y <- c(10, 1, 1)
   times <- seq(0, 10, length.out = 101)
-  func <- getNativeSymbolInfo("lorenz", PACKAGE = "lorenz")
+  func <- getNativeSymbolInfo("lorenz", PACKAGE = "dde_lorenz")
   y <- dopri(y, times, func, p)
   expect_equal(y, run_lorenz_dde(times, tol = 1e-6))
 })
@@ -421,7 +423,7 @@ test_that("NULL pointer safety", {
   y <- c(10, 1, 1)
   times <- seq(0, 10, length.out = 101)
 
-  func <- getNativeSymbolInfo("lorenz", PACKAGE = "lorenz")
+  func <- getNativeSymbolInfo("lorenz", PACKAGE = "dde_lorenz")
   func <- make_null_pointer(func)
 
   expect_error(dopri(y, times, func, p), "null pointer")
@@ -475,6 +477,7 @@ test_that("always return history when asked", {
 })
 
 test_that("negative time", {
+  skip_if_not_installed("deSolve")
   growth <- function(t, y, p) {
     y * p
   }
@@ -516,6 +519,7 @@ test_that("negative time", {
 })
 
 test_that("negative time with tcrit", {
+  skip_if_not_installed("deSolve")
   target1 <- function(t, y, p) {
     if (t <= 1) y else -5 * y
   }
@@ -571,7 +575,7 @@ test_that("non-real input", {
   y <- c(10, 1, 1)
   res <- dopri(y, tt, "lorenz", p, atol = 1e-7, rtol = 1e-7,
                parms_are_real = FALSE,
-               dllname = "lorenz2")
+               dllname = "dde_lorenz2")
   expect_identical(res, cmp)
 })
 
@@ -579,12 +583,12 @@ test_that("externalptr input", {
   tt <- seq(0, 10, length.out = 101)
   cmp <- run_lorenz_dde(tt)
 
-  ptr <- .Call("lorenz_init",  c(10, 28, 8 / 3), PACKAGE = "lorenz3")
+  ptr <- .Call("lorenz_init",  c(10, 28, 8 / 3), PACKAGE = "dde_lorenz3")
   expect_is(ptr, "externalptr")
   y <- c(10, 1, 1)
   res <- dopri(y, tt, "lorenz", ptr, atol = 1e-7, rtol = 1e-7,
                parms_are_real = FALSE,
-               dllname = "lorenz3")
+               dllname = "dde_lorenz3")
   expect_identical(res, cmp)
 })
 

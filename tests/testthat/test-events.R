@@ -9,7 +9,7 @@ test_that("change variables", {
   }
   target_c <- "exponential"
   event_c <- "double_variables"
-  dllname <- "growth"
+  dllname <- "dde_growth"
 
   set.seed(1)
   y0 <- runif(5)
@@ -69,7 +69,7 @@ test_that("change parameters", {
 
   target_c <- "linear"
   event_c <- "double_parameters"
-  dllname <- "growth"
+  dllname <- "dde_growth"
 
   set.seed(1)
   y0 <- runif(5)
@@ -144,7 +144,7 @@ test_that("vector of events", {
   target_c <- "exponential"
   event_c1 <- "double_variables"
   event_c2 <- "halve_variables"
-  dllname <- "growth"
+  dllname <- "dde_growth"
 
   set.seed(1)
   y0 <- runif(5)
@@ -310,7 +310,7 @@ test_that("single event", {
 })
 
 test_that("no crash after serialisation", {
-  dllname <- "growth"
+  dllname <- "dde_growth"
   target <- "exponential"
   ## TODO: passing in $address here does not work:
   event <- getNativeSymbolInfo("double_variables", dllname)
@@ -346,7 +346,7 @@ test_that("error cases", {
   expect_error(dopri(0, 0:4, target, NULL,
                      event_time = 1, event_function = "double_variables"),
                "'event_function' must be an R function")
-  expect_error(dopri(0, 0:4, "exponential", NULL, dllname = "growth",
+  expect_error(dopri(0, 0:4, "exponential", NULL, dllname = "dde_growth",
                      event_time = 1, event_function = event),
                "'event_function' must be a compiled function")
   expect_error(dopri(0, 0:4, target, NULL,

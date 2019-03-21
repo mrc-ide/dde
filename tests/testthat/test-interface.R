@@ -8,11 +8,11 @@ test_that("invalid args", {
     y * p
   }
 
-  expect_error(dopri(y, times, "lorenz", p, dllname = "lorenz",
+  expect_error(dopri(y, times, "lorenz", p, dllname = "dde_lorenz",
                      unknown = 1),
                "Invalid dot arguments")
 
-  res <- dopri(y, times, "lorenz", p, dllname = "lorenz",
+  res <- dopri(y, times, "lorenz", p, dllname = "dde_lorenz",
                restartable = TRUE)
   times2 <- seq(1, 2, length.out = 11)
   expect_error(dopri_continue(res, times2, unknown = 1),
@@ -30,7 +30,7 @@ test_that("R function with dllname", {
     sum(y)
   }
 
-  expect_error(dopri(y, times, growth, p, dllname = "lorenz",
+  expect_error(dopri(y, times, growth, p, dllname = "dde_lorenz",
                      n_out = 1, output = total),
                "dllname must not be given")
 })
@@ -46,7 +46,7 @@ test_that("R function with dllname", {
     sum(y)
   }
 
-  expect_error(dopri(y, times, "lorenz", p, dllname = "lorenz",
+  expect_error(dopri(y, times, "lorenz", p, dllname = "dde_lorenz",
                      n_out = 1, output = total),
                "output must be a compiled function")
   expect_error(dopri(y, times, growth, p,
@@ -65,7 +65,7 @@ test_that("output with no n_out", {
     sum(y)
   }
 
-  expect_error(dopri(y, times, "lorenz", p, dllname = "lorenz",
+  expect_error(dopri(y, times, "lorenz", p, dllname = "dde_lorenz",
                      output = "lorenz_output"),
                "n_out must be specified")
   expect_error(dopri(y, times, growth, p,
@@ -77,13 +77,13 @@ test_that("helpers", {
   p <- c(10, 28, 8 / 3)
   y <- c(10, 1, 1)
   times <- seq(0, 1, length.out = 11)
-  expect_identical(dopri5(y, times, "lorenz", p, dllname = "lorenz"),
-                   dopri(y, times, "lorenz", p, dllname = "lorenz"))
-  expect_identical(dopri5(y, times, "lorenz", p, dllname = "lorenz"),
-                   dopri(y, times, "lorenz", p, dllname = "lorenz",
+  expect_identical(dopri5(y, times, "lorenz", p, dllname = "dde_lorenz"),
+                   dopri(y, times, "lorenz", p, dllname = "dde_lorenz"))
+  expect_identical(dopri5(y, times, "lorenz", p, dllname = "dde_lorenz"),
+                   dopri(y, times, "lorenz", p, dllname = "dde_lorenz",
                          method = "dopri5"))
-  expect_identical(dopri853(y, times, "lorenz", p, dllname = "lorenz"),
-                   dopri(y, times, "lorenz", p, dllname = "lorenz",
+  expect_identical(dopri853(y, times, "lorenz", p, dllname = "dde_lorenz"),
+                   dopri(y, times, "lorenz", p, dllname = "dde_lorenz",
                          method = "dopri853"))
 })
 

@@ -1,6 +1,6 @@
 ## This needs to be run *before* running the model to avoid the solver
 ## unlocking problem in deSolve.
-loadNamespace("deSolve")
+requireNamespace("deSolve", quietly = TRUE)
 
 ## Workaround for a devtools bug (not sure if new bug or old bug)
 if (nzchar(system.file("include", package = "dde"))) {
@@ -112,7 +112,7 @@ run_lorenz_dde <- function(times, tol = 1e-7, ...) {
   p <- c(10, 28, 8 / 3)
   y <- c(10, 1, 1)
   dopri(y, times, "lorenz", p, atol = tol, rtol = tol, ...,
-        dllname = "lorenz")
+        dllname = "dde_lorenz")
 }
 
 run_seir_dde <- function(times, tol = 1e-7, return_history = FALSE, ...,
@@ -120,7 +120,7 @@ run_seir_dde <- function(times, tol = 1e-7, return_history = FALSE, ...,
   p <- numeric(0)
   y0 <- c(1e7 - 1, 0, 1, 0)
   dopri(y0, times, "seir", p, atol = tol, rtol = tol, n_history = n_history,
-        dllname = "seir", return_history = return_history, ...)
+        dllname = "dde_seir", return_history = return_history, ...)
 }
 
 cleanup_objects <- function() {
@@ -134,27 +134,11 @@ cleanup_objects <- function() {
   invisible()
 }
 
-.first_time <- TRUE
-prepare_all <- function(reload = FALSE, verbose = FALSE) {
-  if (.first_time || reload) {
-    cleanup_objects()
-    .first_time <- FALSE
-  }
+.dlls <- local({
   dirs <- c(".", dde_example_path())
   files <- unlist(lapply(dirs, dir, pattern = "\\.c$", full.names = TRUE))
-  if (!reload) {
-    base <- sub("\\.c$", "", basename(files))
-    files <- files[!(base %in% names(getLoadedDLLs()))]
-  }
-  not_cran <- Sys.getenv("NOT_CRAN", "") == "true"
-  for (f in files) {
-    message("*** Building ", basename(f))
-    dyn.load(rcmdshlib::shlib(f, verbose = verbose,
-                              warn_on_warning = not_cran)$dll)
-  }
-}
-
-prepare_all()
+  lapply(files, dde:::shlib, "dde_")
+})
 
 drop_attributes <- function(x, keep = c("class", "dim")) {
   at <- attributes(x)

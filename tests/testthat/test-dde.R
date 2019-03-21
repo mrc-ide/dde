@@ -1,6 +1,7 @@
 context("dde")
 
 test_that("dde", {
+  skip_if_not_installed("deSolve")
   ## The pre-lag part of the integration
   tt1 <- seq(0, 14, length.out = 101)
   ## Post lag, but the first bit
@@ -51,12 +52,12 @@ test_that("output", {
   p <- numeric(0)
   y0 <- c(1e7 - 1, 0, 1, 0)
   res1 <- dopri(y0, tt, "seir", p, n_history = 1000L,
-                dllname = "seir", return_history = FALSE)
+                dllname = "dde_seir", return_history = FALSE)
   expect_equal(names(attributes(res1)), "dim")
 
   res2 <- dopri(y0, tt, "seir", p, n_history = 1000L,
                 n_out = 1L, output = "seir_output",
-                dllname = "seir", return_history = FALSE,
+                dllname = "dde_seir", return_history = FALSE,
                 return_output_with_y = FALSE)
 
   output <- attr(res2, "output")
@@ -69,7 +70,7 @@ test_that("output", {
   ## Corner case with the first output entry
   res3 <- dopri(y0, tt, "seir", p, n_history = 1000L,
                 n_out = 1L, output = "seir_output",
-                dllname = "seir", return_history = FALSE,
+                dllname = "dde_seir", return_history = FALSE,
                 return_initial = FALSE, return_output_with_y = FALSE)
   m3 <- res3[]
   attr(m3, "output") <- NULL
@@ -83,7 +84,7 @@ test_that("R interface", {
   p <- numeric(0)
   y0 <- c(1e7 - 1, 0, 1, 0)
   res1 <- dopri(y0, tt, "seir", p, n_history = 1000L,
-                dllname = "seir", return_history = FALSE)
+                dllname = "dde_seir", return_history = FALSE)
 
   seir <- function(t, y, p) {
     b <- 1.0 / 10.0
@@ -274,9 +275,9 @@ test_that("ylag_vec_int", {
   y0 <- c(1e7 - 1, 0, 1, 0)
   for (method in dopri_methods()) {
     cmp <- dopri(y0, times, "seir", p, n_history = 1000L, method = method,
-                 dllname = "seir")
+                 dllname = "dde_seir")
     res <- dopri(y0, times, "seir", p, n_history = 1000L, method = method,
-                 dllname = "seir_int")
+                 dllname = "dde_seir_int")
     expect_equal(cmp, res, tolerance = 1e-8)
   }
 })

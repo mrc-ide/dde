@@ -358,13 +358,10 @@ tR
 ## ### Models implemented in C
 
 ##+ echo = FALSE, results = "hide"
-local({
-  build <- setdiff(c("seir", "seir_ds"), names(getLoadedDLLs()))
-  files <- file.path(dde:::dde_example_path(), sprintf("%s.c", build))
-  for (f in files) {
-    dyn.load(rcmdshlib::shlib(f, chdir = TRUE, verbose = FALSE,
-                              warn_on_warning = FALSE)$dll)
-  }
+.dlls <- local({
+  build <- sprintf("%s.c", c("seir", "seir_ds"))
+  files <- file.path(dde:::dde_example_path(), build)
+  lapply(files, dde:::shlib, "dde_")
 })
 
 ## The compiled code inteface for `deSolve` has greatly influenced
@@ -393,8 +390,8 @@ output_c(readLines(system.file("examples/seir_ds.c", package = "dde")))
 initial <- c(0.0, y0[[1]], y0[[3]])
 
 zz_ds <- deSolve::dede(y0, tt, "seir_deSolve", initial,
-                       initfunc = "seir_initmod", dllname = "seir_ds")
-zz_dde <- dde::dopri(y0, tt, "seir", numeric(), dllname = "seir",
+                       initfunc = "seir_initmod", dllname = "dde_seir_ds")
+zz_dde <- dde::dopri(y0, tt, "seir", numeric(), dllname = "dde_seir",
                      n_history = 1000L, return_history = FALSE)
 
 ## Check that outputs of these models are the same as the R version
@@ -407,8 +404,8 @@ all.equal(zz_dde, yy_dde, check.attributes = FALSE)
 ## ~40x speed up from using compiled code.
 tC <- microbenchmark::microbenchmark(
   deSolve = deSolve::dede(y0, tt, "seir_deSolve", initial,
-                          initfunc = "seir_initmod", dllname = "seir_ds"),
-  dde = dde::dopri(y0, tt, "seir", numeric(), dllname = "seir",
+                          initfunc = "seir_initmod", dllname = "dde_seir_ds"),
+  dde = dde::dopri(y0, tt, "seir", numeric(), dllname = "dde_seir",
                    n_history = 1000L, return_history = FALSE))
 tC
 
@@ -430,9 +427,18 @@ tC
 ptr <- getNativeSymbolInfo("seir")
 tC2 <- microbenchmark::microbenchmark(
   deSolve = deSolve::dede(y0, tt, "seir_deSolve", initial,
-                          initfunc = "seir_initmod", dllname = "seir_ds"),
-  dde = dde::dopri(y0, tt, "seir", numeric(), dllname = "seir",
+                          initfunc = "seir_initmod", dllname = "dde_seir_ds"),
+  dde = dde::dopri(y0, tt, "seir", numeric(), dllname = "dde_seir",
                    n_history = 1000L, return_history = FALSE),
   dde2 = dde::dopri(y0, tt, ptr, numeric(), n_history = 1000L,
                     return_history = FALSE, return_minimal = TRUE))
 tC2
+
+
+##+ include = FALSE
+for (x in .dlls) {
+  tryCatch({
+    dyn.unload(x$dll)
+    unlink(x$tmp, recursive = TRUE)
+  }, error = function(e) NULL)
+}

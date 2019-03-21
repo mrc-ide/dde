@@ -228,7 +228,7 @@ test_that("logistic", {
   i <- 0:20
 
   cmp <- difeq(y0, i, logistic, r)
-  res <- difeq(y0, i, "logistic", r, dllname = "logistic")
+  res <- difeq(y0, i, "logistic", r, dllname = "dde_logistic")
   expect_equal(res, cmp)
 })
 
@@ -304,7 +304,7 @@ test_that("error conditions", {
   expect_error(difeq_continue(res, i + 1, unknown = TRUE),
                "Invalid dot arguments")
 
-  expect_error(difeq(y0, i, rhs, p, dllname = "logistic"),
+  expect_error(difeq(y0, i, rhs, p, dllname = "dde_logistic"),
                "dllname must not be given")
 
   expect_error(difeq(y0, (-5):(-1), rhs, p),
@@ -368,12 +368,12 @@ test_that("externalptr input", {
   r <- runif(length(y0))
   i <- 0:11
 
-  cmp <- difeq(y0, i, "logistic", r, dllname = "logistic")
+  cmp <- difeq(y0, i, "logistic", r, dllname = "dde_logistic")
 
-  ptr <- .Call("logistic_init",  r, PACKAGE = "logistic2")
+  ptr <- .Call("logistic_init",  r, PACKAGE = "dde_logistic2")
   expect_is(ptr, "externalptr")
   res <- difeq(y0, i, "logistic", ptr, parms_are_real = FALSE,
-               dllname = "logistic2")
+               dllname = "dde_logistic2")
 
   expect_identical(res, cmp)
 })
@@ -382,10 +382,10 @@ test_that("externalptr input safety", {
   y0 <- runif(5)
   r <- runif(length(y0))
   i <- 0:11
-  ptr <- .Call("logistic_init",  r, PACKAGE = "logistic2")
+  ptr <- .Call("logistic_init",  r, PACKAGE = "dde_logistic2")
   expect_error(difeq(y0, i, "logistic", make_null_pointer(ptr),
                      parms_are_real = FALSE,
-                     dllname = "logistic2"),
+                     dllname = "dde_logistic2"),
                "Was passed null pointer for 'parms'")
 })
 
@@ -393,8 +393,8 @@ test_that("externalptr target", {
   y0 <- runif(5)
   r <- runif(length(y0))
   i <- 0:11
-  cmp <- difeq(y0, i, "logistic", r, dllname = "logistic")
-  ptr <- getNativeSymbolInfo("logistic", PACKAGE = "logistic")
+  cmp <- difeq(y0, i, "logistic", r, dllname = "dde_logistic")
+  ptr <- getNativeSymbolInfo("logistic", PACKAGE = "dde_logistic")
   expect_identical(difeq(y0, i, ptr, r), cmp)
 })
 
@@ -402,7 +402,7 @@ test_that("externalptr target safety", {
   y0 <- runif(5)
   r <- runif(length(y0))
   i <- 0:11
-  ptr <- getNativeSymbolInfo("logistic", PACKAGE = "logistic")
+  ptr <- getNativeSymbolInfo("logistic", PACKAGE = "dde_logistic")
   expect_error(difeq(y0, i, make_null_pointer(ptr), r),
                "Was passed null pointer for 'target'")
 })
