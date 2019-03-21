@@ -3,10 +3,15 @@ Title: Solve Delay Differential Equations
 Version: 0.0.7
 Author: Rich FitzJohn
 Maintainer: Rich FitzJohn <rich.fitzjohn@gmail.com>
-Description: Solves delay differential equations, where objective
-    functions are written in compiled code.  The approach is based off
-    of a similar integrator due to Hairer, and uses the Dormand-Prince
-    dense output stepper.
+
+Description: Solves ordinary and delay differential equations, where
+    the objective funtion is written in either R or C.  Suitable only
+    for non-stiff equations, the solver uses a 'Dormand-Prince' method
+    that allows interpolation of the solution at any point.  This
+    approach is as described by Hairer in <Hairer, Norsett and Wanner
+    1993, Solving Ordinary Differential Equations I. Nonstiff
+    Problems. 2nd Edition, Springer Verlag>.  Support is also included
+    for iterating difference equations.
 License: MIT + file LICENSE
 URL: https://github.com/richfitz/dde
 BugReports: https://github.com/richfitz/dde/issues
