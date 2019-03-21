@@ -15,6 +15,7 @@ src/dde.so.dSYM
 tests/testthat/*.so.dSYM
 src/*.gcda
 src/*.gcno
+src/*.gcov
 inst/doc
 vignettes/*.html
 vignettes/*.md

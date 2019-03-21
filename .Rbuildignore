@@ -17,8 +17,9 @@
 ^tests/testthat/.*\.so\.dSYM$
 ^inst/web$
 ^update_web\.sh$
-^src/*\.gcda$
-^src/*\.gcno$
+^src/.*\.gcda$
+^src/.*\.gcno$
+^src/.*\.gcov$
 ^\.lintr$
 ^vignettes/figure$
 ^scripts$
