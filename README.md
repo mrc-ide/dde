@@ -28,3 +28,9 @@ The interface is fairly different to the deSolve interface.  A `deSolve` compati
 ## Discrete time models
 
 Solving discrete time equations is much simpler; you don't have much choice but just to iterate the model.  The package implements this efficiently for compiled models, and also allows models to reference their previous history.
+
+## License
+
+MIT + file LICENSE © [Rich FitzJohn](https://github.com/richfitz).
+
+Please note that this project is released with a [Contributor Code of Conduct](CONDUCT.md). By participating in this project you agree to abide by its terms.
