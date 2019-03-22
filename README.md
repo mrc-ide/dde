@@ -1,6 +1,6 @@
 # dde
 
-[![Project Status: WIP - Initial development is in progress, but there has not yet been a stable, usable release suitable for the public.](http://www.repostatus.org/badges/latest/wip.svg)](http://www.repostatus.org/#wip)
+[![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 [![Travis-CI Build Status](https://travis-ci.org/richfitz/dde.svg?branch=master)](https://travis-ci.org/richfitz/dde)
 [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/richfitz/dde?branch=master&svg=true)](https://ci.appveyor.com/project/richfitz/dde)
 [![codecov.io](https://codecov.io/github/richfitz/dde/coverage.svg?branch=master)](https://codecov.io/github/richfitz/dde?branch=master)
