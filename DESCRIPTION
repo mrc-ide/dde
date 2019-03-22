@@ -7,10 +7,9 @@ Description: Solves ordinary and delay differential equations, where
     the objective funtion is written in either R or C.  Suitable only
     for non-stiff equations, the solver uses a 'Dormand-Prince' method
     that allows interpolation of the solution at any point.  This
-    approach is as described by Hairer in <Hairer, Norsett and Wanner
-    1993, Solving Ordinary Differential Equations I. Nonstiff
-    Problems. 2nd Edition, Springer Verlag>.  Support is also included
-    for iterating difference equations.
+    approach is as described by Hairer, Norsett and Wanner (1993)
+    <ISBN:3540604529>.  Support is also included for iterating
+    difference equations.
 License: MIT + file LICENSE
 URL: https://github.com/mrc-ide/dde
 BugReports: https://github.com/mrc-ide/dde/issues
