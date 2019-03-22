@@ -1,9 +1,9 @@
 # dde
 
 [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
-[![Travis-CI Build Status](https://travis-ci.org/richfitz/dde.svg?branch=master)](https://travis-ci.org/richfitz/dde)
+[![Travis-CI Build Status](https://travis-ci.org/mrc-ide/dde.svg?branch=master)](https://travis-ci.org/mrc-ide/dde)
 [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/richfitz/dde?branch=master&svg=true)](https://ci.appveyor.com/project/richfitz/dde)
-[![codecov.io](https://codecov.io/github/richfitz/dde/coverage.svg?branch=master)](https://codecov.io/github/richfitz/dde?branch=master)
+[![codecov.io](https://codecov.io/github/mrc-ide/dde/coverage.svg?branch=master)](https://codecov.io/github/mrc-ide/dde?branch=master)
 
 This package solves ordinary differential equations (ODEs), delay differential equations (DDEs) and discrete-time *difference* (or recursion) equations, perhaps involving delays.
 
@@ -23,7 +23,7 @@ To store the history without using ever-growing (or just huge) amounts of memory
 
 These solvers are suitable only for nonstiff problems.
 
-The interface is fairly different to the deSolve interface.  A `deSolve` compatible interface may be provided later (see [this issue](https://github.com/richfitz/dde/issues/2)).
+The interface is fairly different to the deSolve interface.  A `deSolve` compatible interface may be provided later (see [this issue](https://github.com/mrc-ide/dde/issues/2)).
 
 ## Discrete time models
 
