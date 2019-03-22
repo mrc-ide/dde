@@ -123,17 +123,6 @@ run_seir_dde <- function(times, tol = 1e-7, return_history = FALSE, ...,
         dllname = "dde_seir", return_history = return_history, ...)
 }
 
-cleanup_objects <- function() {
-  dirs <- c(".", dde_example_path())
-  for (d in dirs) {
-    files <- dir(d, pattern = "\\.(o|so|dll)$", full.names = TRUE)
-    if (length(files) > 0L) {
-      file.remove(files)
-    }
-  }
-  invisible()
-}
-
 .dlls <- local({
   dirs <- c(".", dde_example_path())
   files <- unlist(lapply(dirs, dir, pattern = "\\.c$", full.names = TRUE))
