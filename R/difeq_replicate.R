@@ -36,6 +36,15 @@
 ##'   though using these is not yet supported.
 ##'
 ##' @export
+##' @examples
+##'
+##' # Here is a really simple equation that does a random walk with
+##' # steps that are normally distributed:
+##' rhs <- function(i, y, p) y + runif(1)
+##' y0 <- 1
+##' t <- 0:10
+##' p <- 5
+##' dde::difeq_replicate(10, y0, t, rhs, p)
 difeq_replicate <- function(n, y, ..., as_array = TRUE) {
   ## It's possible that this could be made slightly more efficient by
   ## shifting the allocations all the way into C but that can be done

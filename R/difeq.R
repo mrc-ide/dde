@@ -52,6 +52,16 @@
 ##'
 ##' @inheritParams dopri
 ##' @export
+##' @examples
+##'
+##' # Here is a really simple equation that just increases by 'p' each
+##' # time (p is the parameter vector and could be any R structure).
+##' rhs <- function(i, y, p) y + p
+##'
+##' y0 <- 1
+##' t <- 0:10
+##' p <- 5
+##' dde::difeq(y0, t, rhs, p)
 difeq <- function(y, steps, target, parms, ...,
                   n_out = 0L, n_history = 0L, grow_history = FALSE,
                   return_history = n_history > 0,

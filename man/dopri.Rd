@@ -259,3 +259,28 @@ computational time (especially the transpose).  The shorthand
 option \code{return_minimal} will set all to \code{FALSE} when
 used.
 }
+\examples{
+
+# The lorenz attractor:
+lorenz <- function(t, y, p) {
+  sigma <- p[[1L]]
+  R <- p[[2L]]
+  b <- p[[3L]]
+  c(sigma * (y[[2L]] - y[[1L]]),
+    R * y[[1L]] - y[[2L]] - y[[1L]] * y[[3L]],
+    -b * y[[3L]] + y[[1L]] * y[[2L]])
+}
+
+p <- c(10, 28, 8 / 3)
+y0 <- c(10, 1, 1)
+
+tt <- seq(0, 100, length.out = 40000)
+y <- dde::dopri(y0, tt, lorenz, p, return_time = FALSE)
+plot(y[, c(1, 3)], type = "l", lwd = 0.5, col = "#00000066")
+}
+\seealso{
+\code{\link{dopri_interpolate}} which can be used to
+  efficiently sample from output of \code{dopri}, and the package
+  vignette which shows in more detail how to solve delay
+  differential equations and to use compiled objective functions.
+}

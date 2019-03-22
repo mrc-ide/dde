@@ -64,12 +64,12 @@ y
 # 1000 steps over the full range:
 tt <- seq(0, 50, length.out = 1000)
 yy <- dopri_interpolate(y, tt)
-plot(yy[, c(1, 3)], type="l")
+plot(yy[, c(1, 3)], type = "l")
 
 # Then for 50000
 tt <- seq(0, 50, length.out = 50000)
 yy <- dopri_interpolate(y, tt)
-plot(yy[, c(1, 3)], type="l")
+plot(yy[, c(1, 3)], type = "l")
 }
 \author{
 Rich FitzJohn

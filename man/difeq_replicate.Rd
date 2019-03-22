@@ -44,3 +44,13 @@ the effect that has on the random number stream).  Logic around
 naming output may change in future too; note that varying names in
 the \code{y} here will have some unexpected behaviours.
 }
+\examples{
+
+# Here is a really simple equation that does a random walk with
+# steps that are normally distributed:
+rhs <- function(i, y, p) y + runif(1)
+y0 <- 1
+t <- 0:10
+p <- 5
+dde::difeq_replicate(10, y0, t, rhs, p)
+}

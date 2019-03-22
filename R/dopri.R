@@ -203,6 +203,30 @@
 ##'   deSolve.  This might change in future.
 ##'
 ##' @export
+##'
+##' @seealso \code{\link{dopri_interpolate}} which can be used to
+##'   efficiently sample from output of \code{dopri}, and the package
+##'   vignette which shows in more detail how to solve delay
+##'   differential equations and to use compiled objective functions.
+##'
+##' @examples
+##'
+##' # The lorenz attractor:
+##' lorenz <- function(t, y, p) {
+##'   sigma <- p[[1L]]
+##'   R <- p[[2L]]
+##'   b <- p[[3L]]
+##'   c(sigma * (y[[2L]] - y[[1L]]),
+##'     R * y[[1L]] - y[[2L]] - y[[1L]] * y[[3L]],
+##'     -b * y[[3L]] + y[[1L]] * y[[2L]])
+##' }
+##'
+##' p <- c(10, 28, 8 / 3)
+##' y0 <- c(10, 1, 1)
+##'
+##' tt <- seq(0, 100, length.out = 40000)
+##' y <- dde::dopri(y0, tt, lorenz, p, return_time = FALSE)
+##' plot(y[, c(1, 3)], type = "l", lwd = 0.5, col = "#00000066")
 dopri <- function(y, times, func, parms, ...,
                   n_out = 0L, output = NULL,
                   rtol = 1e-6, atol = 1e-6,
@@ -474,12 +498,12 @@ dopri_continue <- function(obj, times, y = NULL, ...,
 ##' # 1000 steps over the full range:
 ##' tt <- seq(0, 50, length.out = 1000)
 ##' yy <- dopri_interpolate(y, tt)
-##' plot(yy[, c(1, 3)], type="l")
+##' plot(yy[, c(1, 3)], type = "l")
 ##'
 ##' # Then for 50000
 ##' tt <- seq(0, 50, length.out = 50000)
 ##' yy <- dopri_interpolate(y, tt)
-##' plot(yy[, c(1, 3)], type="l")
+##' plot(yy[, c(1, 3)], type = "l")
 dopri_interpolate <- function(h, t) {
   if (!inherits(h, "dopri_history")) {
     h <- attr(h, "history", exact = TRUE)

@@ -153,3 +153,14 @@ return all the elements or a vector longer than one.}
 Solve a difference (or recurrence) equation by iterating it a
 number of times.
 }
+\examples{
+
+# Here is a really simple equation that just increases by 'p' each
+# time (p is the parameter vector and could be any R structure).
+rhs <- function(i, y, p) y + p
+
+y0 <- 1
+t <- 0:10
+p <- 5
+dde::difeq(y0, t, rhs, p)
+}
