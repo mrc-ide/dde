@@ -613,3 +613,22 @@ test_that("grow history", {
   expect_equal(h, attr(cmp, "history"))
   expect_equal(s, attr(cmp, "statistics"))
 })
+
+
+test_that("initial derivative validation", {
+  deriv <- function(t, y, p) {
+    dy <- rep(1, length(y))
+    if (length(p) > 0L) {
+      dy[p] <- NA_real_
+    }
+    dy
+  }
+
+  tt <- c(0, 1)
+  y0 <- rep(1, 10)
+
+  expect_error(dopri(y0, tt, deriv, 1),
+               "non-finite derivative at initial time for element 1")
+  expect_error(dopri(y0, tt, deriv, 4:9),
+               "non-finite derivative at initial time for element 4")
+})

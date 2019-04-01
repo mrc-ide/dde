@@ -502,7 +502,7 @@ double dopri_h_init(dopri_data *obj) {
 
   // NOTE: This is destructive with respect to most of the information
   // in the object; in particular k2, k3 will be modified.
-  double *f0 = obj->k[0], *f1 = obj->k[1], *y1 = obj->k[2];
+  double *f0 = obj->k[0];
 
   // Compute a first guess for explicit Euler as
   //   h = 0.01 * norm (y0) / norm (f0)
@@ -518,6 +518,7 @@ double dopri_h_init(dopri_data *obj) {
     1e-6 : sqrt(norm_y / norm_f) * 0.01;
   h = copysign(fmin(h, obj->step_size_max), obj->sign);
 
+  double *f1 = obj->k[1], *y1 = obj->k[2];
   // Perform an explicit Euler step
   for (size_t i = 0; i < obj->n; ++i) {
     y1[i] = obj->y[i] + h * f0[i];
