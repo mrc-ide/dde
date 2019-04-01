@@ -320,6 +320,13 @@ void dopri_integrate(dopri_data *obj, const double *y,
   obj->target(obj->n, obj->t, obj->y, obj->k[0], obj->data); // y => k1
   obj->n_eval++;
 
+  for (size_t i = 0; i < obj->n; ++i) {
+    if (!R_FINITE(obj->k[0][i])) {
+      Rf_error("non-finite derivative at initial time for element %d\n",
+               i + 1);
+    }
+  }
+
   // Work out the initial step size:
   double h = dopri_h_init(obj);
   double h_save = 0.0;
@@ -506,7 +513,8 @@ double dopri_h_init(dopri_data *obj) {
     norm_f += square(f0[i] / sk);
     norm_y += square(obj->y[i]  / sk);
   }
-  double h = (norm_f <= 1e-10 || norm_f <= 1e-10) ?
+
+  double h = (norm_f <= 1e-10 || norm_y <= 1e-10) ?
     1e-6 : sqrt(norm_y / norm_f) * 0.01;
   h = copysign(fmin(h, obj->step_size_max), obj->sign);
 

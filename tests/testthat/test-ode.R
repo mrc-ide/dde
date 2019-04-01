@@ -409,6 +409,13 @@ test_that("step tuning", {
                "step size too small")
 })
 
+test_that("integrate function with no absolute error", {
+  deriv <- function(t, y, p) {
+    1
+  }
+  expect_equal(drop(dopri(0, c(0, 1), deriv, 0, return_minimal = TRUE)), 1)
+})
+
 test_that("Native Symbol interface", {
   p <- c(10, 28, 8 / 3)
   y <- c(10, 1, 1)
