@@ -370,7 +370,6 @@ test_that("minimal mode", {
   names(y0) <- letters[1:3]
 
   res1 <- dopri(y0, tt, lorenz, p)
-  res1 <- dopri(y0, tt, lorenz, p, verbose = TRUE)
   res2 <- dopri(y0, tt, lorenz, p, return_minimal = TRUE)
 
   expect_equal(dim(res1), c(length(tt), 4))
