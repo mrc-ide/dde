@@ -370,6 +370,7 @@ test_that("minimal mode", {
   names(y0) <- letters[1:3]
 
   res1 <- dopri(y0, tt, lorenz, p)
+  res1 <- dopri(y0, tt, lorenz, p, verbose = TRUE)
   res2 <- dopri(y0, tt, lorenz, p, return_minimal = TRUE)
 
   expect_equal(dim(res1), c(length(tt), 4))
@@ -631,4 +632,27 @@ test_that("initial derivative validation", {
                "non-finite derivative at initial time for element 1")
   expect_error(dopri(y0, tt, deriv, 4:9),
                "non-finite derivative at initial time for element 4")
+})
+
+
+test_that("verbose mode prints trace", {
+  p <- c(10, 28, 8 / 3)
+  y0 <- c(10, 1, 1)
+
+  lorenz <- function(t, y, p) {
+    sigma <- p[[1L]]
+    R <- p[[2L]]
+    b <- p[[3L]]
+    c(sigma * (y[[2L]] - y[[1L]]),
+      R * y[[1L]] - y[[2L]] - y[[1L]] * y[[3L]],
+      -b * y[[3L]] + y[[1L]] * y[[2L]])
+  }
+
+  tt <- seq(0, 1, length.out = 200)
+  names(y0) <- letters[1:3]
+
+  expect_silent(ans1 <- dopri(y0, tt, lorenz, p))
+  expect_output(ans2 <- dopri(y0, tt, lorenz, p, verbose = TRUE),
+                "t: .+, h: .+, accept: (yes|no)\n")
+  expect_identical(ans1, ans2)
 })

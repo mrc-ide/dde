@@ -106,6 +106,9 @@
 ##'   especially for delay equations with the 853 method (in my
 ##'   limited experience with it).
 ##'
+##' @param verbose Be verbose, and print information about each step.
+##'   This may be useful for learning about models that misbehave.
+##'
 ##' @param n_history Number of history points to retain.  This needs
 ##'   to be greater than zero for delay differential equations to
 ##'   work.  Alternatively, this may be greater than zero to return
@@ -235,6 +238,7 @@ dopri <- function(y, times, func, parms, ...,
                   tcrit = NULL, event_time = NULL, event_function = NULL,
                   method = "dopri5",
                   stiff_check = 0,
+                  verbose = FALSE,
                   n_history = 0, grow_history = FALSE,
                   return_history = n_history > 0, dllname = "",
                   parms_are_real = TRUE,
@@ -281,6 +285,7 @@ dopri <- function(y, times, func, parms, ...,
   assert_size(n_history)
 
   assert_scalar_logical(grow_history)
+  assert_scalar_logical(verbose)
   assert_scalar_logical(return_history)
   assert_scalar_logical(parms_are_real)
   assert_scalar_logical(return_by_column)
@@ -341,7 +346,7 @@ dopri <- function(y, times, func, parms, ...,
                ## Critical and events
                as.numeric(tcrit), is_event, event,
                ## Other:
-               use_853, as.integer(stiff_check),
+               use_853, as.integer(stiff_check), verbose,
                ## Return information:
                as.integer(n_history), grow_history, return_history,
                return_initial, return_statistics, restartable)

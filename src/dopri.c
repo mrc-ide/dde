@@ -8,7 +8,8 @@ dopri_data* dopri_data_alloc(deriv_func* target, size_t n,
                              output_func* output, size_t n_out,
                              void *data,
                              dopri_method method,
-                             size_t n_history, bool grow_history) {
+                             size_t n_history, bool grow_history,
+                             bool verbose) {
   dopri_data *ret = (dopri_data*) R_Calloc(1, dopri_data);
   overflow_action on_overflow =
     grow_history ? OVERFLOW_GROW : OVERFLOW_OVERWRITE;
@@ -26,6 +27,8 @@ dopri_data* dopri_data_alloc(deriv_func* target, size_t n,
   ret->n_times = 0;
   ret->times = NULL;
   ret->tcrit = NULL;
+
+  ret->verbose = verbose;
 
   // tcrit variables are set in reset
 
@@ -89,7 +92,7 @@ dopri_data* dopri_data_copy(const dopri_data* obj) {
   dopri_data* ret = dopri_data_alloc(obj->target, obj->n,
                                      obj->output, obj->n_out,
                                      obj->data, obj->method,
-                                     n_history, grow_history);
+                                     n_history, grow_history, obj->verbose);
   // Then update a few things
   ret->t0 = obj->t0;
   ret->t  = obj->t;
@@ -377,8 +380,13 @@ void dopri_integrate(dopri_data *obj, const double *y,
     // Error estimation:
     double err = dopri_error(obj);
     double h_new = dopri_h_new(obj, fac_old, h, err);
+    const bool accept = err <= 1;
 
-    if (err <= 1) {
+    if (obj->verbose) {
+      Rprintf("t: %f, h: %e, accept: %s\n", obj->t, h, accept ? "yes" : "no");
+    }
+
+    if (accept) {
       // Step is accepted :)
       fac_old = fmax(err, 1e-4);
       obj->n_accept++;

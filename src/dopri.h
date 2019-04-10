@@ -59,6 +59,8 @@ typedef struct {
   double t0; // initial time; used in models with delays
   double t;  // current time
 
+  bool verbose; // be verbose when running
+
   // Times for integration to report at
   const double *times; // Set of times to stop at
   size_t n_times;
@@ -152,7 +154,8 @@ dopri_data* dopri_data_alloc(deriv_func* target, size_t n,
                              output_func* output, size_t n_out,
                              void *data,
                              dopri_method method,
-                             size_t n_history, bool grow_history);
+                             size_t n_history, bool grow_history,
+                             bool verbose);
 void dopri_data_reset(dopri_data *obj, const double *y,
                       const double *times, size_t n_times,
                       const double *tcrit, size_t n_tcrit,

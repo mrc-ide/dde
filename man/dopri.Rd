@@ -12,12 +12,13 @@ dopri(y, times, func, parms, ..., n_out = 0L, output = NULL,
   rtol = 1e-06, atol = 1e-06, step_size_min = 0,
   step_size_max = Inf, step_size_initial = 0, step_max_n = 100000L,
   tcrit = NULL, event_time = NULL, event_function = NULL,
-  method = "dopri5", stiff_check = 0, n_history = 0,
-  grow_history = FALSE, return_history = n_history > 0, dllname = "",
-  parms_are_real = TRUE, ynames = names(y), outnames = NULL,
-  return_by_column = TRUE, return_initial = TRUE, return_time = TRUE,
-  return_output_with_y = TRUE, return_statistics = FALSE,
-  restartable = FALSE, return_minimal = FALSE)
+  method = "dopri5", stiff_check = 0, verbose = FALSE,
+  n_history = 0, grow_history = FALSE, return_history = n_history >
+  0, dllname = "", parms_are_real = TRUE, ynames = names(y),
+  outnames = NULL, return_by_column = TRUE, return_initial = TRUE,
+  return_time = TRUE, return_output_with_y = TRUE,
+  return_statistics = FALSE, restartable = FALSE,
+  return_minimal = FALSE)
 
 dopri5(y, times, func, parms, ...)
 
@@ -120,6 +121,9 @@ accepted steps.  The actual check is based off the algorithm in
 Hairer's implementation of the solvers and may be overly strict,
 especially for delay equations with the 853 method (in my
 limited experience with it).}
+
+\item{verbose}{Be verbose, and print information about each step.
+This may be useful for learning about models that misbehave.}
 
 \item{n_history}{Number of history points to retain.  This needs
 to be greater than zero for delay differential equations to
