@@ -163,6 +163,7 @@ SEXP r_dopri(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
   obj->stiff_check = INTEGER(r_stiff_check)[0];
 
   SEXP r_y = PROTECT(allocMatrix(REALSXP, n, nt));
+  memset(REAL(r_y), 0, n * nt * sizeof(double));
 
   double *y = REAL(r_y);
   dopri_integrate(obj, y_initial, times, n_times, tcrit, n_tcrit,
