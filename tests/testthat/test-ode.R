@@ -409,11 +409,20 @@ test_that("step tuning", {
                "step size too small")
 })
 
+
+deriv <- function(t, y, p) {
+  1
+}
+dde::dopri(0, c(0, 1), deriv, 0, return_statistics = TRUE, verbose = TRUE)
+drop(dde::dopri(0, c(0, 1), deriv, 0, return_minimal = TRUE))
+
+
 test_that("integrate function with no absolute error", {
   skip_on_appveyor()
   deriv <- function(t, y, p) {
     1
   }
+
   expect_equal(drop(dopri(0, c(0, 1), deriv, 0, return_minimal = TRUE)), 1)
 })
 
