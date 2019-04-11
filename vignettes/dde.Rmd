@@ -482,13 +482,3 @@ for (x in .dlls) {
   }, error = function(e) NULL)
 }
 ```
-
-Debugging a windows failure:
-
-```{r}
-deriv <- function(t, y, p) {
-  1
-}
-dde::dopri(0, c(0, 1), deriv, 0, return_statistics = TRUE, verbose = TRUE)
-drop(dde::dopri(0, c(0, 1), deriv, 0, return_minimal = TRUE))
-```
