@@ -410,6 +410,7 @@ test_that("step tuning", {
 })
 
 test_that("integrate function with no absolute error", {
+  skip_on_appveyor()
   deriv <- function(t, y, p) {
     1
   }

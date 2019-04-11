@@ -489,6 +489,6 @@ Debugging a windows failure:
 deriv <- function(t, y, p) {
   1
 }
-dopri(0, c(0, 1), deriv, 0, return_statistics = TRUE, verbose = TRUE)
-drop(dopri(0, c(0, 1), deriv, 0, return_minimal = TRUE))
+dde::dopri(0, c(0, 1), deriv, 0, return_statistics = TRUE, verbose = TRUE)
+drop(dde::dopri(0, c(0, 1), deriv, 0, return_minimal = TRUE))
 ```
