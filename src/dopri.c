@@ -731,7 +731,7 @@ const double* dopri_find_time(dopri_data *obj, double t) {
     const double
       t0 = ((double*) ring_buffer_tail(obj->history))[idx_t],
       t1 = ((double*) ring_buffer_tail_offset(obj->history, n - 1))[idx_t];
-    idx0 = (t1 - t0) / (n - 1);
+    idx0 = min_size((t - t0) / (t1 - t0) / (n - 1), n - 1);
   }
   const void *h =
     ring_buffer_search_bisect(obj->history, idx0,
@@ -808,4 +808,9 @@ void ylag_vec_int(double t, const int *idx, size_t nidx, double *y) {
 // Utility
 double square(double x) {
   return x * x;
+}
+
+
+size_t min_size(size_t a, size_t b) {
+  return a <= b ? a : b;
 }

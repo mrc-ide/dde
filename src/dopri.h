@@ -193,5 +193,6 @@ void dopri_interpolate_idx_int(const double *history, dopri_method method,
 // Helper
 size_t get_current_problem_size_dde();
 double square(double x);
+size_t min_size(size_t a, size_t b);
 
 #endif
