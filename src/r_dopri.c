@@ -117,7 +117,7 @@ SEXP r_dopri(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
 
   size_t n_history = (size_t)INTEGER(r_n_history)[0];
   bool grow_history = INTEGER(r_grow_history)[0];
-  bool verbose = INTEGER(r_verbose)[0];
+  dopri_verbose verbose = INTEGER(r_verbose)[0];
   bool return_history = INTEGER(r_return_history)[0];
   bool return_initial = INTEGER(r_return_initial)[0];
   bool return_statistics = INTEGER(r_return_statistics)[0];

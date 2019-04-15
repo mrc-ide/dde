@@ -9,7 +9,7 @@ dopri_data* dopri_data_alloc(deriv_func* target, size_t n,
                              void *data,
                              dopri_method method,
                              size_t n_history, bool grow_history,
-                             bool verbose) {
+                             dopri_verbose verbose) {
   dopri_data *ret = (dopri_data*) R_Calloc(1, dopri_data);
   overflow_action on_overflow =
     grow_history ? OVERFLOW_GROW : OVERFLOW_OVERWRITE;
@@ -320,8 +320,7 @@ void dopri_integrate(dopri_data *obj, const double *y,
     }
   }
 
-  obj->target(obj->n, obj->t, obj->y, obj->k[0], obj->data); // y => k1
-  obj->n_eval++;
+  dopri_eval(obj, obj->t, obj->y, obj->k[0]); // y => k1
 
   for (size_t i = 0; i < obj->n; ++i) {
     if (!R_FINITE(obj->k[0][i])) {
@@ -382,8 +381,9 @@ void dopri_integrate(dopri_data *obj, const double *y,
     double h_new = dopri_h_new(obj, fac_old, h, err);
     const bool accept = err <= 1;
 
-    if (obj->verbose) {
-      Rprintf("t: %f, h: %e, accept: %s\n", obj->t, h, accept ? "yes" : "no");
+    if (obj->verbose >= VERBOSE_STEP) {
+      Rprintf("[step] t: %f, h: %e, accept: %s\n",
+              obj->t, h, accept ? "yes" : "no");
     }
 
     if (accept) {
@@ -392,8 +392,7 @@ void dopri_integrate(dopri_data *obj, const double *y,
       obj->n_accept++;
       if (obj->method == DOPRI_853) {
         double *k4 = obj->k[3], *k5 = obj->k[4];
-        obj->target(obj->n, obj->t, k5, k4, obj->data);
-        obj->n_eval++;
+        dopri_eval(obj, obj->t, k5, k4);
       }
       if (dopri_test_stiff(obj, h)) {
         obj->error = true;
@@ -531,8 +530,7 @@ double dopri_h_init(dopri_data *obj) {
   for (size_t i = 0; i < obj->n; ++i) {
     y1[i] = obj->y[i] + h * f0[i];
   }
-  obj->target(obj->n, obj->t + h, y1, f1, obj->data);
-  obj->n_eval++;
+  dopri_eval(obj, obj->t + h, y1, f1);
 
   // Estimate the second derivative of the solution:
   double der2 = 0.0;
@@ -804,6 +802,16 @@ void ylag_vec_int(double t, const int *idx, size_t nidx, double *y) {
     }
   }
 }
+
+
+void dopri_eval(dopri_data *obj, double t, double *y, double *dydt) {
+  if (obj->verbose >= VERBOSE_EVAL) {
+    Rprintf("[eval] t: %f, \n", t);
+  }
+  obj->target(obj->n, t, y, dydt, obj->data);
+  obj->n_eval++;
+}
+
 
 // Utility
 double square(double x) {

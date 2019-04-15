@@ -656,5 +656,54 @@ test_that("verbose mode prints trace", {
   expect_silent(ans1 <- dopri(y0, tt, lorenz, p))
   expect_output(ans2 <- dopri(y0, tt, lorenz, p, verbose = TRUE),
                 "t: .+, h: .+, accept: (yes|no)\n")
+  expect_output(ans3 <- dopri(y0, tt, lorenz, p, verbose = VERBOSE_EVAL),
+                "t: .+, h: .+, accept: (yes|no)\n")
+
   expect_identical(ans1, ans2)
+})
+
+
+test_that("very verbose mode prints evaluations", {
+  p <- c(10, 28, 8 / 3)
+  y0 <- c(10, 1, 1)
+
+  lorenz <- function(t, y, p) {
+    sigma <- p[[1L]]
+    R <- p[[2L]]
+    b <- p[[3L]]
+    c(sigma * (y[[2L]] - y[[1L]]),
+      R * y[[1L]] - y[[2L]] - y[[1L]] * y[[3L]],
+      -b * y[[3L]] + y[[1L]] * y[[2L]])
+  }
+
+  tt <- seq(0, 1, length.out = 200)
+  names(y0) <- letters[1:3]
+
+  expect_silent(ans1 <- dopri(y0, tt, lorenz, p))
+  expect_output(ans2 <- dopri(y0, tt, lorenz, p, verbose = VERBOSE_EVAL),
+                ".step. t: .+, h: .+, accept: (yes|no)\n")
+  expect_output(ans3 <- dopri(y0, tt, lorenz, p, verbose = VERBOSE_EVAL),
+                ".eval. t: .+\n")
+  expect_identical(ans1, ans2)
+  expect_identical(ans1, ans3)
+})
+
+
+test_that("check verbose argument", {
+  expect_identical(dopri_verbose(FALSE), VERBOSE_QUIET)
+  expect_identical(dopri_verbose(0.0), VERBOSE_QUIET)
+  expect_identical(dopri_verbose(0L), VERBOSE_QUIET)
+
+  expect_identical(dopri_verbose(TRUE), VERBOSE_STEP)
+  expect_identical(dopri_verbose(1.0), VERBOSE_STEP)
+  expect_identical(dopri_verbose(1L), VERBOSE_STEP)
+
+  expect_identical(dopri_verbose(2.0), VERBOSE_EVAL)
+  expect_identical(dopri_verbose(2L), VERBOSE_EVAL)
+
+  expect_error(dopri_verbose(-1), "Invalid value for verbose")
+  expect_error(dopri_verbose(1.5), "verbose must be integer")
+  expect_error(dopri_verbose(c(1, 2)), "verbose must be a scalar")
+  expect_error(dopri_verbose(integer(0)), "verbose must be a scalar")
+  expect_error(dopri_verbose(NULL), "verbose must be a scalar")
 })

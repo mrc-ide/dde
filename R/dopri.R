@@ -108,6 +108,9 @@
 ##'
 ##' @param verbose Be verbose, and print information about each step.
 ##'   This may be useful for learning about models that misbehave.
+##'   Valid values are \code{TRUE} (enable debugging) or \code{FALSE}
+##'   (disable debugging) or use one of \code{dopri:::VERBOSE_QUIET},
+##'   \code{dopri:::VERBOSE_STEP} or \code{VERBOSE:::VERBOSE_EVAL}.
 ##'
 ##' @param n_history Number of history points to retain.  This needs
 ##'   to be greater than zero for delay differential equations to
@@ -285,7 +288,6 @@ dopri <- function(y, times, func, parms, ...,
   assert_size(n_history)
 
   assert_scalar_logical(grow_history)
-  assert_scalar_logical(verbose)
   assert_scalar_logical(return_history)
   assert_scalar_logical(parms_are_real)
   assert_scalar_logical(return_by_column)
@@ -295,6 +297,8 @@ dopri <- function(y, times, func, parms, ...,
   assert_scalar_logical(return_output_with_y)
   assert_scalar_logical(restartable)
   assert_size(stiff_check)
+
+  verbose <- dopri_verbose(verbose)
 
   ynames <- check_ynames(y, ynames)
 
@@ -613,8 +617,29 @@ dopri_methods <- function() {
 }
 
 
+dopri_verbose <- function(verbose) {
+  assert_scalar(verbose)
+  if (is.logical(verbose)) {
+    verbose <- if (verbose) VERBOSE_STEP else VERBOSE_QUIET
+  } else {
+    assert_integer(verbose)
+    valid <- c(VERBOSE_QUIET, VERBOSE_STEP, VERBOSE_EVAL)
+    if (!any(verbose == valid)) {
+      stop("Invalid value for verbose")
+    }
+    verbose <- as.integer(verbose)
+  }
+  verbose
+}
+
+
 DOPRI_IDX_TARGET <- 1L
 DOPRI_IDX_PARMS <- 2L
 DOPRI_IDX_ENV <- 3L
 DOPRI_IDX_OUTPUT <- 4L
 DOPRI_IDX_EVENT <- 5L
+
+## Must match up with enum dopri_verbose in dopri.h
+VERBOSE_QUIET <- 0L
+VERBOSE_STEP <- 1L
+VERBOSE_EVAL <- 2L

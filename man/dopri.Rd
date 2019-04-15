@@ -123,7 +123,10 @@ especially for delay equations with the 853 method (in my
 limited experience with it).}
 
 \item{verbose}{Be verbose, and print information about each step.
-This may be useful for learning about models that misbehave.}
+This may be useful for learning about models that misbehave.
+Valid values are \code{TRUE} (enable debugging) or \code{FALSE}
+(disable debugging) or use one of \code{dopri:::VERBOSE_QUIET},
+\code{dopri:::VERBOSE_STEP} or \code{VERBOSE:::VERBOSE_EVAL}.}
 
 \item{n_history}{Number of history points to retain.  This needs
 to be greater than zero for delay differential equations to

@@ -38,6 +38,13 @@ typedef enum dopri_method {
   DOPRI_853
 } dopri_method;
 
+// must match up with the R constants in dopri.R
+typedef enum dopri_verbose {
+  VERBOSE_QUIET = 0,
+  VERBOSE_STEP = 1,
+  VERBOSE_EVAL = 2
+} dopri_verbose;
+
 typedef void deriv_func(size_t n_eq, double t, const double *y, double *dydt,
                         const void *data);
 typedef void output_func(size_t n_eq, double t, const double *y,
@@ -59,7 +66,7 @@ typedef struct {
   double t0; // initial time; used in models with delays
   double t;  // current time
 
-  bool verbose; // be verbose when running
+  dopri_verbose verbose; // be verbose when running
 
   // Times for integration to report at
   const double *times; // Set of times to stop at
@@ -155,7 +162,7 @@ dopri_data* dopri_data_alloc(deriv_func* target, size_t n,
                              void *data,
                              dopri_method method,
                              size_t n_history, bool grow_history,
-                             bool verbose);
+                             dopri_verbose verbose);
 void dopri_data_reset(dopri_data *obj, const double *y,
                       const double *times, size_t n_times,
                       const double *tcrit, size_t n_tcrit,
@@ -192,6 +199,7 @@ void dopri_interpolate_idx_int(const double *history, dopri_method method,
 
 // Helper
 size_t get_current_problem_size_dde();
+void dopri_eval(dopri_data *obj, double t, double *y, double *dydt);
 double square(double x);
 size_t min_size(size_t a, size_t b);
 
