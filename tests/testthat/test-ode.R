@@ -655,35 +655,10 @@ test_that("verbose mode prints trace", {
 
   expect_silent(ans1 <- dopri(y0, tt, lorenz, p))
   expect_output(ans2 <- dopri(y0, tt, lorenz, p, verbose = TRUE),
-                "t: .+, h: .+, accept: (yes|no)\n")
+                ".step. t: .+, h: .+\n")
   expect_output(ans3 <- dopri(y0, tt, lorenz, p, verbose = VERBOSE_EVAL),
-                "t: .+, h: .+, accept: (yes|no)\n")
+                ".eval. t: .+, h: .+\n")
 
-  expect_identical(ans1, ans2)
-})
-
-
-test_that("very verbose mode prints evaluations", {
-  p <- c(10, 28, 8 / 3)
-  y0 <- c(10, 1, 1)
-
-  lorenz <- function(t, y, p) {
-    sigma <- p[[1L]]
-    R <- p[[2L]]
-    b <- p[[3L]]
-    c(sigma * (y[[2L]] - y[[1L]]),
-      R * y[[1L]] - y[[2L]] - y[[1L]] * y[[3L]],
-      -b * y[[3L]] + y[[1L]] * y[[2L]])
-  }
-
-  tt <- seq(0, 1, length.out = 200)
-  names(y0) <- letters[1:3]
-
-  expect_silent(ans1 <- dopri(y0, tt, lorenz, p))
-  expect_output(ans2 <- dopri(y0, tt, lorenz, p, verbose = VERBOSE_EVAL),
-                ".step. t: .+, h: .+, accept: (yes|no)\n")
-  expect_output(ans3 <- dopri(y0, tt, lorenz, p, verbose = VERBOSE_EVAL),
-                ".eval. t: .+\n")
   expect_identical(ans1, ans2)
   expect_identical(ans1, ans3)
 })
@@ -706,4 +681,18 @@ test_that("check verbose argument", {
   expect_error(dopri_verbose(c(1, 2)), "verbose must be a scalar")
   expect_error(dopri_verbose(integer(0)), "verbose must be a scalar")
   expect_error(dopri_verbose(NULL), "verbose must be a scalar")
+})
+
+
+test_that("check callback argument", {
+  expect_null(dopri_callback(NULL))
+
+  f <- function(a, b, c, d) NULL
+  res <- dopri_callback(f)
+  expect_identical(f, res[[1]])
+  expect_is(res[[2]], "environment")
+  expect_equal(parent.env(res[[2]]), environment(f))
+
+  expect_error(dopri_callback(function() 1),
+               "Expected a function with 4 arguments for 'callback'")
 })

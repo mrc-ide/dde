@@ -111,6 +111,16 @@
 ##'   Valid values are \code{TRUE} (enable debugging) or \code{FALSE}
 ##'   (disable debugging) or use one of \code{dopri:::VERBOSE_QUIET},
 ##'   \code{dopri:::VERBOSE_STEP} or \code{VERBOSE:::VERBOSE_EVAL}.
+##'   If an R function is provided as the argument \code{callback}
+##'   then this function will also be called at each step or
+##'   evaluation (see below for details).
+##'
+##' @param callback Callback function that can be used to make verbose
+##'   output more useful.  This can be used to return more information
+##'   about the evaluation as it proceeds, generally as information
+##'   printed to the screen.  The function must accept arguments
+##'   \code{t}, \code{y} and \code{dydt}.  See Details for further
+##'   information.
 ##'
 ##' @param n_history Number of history points to retain.  This needs
 ##'   to be greater than zero for delay differential equations to
@@ -241,7 +251,7 @@ dopri <- function(y, times, func, parms, ...,
                   tcrit = NULL, event_time = NULL, event_function = NULL,
                   method = "dopri5",
                   stiff_check = 0,
-                  verbose = FALSE,
+                  verbose = FALSE, callback = NULL,
                   n_history = 0, grow_history = FALSE,
                   return_history = n_history > 0, dllname = "",
                   parms_are_real = TRUE,
@@ -299,6 +309,7 @@ dopri <- function(y, times, func, parms, ...,
   assert_size(stiff_check)
 
   verbose <- dopri_verbose(verbose)
+  callback <- dopri_callback(callback)
 
   ynames <- check_ynames(y, ynames)
 
@@ -350,7 +361,7 @@ dopri <- function(y, times, func, parms, ...,
                ## Critical and events
                as.numeric(tcrit), is_event, event,
                ## Other:
-               use_853, as.integer(stiff_check), verbose,
+               use_853, as.integer(stiff_check), verbose, callback,
                ## Return information:
                as.integer(n_history), grow_history, return_history,
                return_initial, return_statistics, restartable)
@@ -630,6 +641,20 @@ dopri_verbose <- function(verbose) {
     verbose <- as.integer(verbose)
   }
   verbose
+}
+
+
+dopri_callback <- function(callback) {
+  if (is.null(callback)) {
+    return(NULL)
+  }
+  if (!is.function(callback)) {
+    stop("Expected a function for 'callback'")
+  }
+  if (length(formals(callback)) != 4) {
+    stop("Expected a function with 4 arguments for 'callback'")
+  }
+  list(callback, new.env(parent = environment(callback)))
 }
 
 

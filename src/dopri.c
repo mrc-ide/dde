@@ -9,7 +9,7 @@ dopri_data* dopri_data_alloc(deriv_func* target, size_t n,
                              void *data,
                              dopri_method method,
                              size_t n_history, bool grow_history,
-                             dopri_verbose verbose) {
+                             dopri_verbose verbose, SEXP  callback) {
   dopri_data *ret = (dopri_data*) R_Calloc(1, dopri_data);
   overflow_action on_overflow =
     grow_history ? OVERFLOW_GROW : OVERFLOW_OVERWRITE;
@@ -29,6 +29,7 @@ dopri_data* dopri_data_alloc(deriv_func* target, size_t n,
   ret->tcrit = NULL;
 
   ret->verbose = verbose;
+  ret->callback = callback;
 
   // tcrit variables are set in reset
 
@@ -92,7 +93,8 @@ dopri_data* dopri_data_copy(const dopri_data* obj) {
   dopri_data* ret = dopri_data_alloc(obj->target, obj->n,
                                      obj->output, obj->n_out,
                                      obj->data, obj->method,
-                                     n_history, grow_history, obj->verbose);
+                                     n_history, grow_history,
+                                     obj->verbose, obj->callback);
   // Then update a few things
   ret->t0 = obj->t0;
   ret->t  = obj->t;
@@ -254,6 +256,7 @@ void dopri_step(dopri_data *obj, double h) {
     dopri853_step(obj, h);
     break;
   }
+  dopri_print_step(obj, h);
 }
 
 double dopri_error(dopri_data *obj) {
@@ -380,11 +383,6 @@ void dopri_integrate(dopri_data *obj, const double *y,
     double err = dopri_error(obj);
     double h_new = dopri_h_new(obj, fac_old, h, err);
     const bool accept = err <= 1;
-
-    if (obj->verbose >= VERBOSE_STEP) {
-      Rprintf("[step] t: %f, h: %e, accept: %s\n",
-              obj->t, h, accept ? "yes" : "no");
-    }
 
     if (accept) {
       // Step is accepted :)
@@ -806,10 +804,31 @@ void ylag_vec_int(double t, const int *idx, size_t nidx, double *y) {
 
 void dopri_eval(dopri_data *obj, double t, double *y, double *dydt) {
   if (obj->verbose >= VERBOSE_EVAL) {
-    Rprintf("[eval] t: %f, \n", t);
+    Rprintf("[eval] t: %f\n", t);
   }
   obj->target(obj->n, t, y, dydt, obj->data);
   obj->n_eval++;
+}
+
+
+void dopri_print_step(dopri_data *obj, double h) {
+  if (obj->verbose >= VERBOSE_STEP) {
+    if (obj->callback == R_NilValue) {
+      Rprintf("[step] t: %f, h: %e\n", obj->t, h);
+    } else {
+      SEXP callback = VECTOR_ELT(obj->callback, 0);
+      SEXP env = VECTOR_ELT(obj->callback, 1);
+
+      SEXP r_t = PROTECT(ScalarReal(obj->t));
+      SEXP r_h = PROTECT(ScalarReal(h));
+      SEXP r_y = PROTECT(allocVector(REALSXP, obj->n));
+      SEXP r_is_step = PROTECT(ScalarLogical(true));
+      memcpy(REAL(r_y), obj->y, obj->n * sizeof(double));
+      SEXP call = PROTECT(lang5(callback, r_t, r_h, r_y, r_is_step));
+      eval(call, env);
+      UNPROTECT(5);
+    }
+  }
 }
 
 

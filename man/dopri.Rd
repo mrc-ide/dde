@@ -13,12 +13,12 @@ dopri(y, times, func, parms, ..., n_out = 0L, output = NULL,
   step_size_max = Inf, step_size_initial = 0, step_max_n = 100000L,
   tcrit = NULL, event_time = NULL, event_function = NULL,
   method = "dopri5", stiff_check = 0, verbose = FALSE,
-  n_history = 0, grow_history = FALSE, return_history = n_history >
-  0, dllname = "", parms_are_real = TRUE, ynames = names(y),
-  outnames = NULL, return_by_column = TRUE, return_initial = TRUE,
-  return_time = TRUE, return_output_with_y = TRUE,
-  return_statistics = FALSE, restartable = FALSE,
-  return_minimal = FALSE)
+  callback = NULL, n_history = 0, grow_history = FALSE,
+  return_history = n_history > 0, dllname = "",
+  parms_are_real = TRUE, ynames = names(y), outnames = NULL,
+  return_by_column = TRUE, return_initial = TRUE, return_time = TRUE,
+  return_output_with_y = TRUE, return_statistics = FALSE,
+  restartable = FALSE, return_minimal = FALSE)
 
 dopri5(y, times, func, parms, ...)
 
@@ -126,7 +126,17 @@ limited experience with it).}
 This may be useful for learning about models that misbehave.
 Valid values are \code{TRUE} (enable debugging) or \code{FALSE}
 (disable debugging) or use one of \code{dopri:::VERBOSE_QUIET},
-\code{dopri:::VERBOSE_STEP} or \code{VERBOSE:::VERBOSE_EVAL}.}
+\code{dopri:::VERBOSE_STEP} or \code{VERBOSE:::VERBOSE_EVAL}.
+If an R function is provided as the argument \code{callback}
+then this function will also be called at each step or
+evaluation (see below for details).}
+
+\item{callback}{Callback function that can be used to make verbose
+output more useful.  This can be used to return more information
+about the evaluation as it proceeds, generally as information
+printed to the screen.  The function must accept arguments
+\code{t}, \code{y} and \code{dydt}.  See Details for further
+information.}
 
 \item{n_history}{Number of history points to retain.  This needs
 to be greater than zero for delay differential equations to

@@ -2,7 +2,8 @@
 #define _DOPRI_H_
 
 #include <dde/dde.h>
-#include <R.h> // dragging in a big include, strip down later
+#include <R.h>
+#include <Rinternals.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <ring/ring.h>
@@ -67,6 +68,7 @@ typedef struct {
   double t;  // current time
 
   dopri_verbose verbose; // be verbose when running
+  SEXP callback; // callback function/environment pair (or R_NilValue)
 
   // Times for integration to report at
   const double *times; // Set of times to stop at
@@ -162,7 +164,7 @@ dopri_data* dopri_data_alloc(deriv_func* target, size_t n,
                              void *data,
                              dopri_method method,
                              size_t n_history, bool grow_history,
-                             dopri_verbose verbose);
+                             dopri_verbose verbose, SEXP callback);
 void dopri_data_reset(dopri_data *obj, const double *y,
                       const double *times, size_t n_times,
                       const double *tcrit, size_t n_tcrit,
@@ -197,9 +199,11 @@ void dopri_interpolate_idx_int(const double *history, dopri_method method,
                                size_t n, double t, const int *idx, size_t nidx,
                                double *y);
 
+void dopri_eval(dopri_data *obj, double t, double *y, double *dydt);
+void dopri_print_step(dopri_data *obj, double h);
+
 // Helper
 size_t get_current_problem_size_dde();
-void dopri_eval(dopri_data *obj, double t, double *y, double *dydt);
 double square(double x);
 size_t min_size(size_t a, size_t b);
 

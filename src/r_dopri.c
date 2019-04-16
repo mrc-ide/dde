@@ -35,7 +35,7 @@ SEXP r_dopri(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
              // Other:
              SEXP r_use_853,
              SEXP r_stiff_check,
-             SEXP r_verbose,
+             SEXP r_verbose, SEXP r_callback,
              // Return information:
              SEXP r_n_history, SEXP r_grow_history, SEXP r_return_history,
              SEXP r_return_initial, SEXP r_return_statistics,
@@ -145,7 +145,8 @@ SEXP r_dopri(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
   // because we just don't pass through REAL(r_y) but REAL(r_y) +
   // n.  We do have to run the output functions once more though.
   dopri_data* obj = dopri_data_alloc(func, n, output, n_out, data,
-                                     method, n_history, grow_history, verbose);
+                                     method, n_history, grow_history,
+                                     verbose, r_callback);
   // This is to prevent leaks in case of early exit.  If we don't make
   // it to the end of the function (for any reason, including an error
   // call in a user function, etc) R will clean up for us once it
