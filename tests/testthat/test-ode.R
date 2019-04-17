@@ -682,22 +682,32 @@ test_that("verbose with callback", {
 
   steps <- list()
   evals <- list()
-  callback <- function(t, h, y, is_step) {
-    if (is_step) {
-      steps <<- c(steps, list(list(t = t, h = h, y = y)))
-    } else {
+  callback <- function(t, h, y) {
+    if (is.na(h)) {
       evals <<- c(evals, list(list(t = t, h = h, y = y)))
+    } else {
+      steps <<- c(steps, list(list(t = t, h = h, y = y)))
     }
   }
 
   ## Callback successfully returns all steps - we could have done
-  ## something more interesting here.
-  ans <- dopri(y0, tt, lorenz, p, verbose = TRUE, callback = callback)
+  ## something more interesting here, and typically this would involve
+  ## printing not collection.
+  ans1 <- dopri(y0, tt, lorenz, p, verbose = TRUE, callback = callback)
   n <- length(steps)
   expect_gt(n, 0)
   expect_equal(steps[[1]]$t, 0)
   expect_equal(steps[[1]]$y, unname(y0))
   expect_equal(steps[[n]]$t + steps[[n]]$h, 1)
+  expect_equal(length(evals), 0)
+
+  ans2 <- dopri(y0, tt, lorenz, p, verbose = VERBOSE_EVAL, callback = callback)
+  expect_identical(steps[1:n], steps[-(1:n)])
+  m <- length(evals)
+  expect_gt(m, 0)
+  expect_equal(evals[[1]]$t, 0)
+  expect_equal(evals[[1]]$y, unname(y0))
+  expect_true(all(is.na(vapply(evals, function(x) x$h, numeric(1)))))
 })
 
 
@@ -724,12 +734,12 @@ test_that("check verbose argument", {
 test_that("check callback argument", {
   expect_null(dopri_callback(NULL))
 
-  f <- function(a, b, c, d) NULL
+  f <- function(a, b, c) NULL
   res <- dopri_callback(f)
   expect_identical(f, res[[1]])
   expect_is(res[[2]], "environment")
   expect_equal(parent.env(res[[2]]), environment(f))
 
   expect_error(dopri_callback(function() 1),
-               "Expected a function with 4 arguments for 'callback'")
+               "Expected a function with 3 arguments for 'callback'")
 })

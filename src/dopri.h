@@ -201,6 +201,8 @@ void dopri_interpolate_idx_int(const double *history, dopri_method method,
 
 void dopri_eval(dopri_data *obj, double t, double *y, double *dydt);
 void dopri_print_step(dopri_data *obj, double h);
+void dopri_print_eval(dopri_data *obj, double t, double *y);
+void dopri_callback(dopri_data *obj, double t, double h, double *y);
 
 // Helper
 size_t get_current_problem_size_dde();

@@ -651,8 +651,8 @@ dopri_callback <- function(callback) {
   if (!is.function(callback)) {
     stop("Expected a function for 'callback'")
   }
-  if (length(formals(callback)) != 4) {
-    stop("Expected a function with 4 arguments for 'callback'")
+  if (length(formals(callback)) != 3) {
+    stop("Expected a function with 3 arguments for 'callback'")
   }
   list(callback, new.env(parent = environment(callback)))
 }

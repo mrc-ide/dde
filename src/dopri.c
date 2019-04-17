@@ -803,9 +803,7 @@ void ylag_vec_int(double t, const int *idx, size_t nidx, double *y) {
 
 
 void dopri_eval(dopri_data *obj, double t, double *y, double *dydt) {
-  if (obj->verbose >= VERBOSE_EVAL) {
-    Rprintf("[eval] t: %f\n", t);
-  }
+  dopri_print_eval(obj, t, y);
   obj->target(obj->n, t, y, dydt, obj->data);
   obj->n_eval++;
 }
@@ -816,19 +814,34 @@ void dopri_print_step(dopri_data *obj, double h) {
     if (obj->callback == R_NilValue) {
       Rprintf("[step] t: %f, h: %e\n", obj->t, h);
     } else {
-      SEXP callback = VECTOR_ELT(obj->callback, 0);
-      SEXP env = VECTOR_ELT(obj->callback, 1);
-
-      SEXP r_t = PROTECT(ScalarReal(obj->t));
-      SEXP r_h = PROTECT(ScalarReal(h));
-      SEXP r_y = PROTECT(allocVector(REALSXP, obj->n));
-      SEXP r_is_step = PROTECT(ScalarLogical(true));
-      memcpy(REAL(r_y), obj->y, obj->n * sizeof(double));
-      SEXP call = PROTECT(lang5(callback, r_t, r_h, r_y, r_is_step));
-      eval(call, env);
-      UNPROTECT(5);
+      dopri_callback(obj, obj->t, h, obj->y);
     }
   }
+}
+
+
+void dopri_print_eval(dopri_data *obj, double t, double *y) {
+  if (obj->verbose >= VERBOSE_EVAL) {
+    if (obj->callback == R_NilValue) {
+      Rprintf("[eval] t: %f\n", t);
+    } else {
+      dopri_callback(obj, obj->t, NA_REAL, obj->y);
+    }
+  }
+}
+
+
+void dopri_callback(dopri_data *obj, double t, double h, double *y) {
+  SEXP callback = VECTOR_ELT(obj->callback, 0);
+  SEXP env = VECTOR_ELT(obj->callback, 1);
+
+  SEXP r_t = PROTECT(ScalarReal(obj->t));
+  SEXP r_h = PROTECT(ScalarReal(h));
+  SEXP r_y = PROTECT(allocVector(REALSXP, obj->n));
+  memcpy(REAL(r_y), obj->y, obj->n * sizeof(double));
+  SEXP call = PROTECT(lang4(callback, r_t, r_h, r_y));
+  eval(call, env);
+  UNPROTECT(4);
 }
 
 
