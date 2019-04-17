@@ -740,6 +740,8 @@ test_that("check callback argument", {
   expect_is(res[[2]], "environment")
   expect_equal(parent.env(res[[2]]), environment(f))
 
+  expect_error(dopri_callback(TRUE),
+               "Expected a function for 'callback'")
   expect_error(dopri_callback(function() 1),
                "Expected a function with 3 arguments for 'callback'")
 })
