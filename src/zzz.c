@@ -8,7 +8,7 @@
 #include <Rversion.h>
 
 static const R_CallMethodDef call_methods[] = {
-  {"Cdopri",          (DL_FUNC) &r_dopri,             25},
+  {"Cdopri",          (DL_FUNC) &r_dopri,             26},
   {"Cdopri_continue", (DL_FUNC) &r_dopri_continue,    10},
   {"Cdopri_copy",     (DL_FUNC) &r_dopri_copy,         1},
   {"Cylag",           (DL_FUNC) &r_ylag,               2},

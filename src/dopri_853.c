@@ -179,58 +179,58 @@ void dopri853_step(dopri_data *obj, double h) {
   for (size_t i = 0; i < n; ++i) { // 22
     y1[i] = y[i] + h * A21 * k1[i];
   }
-  obj->target(n, t + C2 * h, y1, k2, data);
+  dopri_eval(obj, t + C2 * h, y1, k2);
 
   for (size_t i = 0; i < n; ++i) { // 23
     y1[i] = y[i] + h * (A31 * k1[i] + A32 * k2[i]);
   }
-  obj->target(n, t + C3 * h, y1, k3, data);
+  dopri_eval(obj, t + C3 * h, y1, k3);
 
   for (size_t i = 0; i < n; ++i) { // 24
     y1[i] = y[i] + h * (A41 * k1[i] + A43 * k3[i]);
   }
-  obj->target(n, t + C4 * h, y1, k4, data);
+  dopri_eval(obj, t + C4 * h, y1, k4);
 
   for (size_t i = 0; i < n; ++i) { // 25
     y1[i] = y[i] + h * (A51 * k1[i] + A53 * k3[i] + A54 * k4[i]);
   }
-  obj->target(n, t + C5 * h, y1, k5, data);
+  dopri_eval(obj, t + C5 * h, y1, k5);
 
   for (size_t i = 0; i < n; ++i) { // 26
     y1[i] = y[i] + h * (A61 * k1[i] + A64 * k4[i] + A65 * k5[i]);
   }
-  obj->target(n, t + C6 * h, y1, k6, data);
+  dopri_eval(obj, t + C6 * h, y1, k6);
 
   for (size_t i = 0; i < n; ++i) { // 27
     y1[i] = y[i] + h * (A71 * k1[i] + A74 * k4[i] + A75 * k5[i] + A76 * k6[i]);
   }
-  obj->target(n, t + C7 * h, y1, k7, data);
+  dopri_eval(obj, t + C7 * h, y1, k7);
 
   for (size_t i = 0; i < n; ++i) { // 28
     y1[i] = y[i] + h * (A81 * k1[i] + A84 * k4[i] + A85 * k5[i] +
                         A86 * k6[i] + A87 * k7[i]);
   }
-  obj->target(n, t + C8 * h, y1, k8, data);
+  dopri_eval(obj, t + C8 * h, y1, k8);
 
   for (size_t i = 0; i < n; ++i) { // 29
     y1[i] = y[i] + h * (A91 * k1[i] + A94 * k4[i] + A95 * k5[i] +
                         A96 * k6[i] + A97 * k7[i] + A98 * k8[i]);
   }
-  obj->target(n, t + C9 * h, y1, k9, data);
+  dopri_eval(obj, t + C9 * h, y1, k9);
 
   for (size_t i = 0; i < n; ++i) { // 30
     y1[i] = y[i] + h * (A101 * k1[i] + A104 * k4[i] + A105 * k5[i] +
                         A106 * k6[i] + A107 * k7[i] + A108 * k8[i] +
                         A109 * k9[i]);
   }
-  obj->target(n, t + C10 * h, y1, k10, data);
+  dopri_eval(obj, t + C10 * h, y1, k10);
 
   for (size_t i = 0; i < n; ++i) { // 31
     y1[i] = y[i] + h * (A111 * k1[i] + A114 * k4[i] + A115 * k5[i] +
                         A116 * k6[i] + A117 * k7[i] + A118 * k8[i] +
                         A119 * k9[i] + A1110 * k10[i]);
   }
-  obj->target(n, t + C11 * h, y1, k2, data);
+  dopri_eval(obj, t + C11 * h, y1, k2);
 
   double t_next = t + h;
   for (size_t i = 0; i < n; ++i) { // 32
@@ -238,15 +238,13 @@ void dopri853_step(dopri_data *obj, double h) {
                         A126 * k6[i] + A127  * k7[i]  + A128  * k8[i] +
                         A129 * k9[i] + A1210 * k10[i] + A1211 * k2[i]);
   }
-  obj->target(n, t_next, y1, k3, data);
+  dopri_eval(obj, t_next, y1, k3);
 
   for (size_t i = 0; i < n; ++i) { // 35
     k4[i] = B1 * k1[i] + B6 * k6[i] + B7 * k7[i] + B8 * k8[i] +
       B9 * k9[i] + B10 * k10[i] + B11 * k2[i] + B12 * k3[i];
     k5[i] = y[i] + h * k4[i];
   }
-
-  obj->n_eval += 11;
 }
 
 double dopri853_error(dopri_data *obj) {
@@ -304,7 +302,7 @@ void dopri853_save_history(dopri_data *obj, double h) {
 
   // NOTE: We have a function call here, in contrast with dopri5.
   // This call comes from dop853.f:673
-  obj->target(obj->n, obj->t + h, k5, k4, obj->data);
+  dopri_eval(obj, obj->t + h, k5, k4);
 
   for (size_t i = 0; i < n; ++i) {
     double ydiff = k5[i] - y[i];
@@ -335,20 +333,19 @@ void dopri853_save_history(dopri_data *obj, double h) {
                       A149  * k9[i] + A1410 * k10[i] + A1411 * k2[i] +
                       A1412 * k3[i] + A1413 * k4[i]);
   }
-  obj->target(n, t + C14 * h, y1, k10, obj->data);
+  dopri_eval(obj, t + C14 * h, y1, k10);
   for (size_t i = 0; i < n; ++i) { // 52
     y1[i]=y[i] + h * (A151  * k1[i] + A156  * k6[i] + A157  * k7[i] +
                       A158  * k8[i] + A1511 * k2[i] + A1512 * k3[i] +
                       A1513 * k4[i] + A1514 * k10[i]);
   }
-  obj->target(n, t + C15 * h, y1, k2, obj->data);
+  dopri_eval(obj, t + C15 * h, y1, k2);
   for (size_t i = 0; i < n; ++i) { // 53
     y1[i]=y[i] + h * (A161  * k1[i]  + A166  * k6[i] + A167  * k7[i] +
                       A168  * k8[i]  + A169  * k9[i] + A1613 * k4[i] +
                       A1614 * k10[i] + A1615 * k2[i]);
   }
-  obj->target(n, t + C16 * h, y1, k3, obj->data);
-  obj->n_eval += 4; // including the one on entry
+  dopri_eval(obj, t + C16 * h, y1, k3);
 
   // Final history preparation
   for (size_t i = 0; i < n; ++i) {

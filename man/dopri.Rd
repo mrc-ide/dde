@@ -13,12 +13,12 @@ dopri(y, times, func, parms, ..., n_out = 0L, output = NULL,
   step_size_max = Inf, step_size_initial = 0, step_max_n = 100000L,
   tcrit = NULL, event_time = NULL, event_function = NULL,
   method = "dopri5", stiff_check = 0, verbose = FALSE,
-  n_history = 0, grow_history = FALSE, return_history = n_history >
-  0, dllname = "", parms_are_real = TRUE, ynames = names(y),
-  outnames = NULL, return_by_column = TRUE, return_initial = TRUE,
-  return_time = TRUE, return_output_with_y = TRUE,
-  return_statistics = FALSE, restartable = FALSE,
-  return_minimal = FALSE)
+  callback = NULL, n_history = 0, grow_history = FALSE,
+  return_history = n_history > 0, dllname = "",
+  parms_are_real = TRUE, ynames = names(y), outnames = NULL,
+  return_by_column = TRUE, return_initial = TRUE, return_time = TRUE,
+  return_output_with_y = TRUE, return_statistics = FALSE,
+  restartable = FALSE, return_minimal = FALSE)
 
 dopri5(y, times, func, parms, ...)
 
@@ -123,7 +123,20 @@ especially for delay equations with the 853 method (in my
 limited experience with it).}
 
 \item{verbose}{Be verbose, and print information about each step.
-This may be useful for learning about models that misbehave.}
+This may be useful for learning about models that misbehave.
+Valid values are \code{TRUE} (enable debugging) or \code{FALSE}
+(disable debugging) or use one of \code{dopri:::VERBOSE_QUIET},
+\code{dopri:::VERBOSE_STEP} or \code{VERBOSE:::VERBOSE_EVAL}.
+If an R function is provided as the argument \code{callback}
+then this function will also be called at each step or
+evaluation (see below for details).}
+
+\item{callback}{Callback function that can be used to make verbose
+output more useful.  This can be used to return more information
+about the evaluation as it proceeds, generally as information
+printed to the screen.  The function must accept arguments
+\code{t}, \code{y} and \code{dydt}.  See Details for further
+information.}
 
 \item{n_history}{Number of history points to retain.  This needs
 to be greater than zero for delay differential equations to
@@ -263,6 +276,36 @@ computational time (especially the transpose).  The shorthand
 option \code{return_minimal} will set all to \code{FALSE} when
 used.
 }
+\section{Verbose output and callbacks}{
+
+
+Debugging a failed integration can be difficult, but \code{dopri}
+  provides a couple of tools to get more information about where a
+  failure might have occured.  Most simply, one can pass
+  \code{verbose = TRUE} which will print information about the
+  time and the step size at each point just before the step is
+  stated.  Passing in \code{verbose = dde:::VERBOSE_EVAL} will
+  print information just before every evaluation of the target
+  function (there are several evaluations per step).
+
+However, this does not provide information about the state just
+  before failure.  To get that, one must provide a \code{callback}
+  function - this is an R function that will be called just before
+  a step or evaluation (based on the value of the \code{verbose}
+  argument) in place of the default print.  Define a callback
+  function with arguments \code{t}, \code{h} and \code{y} where
+  \code{t} is the time (beginning of a step or location of an
+  evaluation), \code{h} is the step size (or \code{NA} for an
+  evaluation) and \code{y} is the state at the point of the step
+  or evaluation.  Your callback function can do anything - you can
+  print to the screen (using \code{cat} or \code{message}), you
+  can store results using a closure and \code{<<-} or you could
+  conditionally use a \code{browser()} call to debug
+  interactively.  However, it is not possible for the callback to
+  affect the solution short of throwing an error and interrupting
+  it.  See the Examples for an example of use.
+}
+
 \examples{
 
 # The lorenz attractor:
@@ -281,6 +324,18 @@ y0 <- c(10, 1, 1)
 tt <- seq(0, 100, length.out = 40000)
 y <- dde::dopri(y0, tt, lorenz, p, return_time = FALSE)
 plot(y[, c(1, 3)], type = "l", lwd = 0.5, col = "#00000066")
+
+# If we want to print progress as the integration progresses we can
+# use the verbose argument:
+y <- dde::dopri(y0, c(0, 0.1), lorenz, p, verbose = TRUE)
+
+# Or print the y values too using a callback:
+callback <- function(t, h, y) {
+  message(sprintf("t: \%f, h: \%e, y: [\%s]", t, h,
+                  paste(format(y, 5), collapse = ", ")))
+}
+y <- dde::dopri(y0, c(0, 0.1), lorenz, p, verbose = TRUE,
+                callback = callback)
 }
 \seealso{
 \code{\link{dopri_interpolate}} which can be used to

@@ -9,7 +9,7 @@ dopri_data* dopri_data_alloc(deriv_func* target, size_t n,
                              void *data,
                              dopri_method method,
                              size_t n_history, bool grow_history,
-                             bool verbose) {
+                             dopri_verbose verbose, SEXP  callback) {
   dopri_data *ret = (dopri_data*) R_Calloc(1, dopri_data);
   overflow_action on_overflow =
     grow_history ? OVERFLOW_GROW : OVERFLOW_OVERWRITE;
@@ -29,6 +29,7 @@ dopri_data* dopri_data_alloc(deriv_func* target, size_t n,
   ret->tcrit = NULL;
 
   ret->verbose = verbose;
+  ret->callback = callback;
 
   // tcrit variables are set in reset
 
@@ -92,7 +93,8 @@ dopri_data* dopri_data_copy(const dopri_data* obj) {
   dopri_data* ret = dopri_data_alloc(obj->target, obj->n,
                                      obj->output, obj->n_out,
                                      obj->data, obj->method,
-                                     n_history, grow_history, obj->verbose);
+                                     n_history, grow_history,
+                                     obj->verbose, obj->callback);
   // Then update a few things
   ret->t0 = obj->t0;
   ret->t  = obj->t;
@@ -254,6 +256,7 @@ void dopri_step(dopri_data *obj, double h) {
     dopri853_step(obj, h);
     break;
   }
+  dopri_print_step(obj, h);
 }
 
 double dopri_error(dopri_data *obj) {
@@ -320,8 +323,7 @@ void dopri_integrate(dopri_data *obj, const double *y,
     }
   }
 
-  obj->target(obj->n, obj->t, obj->y, obj->k[0], obj->data); // y => k1
-  obj->n_eval++;
+  dopri_eval(obj, obj->t, obj->y, obj->k[0]); // y => k1
 
   for (size_t i = 0; i < obj->n; ++i) {
     if (!R_FINITE(obj->k[0][i])) {
@@ -382,18 +384,13 @@ void dopri_integrate(dopri_data *obj, const double *y,
     double h_new = dopri_h_new(obj, fac_old, h, err);
     const bool accept = err <= 1;
 
-    if (obj->verbose) {
-      Rprintf("t: %f, h: %e, accept: %s\n", obj->t, h, accept ? "yes" : "no");
-    }
-
     if (accept) {
       // Step is accepted :)
       fac_old = fmax(err, 1e-4);
       obj->n_accept++;
       if (obj->method == DOPRI_853) {
         double *k4 = obj->k[3], *k5 = obj->k[4];
-        obj->target(obj->n, obj->t, k5, k4, obj->data);
-        obj->n_eval++;
+        dopri_eval(obj, obj->t, k5, k4);
       }
       if (dopri_test_stiff(obj, h)) {
         obj->error = true;
@@ -531,8 +528,7 @@ double dopri_h_init(dopri_data *obj) {
   for (size_t i = 0; i < obj->n; ++i) {
     y1[i] = obj->y[i] + h * f0[i];
   }
-  obj->target(obj->n, obj->t + h, y1, f1, obj->data);
-  obj->n_eval++;
+  dopri_eval(obj, obj->t + h, y1, f1);
 
   // Estimate the second derivative of the solution:
   double der2 = 0.0;
@@ -731,7 +727,7 @@ const double* dopri_find_time(dopri_data *obj, double t) {
     const double
       t0 = ((double*) ring_buffer_tail(obj->history))[idx_t],
       t1 = ((double*) ring_buffer_tail_offset(obj->history, n - 1))[idx_t];
-    idx0 = (t1 - t0) / (n - 1);
+    idx0 = min_size((t - t0) / (t1 - t0) / (n - 1), n - 1);
   }
   const void *h =
     ring_buffer_search_bisect(obj->history, idx0,
@@ -805,7 +801,56 @@ void ylag_vec_int(double t, const int *idx, size_t nidx, double *y) {
   }
 }
 
+
+void dopri_eval(dopri_data *obj, double t, double *y, double *dydt) {
+  dopri_print_eval(obj, t, y);
+  obj->target(obj->n, t, y, dydt, obj->data);
+  obj->n_eval++;
+}
+
+
+void dopri_print_step(dopri_data *obj, double h) {
+  if (obj->verbose >= VERBOSE_STEP) {
+    if (obj->callback == R_NilValue) {
+      Rprintf("[step] t: %f, h: %e\n", obj->t, h);
+    } else {
+      dopri_callback(obj, obj->t, h, obj->y);
+    }
+  }
+}
+
+
+void dopri_print_eval(dopri_data *obj, double t, double *y) {
+  if (obj->verbose >= VERBOSE_EVAL) {
+    if (obj->callback == R_NilValue) {
+      Rprintf("[eval] t: %f\n", t);
+    } else {
+      dopri_callback(obj, t, NA_REAL, y);
+    }
+  }
+}
+
+
+void dopri_callback(dopri_data *obj, double t, double h, double *y) {
+  SEXP callback = VECTOR_ELT(obj->callback, 0);
+  SEXP env = VECTOR_ELT(obj->callback, 1);
+
+  SEXP r_t = PROTECT(ScalarReal(t));
+  SEXP r_h = PROTECT(ScalarReal(h));
+  SEXP r_y = PROTECT(allocVector(REALSXP, obj->n));
+  memcpy(REAL(r_y), y, obj->n * sizeof(double));
+  SEXP call = PROTECT(lang4(callback, r_t, r_h, r_y));
+  eval(call, env);
+  UNPROTECT(4);
+}
+
+
 // Utility
 double square(double x) {
   return x * x;
+}
+
+
+size_t min_size(size_t a, size_t b) {
+  return a <= b ? a : b;
 }

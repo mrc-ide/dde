@@ -55,30 +55,30 @@ void dopri5_step(dopri_data *obj, double h) {
   for (size_t i = 0; i < n; ++i) { // 22
     y1[i] = y[i] + h * A21 * k1[i];
   }
-  obj->target(n, t + C2 * h, y1, k2, data);
+  dopri_eval(obj, t + C2 * h, y1, k2);
   for (size_t i = 0; i < n; ++i) { // 23
     y1[i] = y[i] + h * (A31 * k1[i] + A32 * k2[i]);
   }
-  obj->target(n, t + C3 * h, y1, k3, data);
+  dopri_eval(obj, t + C3 * h, y1, k3);
   for (size_t i = 0; i < n; ++i) { // 24
     y1[i] = y[i] + h * (A41 * k1[i] + A42 * k2[i] + A43 * k3[i]);
   }
-  obj->target(n, t + C4 * h, y1, k4, data);
+  dopri_eval(obj, t + C4 * h, y1, k4);
   for (size_t i = 0; i < n; ++i) { // 25
     y1[i] = y[i] + h * (A51 * k1[i] + A52 * k2[i] + A53 * k3[i] + A54 * k4[i]);
   }
-  obj->target(n, t + C5 * h, y1, k5, data);
+  dopri_eval(obj, t + C5 * h, y1, k5);
   for (size_t i = 0; i < n; ++i) { // 26
     ysti[i] = y[i] + h * (A61 * k1[i] + A62 * k2[i] + A63 * k3[i] +
                           A64 * k4[i] + A65 * k5[i]);
   }
   double t_next = t + h;
-  obj->target(n, t_next, ysti, k6, data);
+  dopri_eval(obj, t_next, ysti, k6);
   for (size_t i = 0; i < n; ++i) { // 27
     y1[i] = y[i] + h * (A71 * k1[i] + A73 * k3[i] + A74 * k4[i] +
                         A75 * k5[i] + A76 * k6[i]);
   }
-  obj->target(n, t_next, y1, k2, data);
+  dopri_eval(obj, t_next, y1, k2);
 
   // TODO: Doing this unconditionally at the moment, but this should
   // be tuned, and possibly thinned (e.g., with the index thing).
@@ -93,7 +93,6 @@ void dopri5_step(dopri_data *obj, double h) {
     k4[i] = h * (E1 * k1[i] + E3 * k3[i] + E4 * k4[i] +
                  E5 * k5[i] + E6 * k6[i] + E7 * k2[i]);
   }
-  obj->n_eval += 6;
 }
 
 double dopri5_error(dopri_data *obj) {
