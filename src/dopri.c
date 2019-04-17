@@ -825,7 +825,7 @@ void dopri_print_eval(dopri_data *obj, double t, double *y) {
     if (obj->callback == R_NilValue) {
       Rprintf("[eval] t: %f\n", t);
     } else {
-      dopri_callback(obj, obj->t, NA_REAL, obj->y);
+      dopri_callback(obj, t, NA_REAL, y);
     }
   }
 }
@@ -835,10 +835,10 @@ void dopri_callback(dopri_data *obj, double t, double h, double *y) {
   SEXP callback = VECTOR_ELT(obj->callback, 0);
   SEXP env = VECTOR_ELT(obj->callback, 1);
 
-  SEXP r_t = PROTECT(ScalarReal(obj->t));
+  SEXP r_t = PROTECT(ScalarReal(t));
   SEXP r_h = PROTECT(ScalarReal(h));
   SEXP r_y = PROTECT(allocVector(REALSXP, obj->n));
-  memcpy(REAL(r_y), obj->y, obj->n * sizeof(double));
+  memcpy(REAL(r_y), y, obj->n * sizeof(double));
   SEXP call = PROTECT(lang4(callback, r_t, r_h, r_y));
   eval(call, env);
   UNPROTECT(4);

@@ -708,6 +708,11 @@ test_that("verbose with callback", {
   expect_equal(evals[[1]]$t, 0)
   expect_equal(evals[[1]]$y, unname(y0))
   expect_true(all(is.na(vapply(evals, function(x) x$h, numeric(1)))))
+
+  ## Time must have changed
+  expect_gt(evals[[2]]$t, evals[[1]]$t)
+  ## Output must have changed
+  expect_true(all(evals[[2]]$y != evals[[1]]$y))
 })
 
 
