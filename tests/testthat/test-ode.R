@@ -664,6 +664,43 @@ test_that("verbose mode prints trace", {
 })
 
 
+test_that("verbose with callback", {
+  p <- c(10, 28, 8 / 3)
+  y0 <- c(10, 1, 1)
+
+  lorenz <- function(t, y, p) {
+    sigma <- p[[1L]]
+    R <- p[[2L]]
+    b <- p[[3L]]
+    c(sigma * (y[[2L]] - y[[1L]]),
+      R * y[[1L]] - y[[2L]] - y[[1L]] * y[[3L]],
+      -b * y[[3L]] + y[[1L]] * y[[2L]])
+  }
+
+  tt <- seq(0, 1, length.out = 200)
+  names(y0) <- letters[1:3]
+
+  steps <- list()
+  evals <- list()
+  callback <- function(t, h, y, is_step) {
+    if (is_step) {
+      steps <<- c(steps, list(list(t = t, h = h, y = y)))
+    } else {
+      evals <<- c(evals, list(list(t = t, h = h, y = y)))
+    }
+  }
+
+  ## Callback successfully returns all steps - we could have done
+  ## something more interesting here.
+  ans <- dopri(y0, tt, lorenz, p, verbose = TRUE, callback = callback)
+  n <- length(steps)
+  expect_gt(n, 0)
+  expect_equal(steps[[1]]$t, 0)
+  expect_equal(steps[[1]]$y, unname(y0))
+  expect_equal(steps[[n]]$t + steps[[n]]$h, 1)
+})
+
+
 test_that("check verbose argument", {
   expect_identical(dopri_verbose(FALSE), VERBOSE_QUIET)
   expect_identical(dopri_verbose(0.0), VERBOSE_QUIET)
