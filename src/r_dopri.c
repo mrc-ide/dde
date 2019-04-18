@@ -175,77 +175,15 @@ SEXP r_dopri(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
   double *y = REAL(r_y);
 
 
-  Rprintf("obj-> t0 = %lf\n", obj->t0);
-  Rprintf("obj-> t = %lf\n", obj->t);
-  Rprintf("obj-> sign = %lf\n", obj->sign);
-  Rprintf("obj-> atol = %lf\n", obj->atol);
-  Rprintf("obj-> rtol = %lf\n", obj->rtol);
-  Rprintf("obj-> step_factor_safe= %lf\n", obj->step_factor_safe);
-  Rprintf("obj-> step_factor_min = %lf\n", obj->step_factor_min);
-  Rprintf("obj-> step_factor_max = %lf\n", obj->step_factor_max);
-  Rprintf("obj-> step_size_min = %lf\n", obj->step_size_min);
-  Rprintf("obj-> step_size_max = %lf\n", obj->step_size_max);
-  Rprintf("obj-> step_initial = %lf\n", obj->step_size_initial);
-  Rprintf("obj-> step_beta = %lf\n", obj->step_beta);
-  Rprintf("obj-> step_constant = %lf\n", obj->step_constant);
-
-  Rprintf("obj-> n = %d\n", obj->n);
-  Rprintf("obj->n_times = %d\n", obj->n_times);
-  Rprintf("n_times = %d\n", n_times);
+  
   Rprintf("obj-> times_idx = %d\n", obj->times_idx);
-  Rprintf("obj-> order = %d\n", obj->order);
-  Rprintf("obj-> n_out = %d\n", obj->n_out);
-  Rprintf("obj-> n_tcrit = %d\n", obj->n_tcrit);
-  Rprintf("obj-> tcrit_idx = %d\n", obj->tcrit_idx);
-  Rprintf("obj-> history_len = %d\n", obj->history_len);
-  Rprintf("obj-> history_idx_time = %d\n", obj->history_idx_time);
-  Rprintf("obj-> n_eval = %d\n", obj->n_eval);
-  Rprintf("obj-> n_step = %d\n", obj->n_step);
-  Rprintf("obj-> n_accept = %d\n", obj->n_accept);
-  Rprintf("obj-> n_reject = %d\n", obj->n_reject);
-  Rprintf("obj-> stiff_check = %d\n", obj->stiff_check);
-  Rprintf("obj-> stiff_n_stiff = %d\n", obj->stiff_n_stiff);
-  Rprintf("obj-> stiff_n_nonstiff = %d\n", obj->stiff_n_nonstiff);
-
-
-
+  
   dopri_integrate(obj, y_initial, times, n_times, tcrit, n_tcrit,
                   is_event, events, y, out, return_initial);
 
 
-  Rprintf("2 obj-> t0 = %lf\n", obj->t0);
-  Rprintf("2 obj-> t = %lf\n", obj->t);
-  Rprintf("2 obj-> sign = %lf\n", obj->sign);
-  Rprintf("2 obj-> atol = %lf\n", obj->atol);
-  Rprintf("2 obj-> rtol = %lf\n", obj->rtol);
-  Rprintf("2 obj-> step_factor_safe= %lf\n", obj->step_factor_safe);
-  Rprintf("2 obj-> step_factor_min = %lf\n", obj->step_factor_min);
-  Rprintf("2 obj-> step_factor_max = %lf\n", obj->step_factor_max);
-  Rprintf("2 obj-> step_size_min = %lf\n", obj->step_size_min);
-  Rprintf("2 obj-> step_size_max = %lf\n", obj->step_size_max);
-  Rprintf("2 obj-> step_initial = %lf\n", obj->step_size_initial);
-  Rprintf("2 obj-> step_beta = %lf\n", obj->step_beta);
-  Rprintf("2 obj-> step_constant = %lf\n", obj->step_constant);
-
-  Rprintf("2 obj-> n = %d\n", obj->n);
-  Rprintf("2 obj->n_times = %d\n", obj->n_times);
-  Rprintf("2 n_times = %d\n", n_times);
   Rprintf("2 obj-> times_idx = %d\n", obj->times_idx);
-  Rprintf("2 obj-> order = %d\n", obj->order);
-  Rprintf("2 obj-> n_out = %d\n", obj->n_out);
-  Rprintf("2 obj-> n_tcrit = %d\n", obj->n_tcrit);
-  Rprintf("2 obj-> tcrit_idx = %d\n", obj->tcrit_idx);
-  Rprintf("2 obj-> history_len = %d\n", obj->history_len);
-  Rprintf("2 obj-> history_idx_time = %d\n", obj->history_idx_time);
-  Rprintf("2 obj-> n_eval = %d\n", obj->n_eval);
-  Rprintf("2 obj-> n_step = %d\n", obj->n_step);
-  Rprintf("2 obj-> n_accept = %d\n", obj->n_accept);
-  Rprintf("2 obj-> n_reject = %d\n", obj->n_reject);
-  Rprintf("2 obj-> stiff_check = %d\n", obj->stiff_check);
-  Rprintf("2 obj-> stiff_n_stiff = %d\n", obj->stiff_n_stiff);
-  Rprintf("2 obj-> stiff_n_nonstiff = %d\n", obj->stiff_n_nonstiff);
-
-  
+    
   r_dopri_cleanup(obj, r_ptr, r_y, r_out,
                   return_history, return_statistics, return_pointer);
 
