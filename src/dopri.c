@@ -857,21 +857,3 @@ double square(double x) {
 size_t min_size(size_t a, size_t b) {
   return a <= b ? a : b;
 }
-
-XP r_y = PROTECT(allocVector(REALSXP, obj->n));
-  memcpy(REAL(r_y), y, obj->n * sizeof(double));
-  SEXP call = PROTECT(lang4(callback, r_t, r_h, r_y));
-  eval(call, env);
-  UNPROTECT(4);
-}
-
-
-// Utility
-double square(double x) {
-  return x * x;
-}
-
-
-size_t min_size(size_t a, size_t b) {
-  return a <= b ? a : b;
-}
