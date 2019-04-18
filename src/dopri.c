@@ -472,7 +472,7 @@ void dopri_integrate(dopri_data *obj, const double *y,
         Rprintf("obj->times[0] = %lf, obj->times[1] = %lf\n", obj->times[0], obj->times[1]);
       }
       Rprintf("obj->n_times = %d\n",obj->n_times);
-      Rprintf("obj->sign = %d\n", obj->sign);
+      Rprintf("obj->sign = %lf\n", obj->sign);
       Rprintf("obj->t = %lf\n", obj->t);
       Rprintf("obj->times_idx = %d\n", obj->times_idx); 
 
