@@ -672,6 +672,7 @@ bool dopri_test_stiff(dopri_data *obj, double h) {
       }
     }
   }
+  Rprintf("dopri_test_Stiff - stiff_n_nonstiff = %d\n", obj->stiff_n_nonstiff);
   return ret;
 }
 

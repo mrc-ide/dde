@@ -60,6 +60,8 @@ SEXP r_dopri(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
     tcrit = REAL(r_tcrit);
   }
 
+  Rprintf("n_tcrit = %d\n", n_tcrit);
+  
   // TODO: I should probably overhaul the tcrit to critical_times or
   // something less obscure.
   //
@@ -75,9 +77,12 @@ SEXP r_dopri(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
   // Otherwise it's fairly trivial.
   //
   // I'm increasingly thinking this will be easiest to process in R.
+  
+  
   bool *is_event = (bool*)R_alloc(n_tcrit, sizeof(bool));
   event_func **events = NULL;
   if (r_is_event != R_NilValue) {
+    Rprintf("r_is_event is not null\n");
     int *tmp = INTEGER(r_is_event);
     for (size_t i = 0; i < n_tcrit; ++i) {
       is_event[i] = tmp[i];
@@ -98,6 +103,7 @@ SEXP r_dopri(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
       }
     }
   } else {
+    Rprintf("r_is_event is null. n_tcrit = %d\n",n_tcrit);
     for (size_t i = 0; i < n_tcrit; ++i) {
       is_event[i] = false;
     }
@@ -106,18 +112,25 @@ SEXP r_dopri(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
   // There is probably a nicer way of doing this, but while we have
   // exactly two methods, this is not too bad.
   dopri_method method = INTEGER(r_use_853)[0] ? DOPRI_853 : DOPRI_5;
+  
+  Rprintf("INT(r_use_853) = %d - method = %d, DOPRI_853 = %d, DOPRI_5 = %d\n", INTEGER(r_use_853)[0],
+          method, DOPRI_853, DOPRI_5);
 
   deriv_func *func = NULL;
+  
   if (r_func == R_NilValue) {
+    Rprintf("r_func was nil\n");
     func = dde_r_harness;
   } else {
+    Rprintf("r_func was not nil\n");
     func = (deriv_func*)ptr_fn_get(r_func);
     if (func == NULL) {
       Rf_error("Was passed null pointer for 'func'");
     }
   }
+  
   void *data = data_pointer(r_data, r_data_is_real);
-
+  
   size_t n_history = (size_t)INTEGER(r_n_history)[0];
   bool grow_history = INTEGER(r_grow_history)[0];
   dopri_verbose verbose = INTEGER(r_verbose)[0];
@@ -126,14 +139,24 @@ SEXP r_dopri(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
   bool return_statistics = INTEGER(r_return_statistics)[0];
   bool return_pointer = INTEGER(r_return_pointer)[0];
   size_t nt = return_initial ? n_times : n_times - 1;
+  Rprintf("n_history = %d\n", n_history);
+  Rprintf("grow_history = %d\n", grow_history);
+  Rprintf("verbose = %d\n", verbose);
+  Rprintf("return_history = %d\n", return_history);
+  Rprintf("return_initial = %d\n", return_initial);
+  Rprintf("return_statistics = %d\n", return_statistics);
+  Rprintf("return_pointer = %d\n", return_pointer);
   Rprintf("nt = %d\n", nt);
 
   size_t n_out = INTEGER(r_n_out)[0];
+  Rprintf("n_out = %d\n", n_out);
   output_func *output = NULL;
   double *out = NULL;
   SEXP r_out = R_NilValue;
   if (n_out > 0) {
+    Rprintf("n_out > 0\n");
     if (r_output == R_NilValue) {
+      Rprintf("output set to dde_r_output_harness\n");
       output = dde_r_output_harness;
     } else {
       output = (output_func*)ptr_fn_get(r_output);
@@ -143,6 +166,8 @@ SEXP r_dopri(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
     }
     r_out = PROTECT(allocMatrix(REALSXP, n_out, nt));
     out = REAL(r_out);
+    Rprintf("out = %d\n", out);
+    
   }
 
   // TODO: as an option save the conditions here.  That's not too bad
@@ -175,112 +200,22 @@ SEXP r_dopri(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
   double *y = REAL(r_y);
 
 
-  Rprintf("obj-> t0 = %lf\n", obj->t0);
-  Rprintf("obj-> t = %lf\n", obj->t);
-  Rprintf("obj-> sign = %lf\n", obj->sign);
-  Rprintf("obj-> atol = %lf\n", obj->atol);
-  Rprintf("obj-> rtol = %lf\n", obj->rtol);
-  Rprintf("obj-> step_factor_safe= %lf\n", obj->step_factor_safe);
-  Rprintf("obj-> step_factor_min = %lf\n", obj->step_factor_min);
-  Rprintf("obj-> step_factor_max = %lf\n", obj->step_factor_max);
-  Rprintf("obj-> step_size_min = %lf\n", obj->step_size_min);
-  Rprintf("obj-> step_size_max = %lf\n", obj->step_size_max);
-  Rprintf("obj-> step_initial = %lf\n", obj->step_size_initial);
-  Rprintf("obj-> step_beta = %lf\n", obj->step_beta);
-  Rprintf("obj-> step_constant = %lf\n", obj->step_constant);
-
-  Rprintf("obj-> n = %d\n", obj->n);
-  Rprintf("obj->n_times = %d\n", obj->n_times);
-  Rprintf("n_times = %d\n", n_times);
   Rprintf("obj-> times_idx = %d\n", obj->times_idx);
   Rprintf("obj-> order = %d\n", obj->order);
-  Rprintf("obj-> n_out = %d\n", obj->n_out);
-  Rprintf("obj-> n_tcrit = %d\n", obj->n_tcrit);
-  Rprintf("obj-> tcrit_idx = %d\n", obj->tcrit_idx);
-  Rprintf("obj-> history_len = %d\n", obj->history_len);
-  Rprintf("obj-> history_idx_time = %d\n", obj->history_idx_time);
-  Rprintf("obj-> n_eval = %d\n", obj->n_eval);
-  Rprintf("obj-> n_step = %d\n", obj->n_step);
-  Rprintf("obj-> n_accept = %d\n", obj->n_accept);
-  Rprintf("obj-> n_reject = %d\n", obj->n_reject);
-  Rprintf("obj-> stiff_check = %d\n", obj->stiff_check);
-  Rprintf("obj-> stiff_n_stiff = %d\n", obj->stiff_n_stiff);
-  Rprintf("obj-> stiff_n_nonstiff = %d\n", obj->stiff_n_nonstiff);
-
-
 
   dopri_integrate(obj, y_initial, times, n_times, tcrit, n_tcrit,
                   is_event, events, y, out, return_initial);
 
 
-  Rprintf("2 obj-> t0 = %lf\n", obj->t0);
-  Rprintf("2 obj-> t = %lf\n", obj->t);
-  Rprintf("2 obj-> sign = %lf\n", obj->sign);
-  Rprintf("2 obj-> atol = %lf\n", obj->atol);
-  Rprintf("2 obj-> rtol = %lf\n", obj->rtol);
-  Rprintf("2 obj-> step_factor_safe= %lf\n", obj->step_factor_safe);
-  Rprintf("2 obj-> step_factor_min = %lf\n", obj->step_factor_min);
-  Rprintf("2 obj-> step_factor_max = %lf\n", obj->step_factor_max);
-  Rprintf("2 obj-> step_size_min = %lf\n", obj->step_size_min);
-  Rprintf("2 obj-> step_size_max = %lf\n", obj->step_size_max);
-  Rprintf("2 obj-> step_initial = %lf\n", obj->step_size_initial);
-  Rprintf("2 obj-> step_beta = %lf\n", obj->step_beta);
-  Rprintf("2 obj-> step_constant = %lf\n", obj->step_constant);
-
-  Rprintf("2 obj-> n = %d\n", obj->n);
-  Rprintf("2 obj->n_times = %d\n", obj->n_times);
-  Rprintf("2 n_times = %d\n", n_times);
   Rprintf("2 obj-> times_idx = %d\n", obj->times_idx);
   Rprintf("2 obj-> order = %d\n", obj->order);
-  Rprintf("2 obj-> n_out = %d\n", obj->n_out);
-  Rprintf("2 obj-> n_tcrit = %d\n", obj->n_tcrit);
-  Rprintf("2 obj-> tcrit_idx = %d\n", obj->tcrit_idx);
-  Rprintf("2 obj-> history_len = %d\n", obj->history_len);
-  Rprintf("2 obj-> history_idx_time = %d\n", obj->history_idx_time);
-  Rprintf("2 obj-> n_eval = %d\n", obj->n_eval);
-  Rprintf("2 obj-> n_step = %d\n", obj->n_step);
-  Rprintf("2 obj-> n_accept = %d\n", obj->n_accept);
-  Rprintf("2 obj-> n_reject = %d\n", obj->n_reject);
-  Rprintf("2 obj-> stiff_check = %d\n", obj->stiff_check);
-  Rprintf("2 obj-> stiff_n_stiff = %d\n", obj->stiff_n_stiff);
-  Rprintf("2 obj-> stiff_n_nonstiff = %d\n", obj->stiff_n_nonstiff);
-
   
   r_dopri_cleanup(obj, r_ptr, r_y, r_out,
                   return_history, return_statistics, return_pointer);
 
   
-  Rprintf("3 obj-> t0 = %lf\n", obj->t0);
-  Rprintf("3 obj-> t = %lf\n", obj->t);
-  Rprintf("3 obj-> sign = %lf\n", obj->sign);
-  Rprintf("3 obj-> atol = %lf\n", obj->atol);
-  Rprintf("3 obj-> rtol = %lf\n", obj->rtol);
-  Rprintf("3 obj-> step_factor_safe= %lf\n", obj->step_factor_safe);
-  Rprintf("3 obj-> step_factor_min = %lf\n", obj->step_factor_min);
-  Rprintf("3 obj-> step_factor_max = %lf\n", obj->step_factor_max);
-  Rprintf("3 obj-> step_size_min = %lf\n", obj->step_size_min);
-  Rprintf("3 obj-> step_size_max = %lf\n", obj->step_size_max);
-  Rprintf("3 obj-> step_initial = %lf\n", obj->step_size_initial);
-  Rprintf("3 obj-> step_beta = %lf\n", obj->step_beta);
-  Rprintf("3 obj-> step_constant = %lf\n", obj->step_constant);
-
-  Rprintf("3 obj-> n = %d\n", obj->n);
-  Rprintf("3 obj->n_times = %d\n", obj->n_times);
-  Rprintf("3 n_times = %d\n", n_times);
   Rprintf("3 obj-> times_idx = %d\n", obj->times_idx);
   Rprintf("3 obj-> order = %d\n", obj->order);
-  Rprintf("3 obj-> n_out = %d\n", obj->n_out);
-  Rprintf("3 obj-> n_tcrit = %d\n", obj->n_tcrit);
-  Rprintf("3 obj-> tcrit_idx = %d\n", obj->tcrit_idx);
-  Rprintf("3 obj-> history_len = %d\n", obj->history_len);
-  Rprintf("3 obj-> history_idx_time = %d\n", obj->history_idx_time);
-  Rprintf("3 obj-> n_eval = %d\n", obj->n_eval);
-  Rprintf("3 obj-> n_step = %d\n", obj->n_step);
-  Rprintf("3 obj-> n_accept = %d\n", obj->n_accept);
-  Rprintf("3 obj-> n_reject = %d\n", obj->n_reject);
-  Rprintf("3 obj-> stiff_check = %d\n", obj->stiff_check);
-  Rprintf("3 obj-> stiff_n_stiff = %d\n", obj->stiff_n_stiff);
-  Rprintf("3 obj-> stiff_n_nonstiff = %d\n", obj->stiff_n_nonstiff);
 
   UNPROTECT(2);
   return r_y;
@@ -494,10 +429,11 @@ dopri_data* dopri_ptr_get(SEXP r_ptr) {
 void r_dopri_cleanup(dopri_data *obj, SEXP r_ptr, SEXP r_y, SEXP r_out,
                      bool return_history, bool return_statistics,
                      bool return_pointer) {
+
   if (obj->error) {
     r_dopri_error(obj); // will error
   }
-
+  
   if (return_history) {
     size_t nh = ring_buffer_used(obj->history, 0);
     SEXP history = PROTECT(allocMatrix(REALSXP, obj->history_len, nh));
@@ -508,10 +444,12 @@ void r_dopri_cleanup(dopri_data *obj, SEXP r_ptr, SEXP r_y, SEXP r_out,
     UNPROTECT(1);
   }
 
+
   if (obj->n_out > 0) {
     setAttrib(r_y, install("output"), r_out);
     UNPROTECT(1);
   }
+
 
   if (return_statistics) {
     SEXP stats = PROTECT(allocVector(INTSXP, 4));

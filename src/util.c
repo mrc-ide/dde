@@ -69,9 +69,14 @@ size_t * r_indices(SEXP x, size_t len) {
 
 void * data_pointer(SEXP r_data, SEXP r_data_is_real) {
   void *data;
+  if (TYPEOF(r_data) == REALSXP) {
+    Rprintf("data pointer is REALSXP\n");
+  }
   if (TYPEOF(r_data) == REALSXP && INTEGER(r_data_is_real)[0]) {
+    Rprintf("data_pointer case 1\n");
     data = (void*) REAL(r_data);
   } else if (TYPEOF(r_data) == EXTPTRSXP) {
+    Rprintf("data_pointer case 2\n");
     data = R_ExternalPtrAddr(r_data);
     if (data == NULL) {
       // NOTE: in the underlying interface this will have come in as
@@ -79,6 +84,7 @@ void * data_pointer(SEXP r_data, SEXP r_data_is_real) {
       Rf_error("Was passed null pointer for 'parms'");
     }
   } else {
+    Rprintf("data_pointer case 3\n");
     data = (void*) r_data;
   }
   return data;
