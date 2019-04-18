@@ -291,6 +291,9 @@ void dopri_integrate(dopri_data *obj, const double *y,
                      const bool *is_event, event_func **events,
                      double *y_out, double *out,
                      bool return_initial) {
+  
+  Rprintf("dopri_integrate: n_times = %d\n", n_times);
+
   dopri_data_reset(obj, y, times, n_times, tcrit, n_tcrit,
                    is_event, events);
   if (obj->error) {
@@ -302,12 +305,16 @@ void dopri_integrate(dopri_data *obj, const double *y,
 
   double t_end = times[n_times - 1];
   double t_stop = t_end;
+
+  Rprintf("DI: t_end = %lf\n", t_end);
   if (obj->tcrit_idx < obj->n_tcrit &&
       obj->sign * obj->tcrit[obj->tcrit_idx] < obj->sign * t_end) {
     t_stop = obj->tcrit[obj->tcrit_idx];
   } else {
     t_stop = t_end;
   }
+
+  Rprintf("DI: t_end=%lf, t_stop=%lf\n", t_end, t_stop);
 
   // Possibly only set this if the number of history variables is
   // nonzero?  Needs to be set before any calls to target() though.

@@ -126,6 +126,7 @@ SEXP r_dopri(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
   bool return_statistics = INTEGER(r_return_statistics)[0];
   bool return_pointer = INTEGER(r_return_pointer)[0];
   size_t nt = return_initial ? n_times : n_times - 1;
+  Rprintf("nt = %d\n", nt);
 
   size_t n_out = INTEGER(r_n_out)[0];
   output_func *output = NULL;
@@ -168,6 +169,8 @@ SEXP r_dopri(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
 
   SEXP r_y = PROTECT(allocMatrix(REALSXP, n, nt));
   memset(REAL(r_y), 0, n * nt * sizeof(double));
+
+  Rprintf("n, nt, sodouble = %d, %d, %d\n", n, nt, sizeof(double));
 
   double *y = REAL(r_y);
   dopri_integrate(obj, y_initial, times, n_times, tcrit, n_tcrit,
