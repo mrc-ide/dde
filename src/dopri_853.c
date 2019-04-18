@@ -171,7 +171,7 @@ void dopri853_step(dopri_data *obj, double h) {
     *k9 = obj->k[8],
     *k10 = obj->k[9];
   double *y = obj->y, *y1 = obj->y1;
-  const void* data = obj->data;
+  //UNUSED: const void* data = obj->data;
 
   // TODO: do we need to call target here with y, k1?  Looks like
   // that's probably taken care of for us, as a similar call exists in
