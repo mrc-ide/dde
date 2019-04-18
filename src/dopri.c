@@ -438,7 +438,7 @@ void dopri_integrate(dopri_data *obj, const double *y,
       obj->t += h;
       
       while (obj->times_idx < obj->n_times &&
-             obj->sign * obj->times[obj->times_idx] <= obj->sign * obj->t) {
+             (obj->sign * obj->times[obj->times_idx] <= obj->sign * obj->t)) {
         // Here, it might be nice to allow transposed output or not;
         // that would be an argument to interpolate_all.  That's a bit
         // of a faff.
@@ -467,6 +467,11 @@ void dopri_integrate(dopri_data *obj, const double *y,
           Rprintf("Yes\n");
         } else {
           Rprintf("No\n");
+        }
+        if (obj->times_idx < obj->n_times) {
+          Rprintf("First one is true\n");
+        } else {
+          Rprintf("First one is false\n");
         }
         
         Rprintf("obj->times[0] = %lf, obj->times[1] = %lf\n", obj->times[0], obj->times[1]);
