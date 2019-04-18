@@ -45,6 +45,9 @@ SEXP r_dopri(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
 
   size_t n_times = LENGTH(r_times);
   double *times = REAL(r_times);
+  
+  Rprintf("n = %d\n", n);
+  Rprintf("n_times = %d\n", n_times);
 
   if (n_times < 2) {
     Rf_error("At least two times must be given");
