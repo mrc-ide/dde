@@ -455,6 +455,9 @@ void dopri_integrate(dopri_data *obj, const double *y,
         y_out += obj->n;
         obj->times_idx++;
       }
+      Rprintf("obj->n_times = %d\n",obj->n_times);
+      Rprintf("obj->sign = %d\n", obj->sign);
+      Rprintf("obj->t = %d\n", obj->t);
       Rprintf("obj->times_idx = %d\n", obj->times_idx); 
 
       // Advance the ring buffer; we'll write to the next place after
