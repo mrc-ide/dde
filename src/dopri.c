@@ -437,17 +437,9 @@ void dopri_integrate(dopri_data *obj, const double *y,
       }
       obj->t += h;
       
-      if (obj->times_idx < obj->n_times) {
-        Rprintf("obj->times_idx < obj->n_times succeeds");
-      } else {
-        Rprintf("obj->times_idx < obj->n_times DOESN'T succeed");
-      }
-      
-      if (obj->sign * obj->times[obj->times_idx] <= obj->sign * obj->t) {
-        Rprintf("Other bit of the while SUCCESS");
-      } else {
-        Rprintf("Other bit of the while FAILS");
-      }
+      Rprintf("obj->times_idx = %d\n", obj->times_idx);
+      Rprintf("obj->n_times = %d\n", obj->n_times);
+      Rprintf("obj->sign = %d\n", obj->sign);
 
       while (obj->times_idx < obj->n_times &&
              obj->sign * obj->times[obj->times_idx] <= obj->sign * obj->t) {
