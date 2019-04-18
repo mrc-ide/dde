@@ -1,6 +1,8 @@
 context("ode")
 
 test_that("ode interface", {
+  skip_on_appveyor()
+
   skip_if_not_installed("deSolve")
   tt <- seq(0, 1, length.out = 200)
   m1 <- run_lorenz_deSolve(tt)
@@ -15,12 +17,16 @@ test_that("ode interface", {
 })
 
 test_that("integer time input", {
+  skip_on_appveyor()
+
   tt <- seq(0, 10, by = 1)
   expect_identical(run_lorenz_dde(as.integer(tt)),
                    run_lorenz_dde(tt))
 })
 
 test_that("zero time difference", {
+  skip_on_appveyor()
+
   tt <- c(0, 0, 1, 1, 2, 2, 2, 3, 3, 3)
   res1 <- run_lorenz_dde(tt, return_initial = TRUE)
   res2 <- run_lorenz_dde(unique(tt), return_initial = TRUE)
@@ -28,6 +34,8 @@ test_that("zero time difference", {
 })
 
 test_that("ode, 873 stepper", {
+  skip_on_appveyor()
+
   tt <- seq(0, 1, length.out = 200)
   m5 <- run_lorenz_dde(tt)
   m8 <- run_lorenz_dde(tt, method = "dopri853")
@@ -36,6 +44,8 @@ test_that("ode, 873 stepper", {
 })
 
 test_that("dense output", {
+  skip_on_appveyor()
+
   skip_if_not_installed("deSolve")
   tt <- seq(0, 1, length.out = 200)
   m1 <- run_lorenz_deSolve(tt)
@@ -84,6 +94,8 @@ test_that("dense output", {
 })
 
 test_that("output", {
+  skip_on_appveyor()
+
   tt <- seq(0, 1, length.out = 200)
 
   p <- c(10, 28, 8 / 3)
@@ -129,6 +141,8 @@ test_that("output", {
 })
 
 test_that("keep initial", {
+  skip_on_appveyor()
+
   tt <- seq(0, 1, length.out = 200)
 
   p <- c(10, 28, 8 / 3)
@@ -178,6 +192,8 @@ test_that("keep initial", {
 })
 
 test_that("R interface", {
+  skip_on_appveyor()
+
   p <- c(10, 28, 8 / 3)
   y0 <- c(10, 1, 1)
 
@@ -205,6 +221,8 @@ test_that("R interface", {
 })
 
 test_that("critical times", {
+  skip_on_appveyor()
+
   target <- function(t, y, p) {
     if (t <= 1) {
       y
@@ -244,6 +262,8 @@ test_that("critical times", {
 })
 
 test_that("names", {
+  skip_on_appveyor()
+
   p <- c(10, 28, 8 / 3)
   y0 <- c(10, 1, 1)
 
@@ -319,6 +339,8 @@ test_that("names", {
 })
 
 test_that("return_time", {
+  skip_on_appveyor()
+
   p <- c(10, 28, 8 / 3)
   y0 <- c(10, 1, 1)
 
@@ -354,6 +376,8 @@ test_that("return_time", {
 })
 
 test_that("minimal mode", {
+  skip_on_appveyor()
+
   p <- c(10, 28, 8 / 3)
   y0 <- c(10, 1, 1)
 
@@ -383,6 +407,8 @@ test_that("minimal mode", {
 })
 
 test_that("step tuning", {
+  skip_on_appveyor()
+
   tt <- seq(0, 1, length.out = 200)
   T_IDX <- 16L
   m0 <- run_lorenz_dde(tt, n_history = 500, return_statistics = TRUE)
@@ -420,6 +446,8 @@ test_that("integrate function with no absolute error", {
 })
 
 test_that("Native Symbol interface", {
+  skip_on_appveyor()
+
   p <- c(10, 28, 8 / 3)
   y <- c(10, 1, 1)
   times <- seq(0, 10, length.out = 101)
@@ -429,6 +457,8 @@ test_that("Native Symbol interface", {
 })
 
 test_that("NULL pointer safety", {
+  skip_on_appveyor()
+
   p <- c(10, 28, 8 / 3)
   y <- c(10, 1, 1)
   times <- seq(0, 10, length.out = 101)
@@ -442,6 +472,8 @@ test_that("NULL pointer safety", {
 })
 
 test_that("always return history when asked", {
+  skip_on_appveyor()
+
   has_history <- function(x) {
     "history" %in% names(attributes(x))
   }
@@ -487,6 +519,8 @@ test_that("always return history when asked", {
 })
 
 test_that("negative time", {
+  skip_on_appveyor()
+
   skip_if_not_installed("deSolve")
   growth <- function(t, y, p) {
     y * p
@@ -529,6 +563,8 @@ test_that("negative time", {
 })
 
 test_that("negative time with tcrit", {
+  skip_on_appveyor()
+
   skip_if_not_installed("deSolve")
   target1 <- function(t, y, p) {
     if (t <= 1) y else -5 * y
@@ -569,6 +605,8 @@ test_that("negative time with tcrit", {
 })
 
 test_that("time validation", {
+  skip_on_appveyor()
+
   expect_error(run_lorenz_dde(numeric(0)), "At least two times must be given")
   expect_error(run_lorenz_dde(0), "At least two times must be given")
 
@@ -579,6 +617,8 @@ test_that("time validation", {
 })
 
 test_that("non-real input", {
+  skip_on_appveyor()
+
   tt <- seq(0, 10, length.out = 101)
   cmp <- run_lorenz_dde(tt)
   p <- c(10, 28, 8 / 3)
@@ -590,6 +630,8 @@ test_that("non-real input", {
 })
 
 test_that("externalptr input", {
+  skip_on_appveyor()
+
   tt <- seq(0, 10, length.out = 101)
   cmp <- run_lorenz_dde(tt)
 
@@ -603,6 +645,8 @@ test_that("externalptr input", {
 })
 
 test_that("grow history", {
+  skip_on_appveyor()
+
   tt <- seq(0, 10, length.out = 101)
   res <- run_lorenz_dde(tt, n_history = 5, grow_history = TRUE,
                         return_history = TRUE, return_statistics = TRUE)
@@ -619,6 +663,8 @@ test_that("grow history", {
 
 
 test_that("initial derivative validation", {
+  skip_on_appveyor()
+
   deriv <- function(t, y, p) {
     dy <- rep(1, length(y))
     if (length(p) > 0L) {
@@ -638,7 +684,7 @@ test_that("initial derivative validation", {
 
 
 test_that("verbose mode prints trace", {
-  #skip_on_appveyor()
+  skip_on_appveyor()
 
   p <- c(10, 28, 8 / 3)
   y0 <- c(10, 1, 1)
@@ -667,6 +713,8 @@ test_that("verbose mode prints trace", {
 
 
 test_that("verbose with callback", {
+  skip_on_appveyor()
+
   p <- c(10, 28, 8 / 3)
   y0 <- c(10, 1, 1)
 
@@ -719,6 +767,8 @@ test_that("verbose with callback", {
 
 
 test_that("check verbose argument", {
+  skip_on_appveyor()
+
   expect_identical(dopri_verbose(FALSE), VERBOSE_QUIET)
   expect_identical(dopri_verbose(0.0), VERBOSE_QUIET)
   expect_identical(dopri_verbose(0L), VERBOSE_QUIET)
@@ -739,6 +789,8 @@ test_that("check verbose argument", {
 
 
 test_that("check callback argument", {
+  skip_on_appveyor()
+
   expect_null(dopri_callback(NULL))
 
   f <- function(a, b, c) NULL
