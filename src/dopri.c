@@ -353,6 +353,7 @@ void dopri_integrate(dopri_data *obj, const double *y,
 
   // TODO: factor into its own thing
   while (true) {
+    Rprintf("while true loop\n");
     if (obj->n_step > obj->step_max_n) {
       obj->error = true;
       obj->code = ERR_TOO_MANY_STEPS;
@@ -404,6 +405,7 @@ void dopri_integrate(dopri_data *obj, const double *y,
     const bool accept = err <= 1;
 
     if (accept) {
+      Rprintf("IF accept success\n");
       // Step is accepted :)
       fac_old = fmax(err, 1e-4);
       obj->n_accept++;
@@ -440,6 +442,8 @@ void dopri_integrate(dopri_data *obj, const double *y,
         // Here, it might be nice to allow transposed output or not;
         // that would be an argument to interpolate_all.  That's a bit
         // of a faff.
+        Rprintf("About to dopri_interpolate-all\n");
+        
         dopri_interpolate_all((double *) obj->history->head, obj->method,
                                obj->n, obj->times[obj->times_idx], y_out);
         if (obj->n_out > 0) {
@@ -460,6 +464,7 @@ void dopri_integrate(dopri_data *obj, const double *y,
       if (last) {
         obj->step_size_initial = h_save;
         obj->code = OK_COMPLETE;
+        Rprintf("Break on last\n");
         break;
       }
       // TODO: To understand this bit I think I will need to get the
