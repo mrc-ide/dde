@@ -42,21 +42,21 @@ SEXP r_dopri(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
              SEXP r_return_pointer) {
   double *y_initial = REAL(r_y_initial);
   size_t n = length(r_y_initial);
-  
+
   size_t n_times = LENGTH(r_times);
   double *times = REAL(r_times);
-  
+
   if (n_times < 2) {
     Rf_error("At least two times must be given");
   }
-  
+
   size_t n_tcrit = 0;
   double *tcrit = NULL;
   if (r_tcrit != R_NilValue) {
     n_tcrit = LENGTH(r_tcrit);
     tcrit = REAL(r_tcrit);
   }
-  
+
   // TODO: I should probably overhaul the tcrit to critical_times or
   // something less obscure.
   //
@@ -99,11 +99,11 @@ SEXP r_dopri(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
       is_event[i] = false;
     }
   }
-  
+
   // There is probably a nicer way of doing this, but while we have
   // exactly two methods, this is not too bad.
   dopri_method method = INTEGER(r_use_853)[0] ? DOPRI_853 : DOPRI_5;
-  
+
   deriv_func *func = NULL;
   if (r_func == R_NilValue) {
     func = dde_r_harness;
@@ -114,7 +114,7 @@ SEXP r_dopri(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
     }
   }
   void *data = data_pointer(r_data, r_data_is_real);
-  
+
   size_t n_history = (size_t)INTEGER(r_n_history)[0];
   bool grow_history = INTEGER(r_grow_history)[0];
   dopri_verbose verbose = INTEGER(r_verbose)[0];
@@ -123,7 +123,7 @@ SEXP r_dopri(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
   bool return_statistics = INTEGER(r_return_statistics)[0];
   bool return_pointer = INTEGER(r_return_pointer)[0];
   size_t nt = return_initial ? n_times : n_times - 1;
-  
+
   size_t n_out = INTEGER(r_n_out)[0];
   output_func *output = NULL;
   double *out = NULL;
@@ -140,7 +140,7 @@ SEXP r_dopri(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
     r_out = PROTECT(allocMatrix(REALSXP, n_out, nt));
     out = REAL(r_out);
   }
-  
+
   // TODO: as an option save the conditions here.  That's not too bad
   // because we just don't pass through REAL(r_y) but REAL(r_y) +
   // n.  We do have to run the output functions once more though.
@@ -153,23 +153,23 @@ SEXP r_dopri(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
   // garbage collects ptr.  Because R resets the protection stack on
   // early exit it is guaranteed to get collected at some point.
   SEXP r_ptr = PROTECT(dopri_ptr_create(obj));
-  
+
   obj->rtol = REAL(r_rtol)[0];
   obj->atol = REAL(r_atol)[0];
   obj->step_size_min = fmax(fabs(REAL(r_step_size_min)[0]), DBL_EPSILON);
   obj->step_size_max = fmin(fabs(REAL(r_step_size_max)[0]), DBL_MAX);
   obj->step_size_initial = REAL(r_step_size_initial)[0];
   obj->step_max_n = INTEGER(r_step_max_n)[0];
-  
+
   obj->stiff_check = INTEGER(r_stiff_check)[0];
-  
+
   SEXP r_y = PROTECT(allocMatrix(REALSXP, n, nt));
   memset(REAL(r_y), 0, n * nt * sizeof(double));
-  
+
   double *y = REAL(r_y);
   dopri_integrate(obj, y_initial, times, n_times, tcrit, n_tcrit,
                   is_event, events, y, out, return_initial);
-  
+
   r_dopri_cleanup(obj, r_ptr, r_y, r_out,
                   return_history, return_statistics, return_pointer);
   UNPROTECT(2);
@@ -197,7 +197,7 @@ SEXP r_dopri_continue(SEXP r_ptr, SEXP r_y_initial, SEXP r_times,
     }
     y_initial = REAL(r_y_initial);
   }
-  
+
   size_t n_times = LENGTH(r_times);
   double *times = REAL(r_times);
   if (n_times < 2) {
@@ -209,24 +209,24 @@ SEXP r_dopri_continue(SEXP r_ptr, SEXP r_y_initial, SEXP r_times,
   if (obj->sign != copysign(1.0, times[n_times - 1] - times[0])) {
     Rf_error("Incorrect sign for the times");
   }
-  
+
   // Need to freshly set the data pointer because it could have been
   // garbage collected in the meantime.
   obj->data = data_pointer(r_data, r_data_is_real);
-  
+
   bool return_history = INTEGER(r_return_history)[0];
   bool return_initial = INTEGER(r_return_initial)[0];
   bool return_statistics = INTEGER(r_return_statistics)[0];
   bool return_pointer = INTEGER(r_return_pointer)[0];
   size_t nt = return_initial ? n_times : n_times - 1;
-  
+
   size_t n_tcrit = 0;
   double *tcrit = NULL;
   if (r_tcrit != R_NilValue) {
     n_tcrit = LENGTH(r_tcrit);
     tcrit = REAL(r_tcrit);
   }
-  
+
   SEXP r_y = PROTECT(allocMatrix(REALSXP, n, nt));
   double *y = REAL(r_y);
   SEXP r_out = R_NilValue;
@@ -235,12 +235,12 @@ SEXP r_dopri_continue(SEXP r_ptr, SEXP r_y_initial, SEXP r_times,
     r_out = PROTECT(allocMatrix(REALSXP, n_out, nt));
     out = REAL(r_out);
   }
-  
+
   bool *is_event = (bool*)R_alloc(n_tcrit, sizeof(bool));
   for (size_t i = 0; i < n_tcrit; ++i) {
     is_event[i] = false;
   }
-  
+
   dopri_integrate(obj, y_initial, times, n_times, tcrit, n_tcrit,
                   is_event, NULL, // FIXME
                   y, out, return_initial);
@@ -281,7 +281,7 @@ void r_dopri_error(dopri_data* obj) {
     break;
   default:
     Rf_error("Integration failure: (code %d) [dde bug]", code); // #nocov
-  break;
+    break;
   }
 }  // #nocov
 
@@ -316,8 +316,8 @@ void dde_r_harness(size_t n, double t, const double *y, double *dydt,
   SEXP d = (SEXP)data;
   SEXP
     target = VECTOR_ELT(d, DOPRI_IDX_TARGET),
-      parms = VECTOR_ELT(d, DOPRI_IDX_PARMS),
-      env = VECTOR_ELT(d, DOPRI_IDX_ENV);
+    parms = VECTOR_ELT(d, DOPRI_IDX_PARMS),
+    env = VECTOR_ELT(d, DOPRI_IDX_ENV);
   SEXP r_t = PROTECT(ScalarReal(t));
   SEXP r_y = PROTECT(allocVector(REALSXP, n));
   memcpy(REAL(r_y), y, n * sizeof(double));
@@ -332,8 +332,8 @@ void dde_r_output_harness(size_t n, double t, const double *y,
   SEXP d = (SEXP)data;
   SEXP
     parms = VECTOR_ELT(d, DOPRI_IDX_PARMS),
-      env = VECTOR_ELT(d, DOPRI_IDX_ENV),
-      output = VECTOR_ELT(d, DOPRI_IDX_OUTPUT);
+    env = VECTOR_ELT(d, DOPRI_IDX_ENV),
+    output = VECTOR_ELT(d, DOPRI_IDX_OUTPUT);
   SEXP r_t = PROTECT(ScalarReal(t));
   SEXP r_y = PROTECT(allocVector(REALSXP, n));
   memcpy(REAL(r_y), y, n * sizeof(double));
@@ -347,8 +347,8 @@ void dde_r_event_harness(size_t n, double t, double *y, void *data) {
   SEXP d = (SEXP)data;
   SEXP
     event = VECTOR_ELT(d, DOPRI_IDX_EVENT),
-      parms = VECTOR_ELT(d, DOPRI_IDX_PARMS),
-      env = VECTOR_ELT(d, DOPRI_IDX_ENV);
+    parms = VECTOR_ELT(d, DOPRI_IDX_PARMS),
+    env = VECTOR_ELT(d, DOPRI_IDX_ENV);
   SEXP r_t = PROTECT(ScalarReal(t));
   SEXP r_y = PROTECT(allocVector(REALSXP, n));
   memcpy(REAL(r_y), y, n * sizeof(double));
@@ -387,7 +387,7 @@ void r_dopri_cleanup(dopri_data *obj, SEXP r_ptr, SEXP r_y, SEXP r_out,
   if (obj->error) {
     r_dopri_error(obj); // will error
   }
-  
+
   if (return_history) {
     size_t nh = ring_buffer_used(obj->history, 0);
     SEXP history = PROTECT(allocMatrix(REALSXP, obj->history_len, nh));
@@ -397,12 +397,12 @@ void r_dopri_cleanup(dopri_data *obj, SEXP r_ptr, SEXP r_y, SEXP r_out,
     setAttrib(r_y, install("history"), history);
     UNPROTECT(1);
   }
-  
+
   if (obj->n_out > 0) {
     setAttrib(r_y, install("output"), r_out);
     UNPROTECT(1);
   }
-  
+
   if (return_statistics) {
     SEXP stats = PROTECT(allocVector(INTSXP, 4));
     SEXP stats_nms = PROTECT(allocVector(STRSXP, 4));
@@ -419,7 +419,7 @@ void r_dopri_cleanup(dopri_data *obj, SEXP r_ptr, SEXP r_y, SEXP r_out,
     setAttrib(r_y, install("step_size"), ScalarReal(obj->step_size_initial));
     UNPROTECT(2);
   }
-  
+
   // Deterministically clean up if we can, otherwise we clean up by R
   // running the finaliser for us when it garbage collects ptr above.
   if (return_pointer) {

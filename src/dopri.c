@@ -13,31 +13,31 @@ dopri_data* dopri_data_alloc(deriv_func* target, size_t n,
   dopri_data *ret = (dopri_data*) R_Calloc(1, dopri_data);
   overflow_action on_overflow =
     grow_history ? OVERFLOW_GROW : OVERFLOW_OVERWRITE;
-  
+
   ret->target = target;
   ret->output = output;
   ret->data = data;
-  
+
   ret->method = method;
   ret->order = ret->method == DOPRI_5 ? 5 : 8;
-  
+
   ret->n = n;
   ret->n_out = n_out;
-  
+
   ret->n_times = 0;
   ret->times = NULL;
   ret->tcrit = NULL;
-  
+
   ret->verbose = verbose;
   ret->callback = callback;
-  
+
   // tcrit variables are set in reset
-  
+
   // State vectors
   ret->y0 = R_Calloc(n, double); // initial
   ret->y  = R_Calloc(n, double); // current
   ret->y1 = R_Calloc(n, double); // next
-  
+
   // NOTE: There's no real reason to believe that the storage
   // requirements (nk) will always grow linearly like this, but I
   // don't really anticipate adding any other schemes soon anyway, so
@@ -47,13 +47,13 @@ dopri_data* dopri_data_alloc(deriv_func* target, size_t n,
   for (size_t i = 0; i < nk; ++i) {
     ret->k[i] = R_Calloc(n, double);
   }
-  
+
   ret->history_len = 2 + ret->order * n;
   ret->history = ring_buffer_create(n_history,
                                     ret->history_len * sizeof(double),
                                     on_overflow);
   ret->history_idx_time = ret->order * n;
-  
+
   // NOTE: The numbers below are defaults only, but to alter them,
   // directly modify the object after creation.  I may set up some
   // sort of helper functions for this later, but for now just don't
@@ -62,7 +62,7 @@ dopri_data* dopri_data_alloc(deriv_func* target, size_t n,
   // TODO: Support vectorised tolerances?
   ret->atol = 1e-6;
   ret->rtol = 1e-6;
-  
+
   switch (ret->method) {
   case DOPRI_5:
     ret->step_factor_min = 0.2;  // from dopri5.f:276, retard.f:328
@@ -80,10 +80,10 @@ dopri_data* dopri_data_alloc(deriv_func* target, size_t n,
   ret->step_size_initial = 0.0;
   ret->step_max_n = 100000;    // from dopri5.f:212
   ret->step_factor_safe = 0.9; // from dopri5.f:265
-  
+
   // How often to check for stiffness?
   ret->stiff_check = 0;
-  
+
   return ret;
 }
 
@@ -112,12 +112,12 @@ dopri_data* dopri_data_copy(const dopri_data* obj) {
   ret->step_max_n = obj->step_max_n;
   ret->step_beta = obj->step_beta;
   ret->step_constant = obj->step_constant;
-  
+
   // NOTE: I'm not copying the times over because the first thing that
   // happens is always a reset and that deals with this.
   ret->times = NULL;
   ret->tcrit = NULL;
-  
+
   // Copy all of the internal state:
   memcpy(ret->y, obj->y, obj->n * sizeof(double));
   memcpy(ret->y0, obj->y0, obj->n * sizeof(double));
@@ -126,7 +126,7 @@ dopri_data* dopri_data_copy(const dopri_data* obj) {
   for (size_t i = 0; i < nk; ++i) {
     memcpy(ret->k[i], obj->k[i], obj->n * sizeof(double));
   }
-  
+
   return ret;
 }
 
@@ -138,7 +138,7 @@ void dopri_data_reset(dopri_data *obj, const double *y,
                       const bool *is_event, event_func **events) {
   obj->error = false;
   obj->code = NOT_SET;
-  
+
   switch (obj->method) {
   case DOPRI_5:
     obj->step_constant = 0.2 - obj->step_beta * 0.75;
@@ -150,16 +150,16 @@ void dopri_data_reset(dopri_data *obj, const double *y,
     obj->step_constant = 0.125 - obj->step_beta * 0.2;
     break;
   }
-  
+
   memcpy(obj->y0, y, obj->n * sizeof(double));
   if (obj->y != y) { // this is true on some restarts
     memcpy(obj->y, y, obj->n * sizeof(double));
   }
-  
+
   obj->n_times = n_times;
   obj->times = times;
   obj->times_idx = 1; // skipping the first time!
-  
+
   // TODO: I don't check that there is at least one time anywhere in
   // *this* routine, but it is checked in r_dopri which calls this.
   if (times[n_times - 1] == times[0]) {
@@ -178,7 +178,7 @@ void dopri_data_reset(dopri_data *obj, const double *y,
       return;
     }
   }
-  
+
   if (ring_buffer_is_empty(obj->history)) {
     obj->t0 = obj->sign * times[0];
   } else {
@@ -187,7 +187,7 @@ void dopri_data_reset(dopri_data *obj, const double *y,
     obj->t0 = obj->sign * h[obj->history_idx_time];
   }
   obj->t = times[0];
-  
+
   obj->n_tcrit = n_tcrit;
   obj->tcrit = tcrit;
   obj->tcrit_idx = 0;
@@ -198,19 +198,19 @@ void dopri_data_reset(dopri_data *obj, const double *y,
       obj->tcrit_idx++;
     }
   }
-  
+
   obj->is_event = is_event;
   obj->events = events;
-  
+
   obj->n_eval = 0;
   obj->n_step = 0;
   obj->n_accept = 0;
   obj->n_reject = 0;
-  
+
   if (obj->stiff_check == 0) {
     obj->stiff_check = SIZE_MAX;
   }
-  
+
   obj->stiff_n_stiff = 0;
   obj->stiff_n_nonstiff = 0;
 }
@@ -219,15 +219,15 @@ void dopri_data_free(dopri_data *obj) {
   R_Free(obj->y0);
   R_Free(obj->y);
   R_Free(obj->y1);
-  
+
   size_t nk = obj->order + 2;
   for (size_t i = 0; i < nk; ++i) {
     R_Free(obj->k[i]);
   }
   R_Free(obj->k);
-  
+
   ring_buffer_destroy(obj->history);
-  
+
   R_Free(obj);
 }
 
@@ -296,10 +296,10 @@ void dopri_integrate(dopri_data *obj, const double *y,
   if (obj->error) {
     return;
   }
-  
+
   double fac_old = 1e-4;
   bool stop = false, last = false, reject = false;
-  
+
   double t_end = times[n_times - 1];
   double t_stop = t_end;
   if (obj->tcrit_idx < obj->n_tcrit &&
@@ -308,11 +308,11 @@ void dopri_integrate(dopri_data *obj, const double *y,
   } else {
     t_stop = t_end;
   }
-  
+
   // Possibly only set this if the number of history variables is
   // nonzero?  Needs to be set before any calls to target() though.
   dopri_global_obj = obj;
-  
+
   // If requested, copy initial conditions into the output space
   if (return_initial) {
     memcpy(y_out, y, obj->n * sizeof(double));
@@ -322,20 +322,20 @@ void dopri_integrate(dopri_data *obj, const double *y,
       out += obj->n_out;
     }
   }
-  
+
   dopri_eval(obj, obj->t, obj->y, obj->k[0]); // y => k1
-  
+
   for (size_t i = 0; i < obj->n; ++i) {
     if (!R_FINITE(obj->k[0][i])) {
       Rf_error("non-finite derivative at initial time for element %d\n",
                i + 1);
     }
   }
-  
+
   // Work out the initial step size:
   double h = dopri_h_init(obj);
   double h_save = 0.0;
-  
+
   // TODO: factor into its own thing
   while (true) {
     if (obj->n_step > obj->step_max_n) {
@@ -368,7 +368,7 @@ void dopri_integrate(dopri_data *obj, const double *y,
     //   }
     //
     obj->n_step++;
-    
+
     // TODO: In the Fortran there is an option here to check the irtrn
     // flag for a code of '2' which indicates that the variables need
     // recomputing.  This would be the case possibly where output
@@ -378,12 +378,12 @@ void dopri_integrate(dopri_data *obj, const double *y,
     if (obj->error) {
       break;
     }
-    
+
     // Error estimation:
     double err = dopri_error(obj);
     double h_new = dopri_h_new(obj, fac_old, h, err);
     const bool accept = err <= 1;
-    
+
     if (accept) {
       // Step is accepted :)
       fac_old = fmax(err, 1e-4);
@@ -397,9 +397,9 @@ void dopri_integrate(dopri_data *obj, const double *y,
         obj->code = ERR_STIFF;
         return;
       }
-      
+
       dopri_save_history(obj, h);
-      
+
       // TODO: it's quite possible that we can swap the pointers here
       // and avoid the memcpy.
       switch (obj->method) {
@@ -423,21 +423,21 @@ void dopri_integrate(dopri_data *obj, const double *y,
         // that would be an argument to interpolate_all.  That's a bit
         // of a faff.
         dopri_interpolate_all((double *) obj->history->head, obj->method,
-                              obj->n, obj->times[obj->times_idx], y_out);
+                               obj->n, obj->times[obj->times_idx], y_out);
         if (obj->n_out > 0) {
           obj->output(obj->n, obj->times[obj->times_idx], y_out,
                       obj->n_out, out, obj->data);
           out += obj->n_out;
         }
-        
+
         y_out += obj->n;
         obj->times_idx++;
       }
-      
+
       // Advance the ring buffer; we'll write to the next place after
       // this.
       ring_buffer_head_advance(obj->history);
-      
+
       if (last) {
         obj->step_size_initial = h_save;
         obj->code = OK_COMPLETE;
@@ -487,7 +487,7 @@ void dopri_integrate(dopri_data *obj, const double *y,
       h = h_new;
     }
   }
-  
+
   // Reset the global state
   dopri_global_obj = NULL;
 }
@@ -507,11 +507,11 @@ double dopri_h_init(dopri_data *obj) {
   if (obj->step_size_initial > 0.0) {
     return obj->step_size_initial;
   }
-  
+
   // NOTE: This is destructive with respect to most of the information
   // in the object; in particular k2, k3 will be modified.
   double *f0 = obj->k[0];
-  
+
   // Compute a first guess for explicit Euler as
   //   h = 0.01 * norm (y0) / norm (f0)
   // the increment for explicit euler is small compared to the solution
@@ -523,16 +523,16 @@ double dopri_h_init(dopri_data *obj) {
   }
   
   double h = (norm_f <= 1e-10 || norm_y <= 1e-10) ?
-  1e-6 : sqrt(norm_y / norm_f) * 0.01;
+    1e-6 : sqrt(norm_y / norm_f) * 0.01;
   h = copysign(fmin(h, obj->step_size_max), obj->sign);
-  
+
   double *f1 = obj->k[1], *y1 = obj->k[2];
   // Perform an explicit Euler step
   for (size_t i = 0; i < obj->n; ++i) {
     y1[i] = obj->y[i] + h * f0[i];
   }
   dopri_eval(obj, obj->t + h, y1, f1);
-  
+
   // Estimate the second derivative of the solution:
   double der2 = 0.0;
   for (size_t i = 0; i < obj->n; ++i) {
@@ -540,12 +540,12 @@ double dopri_h_init(dopri_data *obj) {
     der2 += square((f1[i] - f0[i]) / sk);
   }
   der2 = sqrt(der2) / h;
-  
+
   // Step size is computed such that
   //   h^order * fmax(norm(f0), norm(der2)) = 0.01
   double der12 = fmax(fabs(der2), sqrt(norm_f));
   double h1 = (der12 <= 1e-15) ?
-  fmax(1e-6, fabs(h) * 1e-3) : pow(0.01 / der12, 1.0 / obj->order);
+    fmax(1e-6, fabs(h) * 1e-3) : pow(0.01 / der12, 1.0 / obj->order);
   h = fmin(fmin(100 * fabs(h), h1), obj->step_size_max);
   return copysign(h, obj->sign);
 }
@@ -656,7 +656,7 @@ bool dopri_test_stiff(dopri_data *obj, double h) {
       stiff = dopri853_test_stiff(obj, h);
       break;
     }
-    
+
     if (stiff) {
       obj->stiff_n_nonstiff = 0;
       if (obj->stiff_n_stiff++ >= 15) {
@@ -728,21 +728,21 @@ const double* dopri_find_time(dopri_data *obj, double t) {
   size_t idx0 = 0;
   if (n > 0) {
     const double
-    t0 = ((double*) ring_buffer_tail(obj->history))[idx_t],
-                                                   t1 = ((double*) ring_buffer_tail_offset(obj->history, n - 1))[idx_t];
+      t0 = ((double*) ring_buffer_tail(obj->history))[idx_t],
+      t1 = ((double*) ring_buffer_tail_offset(obj->history, n - 1))[idx_t];
     idx0 = min_size((t - t0) / (t1 - t0) / (n - 1), n - 1);
   }
   const void *h =
     ring_buffer_search_bisect(obj->history, idx0,
                               obj->sign > 0 ?
-                                &dopri_find_time_forward :
-                                &dopri_find_time_backward,
-                                &data);
-                                if (h == NULL) {
-                                  obj->error = true;
-                                  obj->code = ERR_YLAG_FAIL;
-                                }
-                                return (double*) h;
+                              &dopri_find_time_forward :
+                              &dopri_find_time_backward,
+                              &data);
+  if (h == NULL) {
+    obj->error = true;
+    obj->code = ERR_YLAG_FAIL;
+  }
+  return (double*) h;
 }
 
 // But these all use the global state object (otherwise these all pick
@@ -837,10 +837,27 @@ void dopri_print_eval(dopri_data *obj, double t, double *y) {
 void dopri_callback(dopri_data *obj, double t, double h, double *y) {
   SEXP callback = VECTOR_ELT(obj->callback, 0);
   SEXP env = VECTOR_ELT(obj->callback, 1);
-  
+
   SEXP r_t = PROTECT(ScalarReal(t));
   SEXP r_h = PROTECT(ScalarReal(h));
   SEXP r_y = PROTECT(allocVector(REALSXP, obj->n));
+  memcpy(REAL(r_y), y, obj->n * sizeof(double));
+  SEXP call = PROTECT(lang4(callback, r_t, r_h, r_y));
+  eval(call, env);
+  UNPROTECT(4);
+}
+
+
+// Utility
+double square(double x) {
+  return x * x;
+}
+
+
+size_t min_size(size_t a, size_t b) {
+  return a <= b ? a : b;
+}
+XP r_y = PROTECT(allocVector(REALSXP, obj->n));
   memcpy(REAL(r_y), y, obj->n * sizeof(double));
   SEXP call = PROTECT(lang4(callback, r_t, r_h, r_y));
   eval(call, env);
