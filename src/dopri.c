@@ -43,8 +43,11 @@ dopri_data* dopri_data_alloc(deriv_func* target, size_t n,
   // don't really anticipate adding any other schemes soon anyway, so
   // the fact that this works well for the two we have is enough.
   size_t nk = ret->order + 2;
+  Rprintf("Alloc: nk = %d\n",nk);
+  
   ret->k = R_Calloc(nk, double*);
   for (size_t i = 0; i < nk; ++i) {
+    Rprintf("k[%d] is array of %d doubles\n",i, n);
     ret->k[i] = R_Calloc(n, double);
   }
 
@@ -53,6 +56,8 @@ dopri_data* dopri_data_alloc(deriv_func* target, size_t n,
                                     ret->history_len * sizeof(double),
                                     on_overflow);
   ret->history_idx_time = ret->order * n;
+  
+  Rprintf("history_len = %d, idx_time = %d\n", ret->history_len, ret->history_idx_time);
 
   // NOTE: The numbers below are defaults only, but to alter them,
   // directly modify the object after creation.  I may set up some
@@ -150,7 +155,7 @@ void dopri_data_reset(dopri_data *obj, const double *y,
     obj->step_constant = 0.125 - obj->step_beta * 0.2;
     break;
   }
-
+  Rprintf("Doing a copy of size %d doubles\n", obj->n);
   memcpy(obj->y0, y, obj->n * sizeof(double));
   if (obj->y != y) { // this is true on some restarts
     memcpy(obj->y, y, obj->n * sizeof(double));
@@ -292,7 +297,8 @@ void dopri_integrate(dopri_data *obj, const double *y,
                      double *y_out, double *out,
                      bool return_initial) {
   
-  Rprintf("dopri_integrate: n_times = %d\n", n_times);
+  Rprintf("dopri_integrate: n_times = %d, n_tcrit=%d\n", n_times, n_tcrit);
+  
 
   dopri_data_reset(obj, y, times, n_times, tcrit, n_tcrit,
                    is_event, events);
@@ -329,6 +335,8 @@ void dopri_integrate(dopri_data *obj, const double *y,
       out += obj->n_out;
     }
   }
+  
+  Rprintf("DI: out=%lf\n", out);
 
   dopri_eval(obj, obj->t, obj->y, obj->k[0]); // y => k1
 
@@ -437,6 +445,7 @@ void dopri_integrate(dopri_data *obj, const double *y,
         y_out += obj->n;
         obj->times_idx++;
       }
+      Rprintf("obj->times_idx = %d\n", obj->times_idx); 
 
       // Advance the ring buffer; we'll write to the next place after
       // this.

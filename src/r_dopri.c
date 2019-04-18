@@ -198,8 +198,7 @@ SEXP r_dopri(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
   Rprintf("n, nt, sodouble = %d, %d, %d\n", n, nt, sizeof(double));
 
   double *y = REAL(r_y);
-
-
+  
   Rprintf("obj-> times_idx = %d\n", obj->times_idx);
   Rprintf("obj-> order = %d\n", obj->order);
 
