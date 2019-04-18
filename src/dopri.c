@@ -521,7 +521,7 @@ double dopri_h_init(dopri_data *obj) {
     norm_f += square(f0[i] / sk);
     norm_y += square(obj->y[i]  / sk);
   }
-  
+
   double h = (norm_f <= 1e-10 || norm_y <= 1e-10) ?
     1e-6 : sqrt(norm_y / norm_f) * 0.01;
   h = copysign(fmin(h, obj->step_size_max), obj->sign);
@@ -857,6 +857,7 @@ double square(double x) {
 size_t min_size(size_t a, size_t b) {
   return a <= b ? a : b;
 }
+
 XP r_y = PROTECT(allocVector(REALSXP, obj->n));
   memcpy(REAL(r_y), y, obj->n * sizeof(double));
   SEXP call = PROTECT(lang4(callback, r_t, r_h, r_y));
