@@ -296,7 +296,6 @@ void dopri_integrate(dopri_data *obj, const double *y,
 
   dopri_data_reset(obj, y, times, n_times, tcrit, n_tcrit,
                    is_event, events);
-
   if (obj->error) {
     return;
   }
@@ -422,15 +421,6 @@ void dopri_integrate(dopri_data *obj, const double *y,
       }
       obj->t += h;
 
-      Rprintf("I0: obj->times_idx = %d\n", obj->times_idx);
-      Rprintf("I0: obj->n_times = %d\n", obj->n_times);
-      Rprintf("I0: obj->sign = %d\n", obj->sign);
-      for (int wes=0; wes<obj->n_times; wes++) {
-        Rprintf("I0: obj->times[%d] = %lf\n", wes, obj->times[wes]);
-      }
-      Rprintf("I0: obj->t = %lf\n", obj->t);
-      
-
       while (obj->times_idx < obj->n_times &&
              obj->sign * obj->times[obj->times_idx] <= obj->sign * obj->t) {
         // Here, it might be nice to allow transposed output or not;
@@ -446,14 +436,6 @@ void dopri_integrate(dopri_data *obj, const double *y,
 
         y_out += obj->n;
         obj->times_idx++;
-		
-      Rprintf("Ip: obj->times_idx = %d\n", obj->times_idx);
-      Rprintf("Ip: obj->n_times = %d\n", obj->n_times);
-      Rprintf("Ip: obj->sign = %d\n", obj->sign);
-      for (int wes=0; wes<obj->n_times; wes++) {
-        Rprintf("Ip: obj->times[%d] = %lf\n", wes, obj->times[wes]);
-      }
-      Rprintf("Ip: obj->t = %lf\n", obj->t);
       }
 
       // Advance the ring buffer; we'll write to the next place after
