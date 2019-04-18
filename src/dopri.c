@@ -456,6 +456,15 @@ void dopri_integrate(dopri_data *obj, const double *y,
         obj->times_idx++;
       }
       
+      if (obj->times_idx < obj->n_times &&
+             (obj->sign * obj->times[obj->times_idx] <= obj->sign * obj->t)) {
+        Rprintf("Exp is TRUE - I should have carried on\n");
+      } else {
+        Rprintf("Exp is FALSE - it was correct that I exited the while loop\n");
+      }
+        
+      
+      
       Rprintf("I just exited the while loop.\n");
       if (obj->times_idx < obj->n_times) {
         Rprintf("obj->times_idx < obj->n_times was TRUE\n");
