@@ -356,15 +356,18 @@ void dopri_integrate(dopri_data *obj, const double *y,
     if (obj->n_step > obj->step_max_n) {
       obj->error = true;
       obj->code = ERR_TOO_MANY_STEPS;
+      Rprintf("Break 1\n");
       break;
     }
     if (fabs(h) <= obj->step_size_min) {
       obj->error = true;
       obj->code = ERR_STEP_SIZE_TOO_SMALL;
+      Rprintf("Break 2\n");
       break;
     } else if (fabs(h) <= fabs(obj->t) * DBL_EPSILON) {
       obj->error = true;
       obj->code = ERR_STEP_SIZE_VANISHED;
+      Rprintf("Break 3\n");
       break;
     }
     if ((obj->t + 1.01 * h - t_stop) * obj->sign > 0.0) {
@@ -391,6 +394,7 @@ void dopri_integrate(dopri_data *obj, const double *y,
     // in once the signalling is done.
     dopri_step(obj, h);
     if (obj->error) {
+      Rprintf("Break 4\n");
       break;
     }
 
@@ -410,6 +414,8 @@ void dopri_integrate(dopri_data *obj, const double *y,
       if (dopri_test_stiff(obj, h)) {
         obj->error = true;
         obj->code = ERR_STIFF;
+        Rprintf("Returning\n");
+        
         return;
       }
 
