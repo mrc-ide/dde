@@ -437,10 +437,6 @@ void dopri_integrate(dopri_data *obj, const double *y,
       }
       obj->t += h;
       
-      Rprintf("obj->times_idx = %d\n", obj->times_idx);
-      Rprintf("obj->n_times = %d\n", obj->n_times);
-      Rprintf("obj->sign = %d\n", obj->sign);
-
       while (obj->times_idx < obj->n_times &&
              obj->sign * obj->times[obj->times_idx] <= obj->sign * obj->t) {
         // Here, it might be nice to allow transposed output or not;
