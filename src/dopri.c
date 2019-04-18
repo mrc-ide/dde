@@ -455,27 +455,24 @@ void dopri_integrate(dopri_data *obj, const double *y,
         y_out += obj->n;
         obj->times_idx++;
       }
-      if (obj->times_idx < obj->n_times &&
-        obj->sign * obj->times[obj->times_idx] <= obj->sign * obj->t) {
-        Rprintf("while loop still true\n");
-      } else {
-        Rprintf("while loop false\n"); 
-        Rprintf("obj->sign * obj->times[obj->times_idx] = %lf\n", obj->sign * obj->times[obj->times_idx]);
-        Rprintf("obj->sign * obj->t = %lf\n", obj->sign * obj->t);
-        Rprintf("Is the first <= the second?\n");
+      
+      Rprintf("I just exited the while loop.\n");
+      if (obj->times_idx < obj->n_times) {
+        Rprintf("obj->times_idx < obj->n_times was TRUE\n");
         if (obj->sign * obj->times[obj->times_idx] <= obj->sign * obj->t) {
-          Rprintf("Yes\n");
-        } else {
-          Rprintf("No\n");
+          Rprintf("obj->sign * obj->times[obj->times_idx] <= obj->sign * obj->t was TRUE\n");
+          if (obj->times_idx < obj->n_times &&
+            (obj->sign * obj->times[obj->times_idx] <= obj->sign * obj->t)) {
+            Rprintf("They were both TRUE - so why did we exit?");
+          } else {
+            Rprintf("However, they are not both TRUE.");
+          }
+          
         }
-        if (obj->times_idx < obj->n_times) {
-          Rprintf("First one is true\n");
-        } else {
-          Rprintf("First one is false\n");
-        }
-        
-        Rprintf("obj->times[0] = %lf, obj->times[1] = %lf\n", obj->times[0], obj->times[1]);
+      } else {
+        Rprintf("obj->times_idx < obj->n_times was FALSE\n");
       }
+      
       Rprintf("obj->n_times = %d\n",obj->n_times);
       Rprintf("obj->sign = %lf\n", obj->sign);
       Rprintf("obj->t = %lf\n", obj->t);
