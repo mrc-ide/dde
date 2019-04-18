@@ -638,6 +638,8 @@ test_that("initial derivative validation", {
 
 
 test_that("verbose mode prints trace", {
+  #skip_on_appveyor()
+
   p <- c(10, 28, 8 / 3)
   y0 <- c(10, 1, 1)
 
