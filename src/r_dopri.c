@@ -46,7 +46,8 @@ SEXP r_dopri(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
   Rprintf("Size of double = %d\n",sizeof(double));
   Rprintf("Size of size_t = %d\n",sizeof(size_t));
 
-  size_t n_times = LENGTH(r_times);
+  // size_t n_times = LENGTH(r_times);
+  size_t n_times = length(r_times);
   double *times = REAL(r_times);
 
   if (n_times < 2) {
@@ -56,7 +57,8 @@ SEXP r_dopri(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
   size_t n_tcrit = 0;
   double *tcrit = NULL;
   if (r_tcrit != R_NilValue) {
-    n_tcrit = LENGTH(r_tcrit);
+    // n_tcrit = LENGTH(r_tcrit);
+    n_tcrit = length(r_tcrit);
     tcrit = REAL(r_tcrit);
   }
 
@@ -201,7 +203,8 @@ SEXP r_dopri_continue(SEXP r_ptr, SEXP r_y_initial, SEXP r_times,
     y_initial = REAL(r_y_initial);
   }
 
-  size_t n_times = LENGTH(r_times);
+  // size_t n_times = LENGTH(r_times);
+  size_t n_times = length(r_times);
   double *times = REAL(r_times);
   if (n_times < 2) {
     Rf_error("At least two times must be given");
@@ -226,7 +229,8 @@ SEXP r_dopri_continue(SEXP r_ptr, SEXP r_y_initial, SEXP r_times,
   size_t n_tcrit = 0;
   double *tcrit = NULL;
   if (r_tcrit != R_NilValue) {
-    n_tcrit = LENGTH(r_tcrit);
+    // n_tcrit = LENGTH(r_tcrit);
+    n_tcrit = length(r_tcrit);
     tcrit = REAL(r_tcrit);
   }
 
