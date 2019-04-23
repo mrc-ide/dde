@@ -12,6 +12,13 @@ dopri_data* dopri_data_alloc(deriv_func* target, size_t n,
                              dopri_verbose verbose, SEXP  callback) {
   dopri_data *ret = (dopri_data*) R_Calloc(1, dopri_data);
   Rprintf("sizeof(dopri_data) = %d\n", sizeof(dopri_data));
+  Rprintf("sizeof(return_code) = %d\n", sizeof(return_code));
+  Rprintf("sizeof(dopri_method) = %d\n", sizeof(dopri_method));
+  Rprintf("sizeof(SEXP) = %d\n", sizeof(SEXP));
+  Rprintf("sizeof(dopri_verbose) = %d\n", sizeof(dopri_verbose));
+  Rprintf("sizeof(bool) = %d\n", sizeof(bool));
+  
+
   overflow_action on_overflow =
     grow_history ? OVERFLOW_GROW : OVERFLOW_OVERWRITE;
 
