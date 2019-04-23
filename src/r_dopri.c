@@ -42,9 +42,10 @@ SEXP r_dopri(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
              SEXP r_return_pointer) {
   double *y_initial = REAL(r_y_initial);
   size_t n = length(r_y_initial);
-  // Rprintf("Size of int = %d\n",sizeof(int));
-  // Rprintf("Size of double = %d\n",sizeof(double));
-  // Rprintf("Size of size_t = %d\n",sizeof(size_t));
+  Rprintf("Size of int = %d\n",sizeof(int));
+  Rprintf("Size of double = %d\n",sizeof(double));
+  Rprintf("Size of size_t = %d\n",sizeof(size_t));
+  Rprintf("Size of double* = %d\n",sizeof(double*));
 
   // size_t n_times = LENGTH(r_times);
   size_t n_times = length(r_times);
