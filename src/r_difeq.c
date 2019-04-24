@@ -41,10 +41,6 @@ SEXP r_difeq(SEXP r_y_initial, SEXP r_steps, SEXP r_target, SEXP r_data,
   size_t n_out = INTEGER(r_n_out)[0];
   double *out = NULL;
   SEXP r_out = R_NilValue;
-  if (n_out > 0) {
-    r_out = PROTECT(allocMatrix(REALSXP, n_out, nt));
-    out = REAL(r_out);
-  }
 
   // TODO: as an option save the conditions here.  That's not too bad
   // because we just don't pass through REAL(r_y) but REAL(r_y) +
@@ -63,11 +59,18 @@ SEXP r_difeq(SEXP r_y_initial, SEXP r_steps, SEXP r_target, SEXP r_data,
   SEXP r_y = PROTECT(allocMatrix(REALSXP, n, nt));
   double *y = REAL(r_y);
 
+  if (n_out > 0) {
+    r_out = PROTECT(allocMatrix(REALSXP, n_out, nt));
+    out = REAL(r_out);
+    setAttrib(r_y, install("output"), r_out);
+    UNPROTECT(1);
+  }
+
   GetRNGstate();
   difeq_run(obj, y_initial, steps, n_steps, y, out, return_initial);
   PutRNGstate();
 
-  r_difeq_cleanup(obj, r_ptr, r_y, r_out, return_history, return_pointer);
+  r_difeq_cleanup(obj, r_ptr, r_y, return_history, return_pointer);
 
   UNPROTECT(2);
   return r_y;
@@ -124,13 +127,15 @@ SEXP r_difeq_continue(SEXP r_ptr, SEXP r_y_initial, SEXP r_steps,
   if (n_out > 0) {
     r_out = PROTECT(allocMatrix(REALSXP, n_out, ns));
     out = REAL(r_out);
+    setAttrib(r_y, install("output"), r_out);
+    UNPROTECT(1);
   }
 
   GetRNGstate();
   difeq_run(obj, y_initial, steps, n_steps, y, out, return_initial);
   PutRNGstate();
 
-  r_difeq_cleanup(obj, r_ptr, r_y, r_out, return_history, return_pointer);
+  r_difeq_cleanup(obj, r_ptr, r_y, return_history, return_pointer);
 
   UNPROTECT(1);
   return r_y;
@@ -213,7 +218,7 @@ difeq_data* difeq_ptr_get(SEXP r_ptr) {
   return (difeq_data*) ptr_get(r_ptr);
 }
 
-void r_difeq_cleanup(difeq_data *obj, SEXP r_ptr, SEXP r_y, SEXP r_out,
+void r_difeq_cleanup(difeq_data *obj, SEXP r_ptr, SEXP r_y,
                      bool return_history, bool return_pointer) {
   if (return_history) {
     size_t nh = ring_buffer_used(obj->history, 0);
@@ -221,11 +226,6 @@ void r_difeq_cleanup(difeq_data *obj, SEXP r_ptr, SEXP r_y, SEXP r_out,
     ring_buffer_read(obj->history, REAL(history), nh);
     setAttrib(history, install("n"), ScalarInteger(obj->n));
     setAttrib(r_y, install("history"), history);
-    UNPROTECT(1);
-  }
-
-  if (obj->n_out > 0) {
-    setAttrib(r_y, install("output"), r_out);
     UNPROTECT(1);
   }
 

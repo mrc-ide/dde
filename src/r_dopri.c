@@ -128,6 +128,7 @@ SEXP r_dopri(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
   output_func *output = NULL;
   double *out = NULL;
   SEXP r_out = R_NilValue;
+
   if (n_out > 0) {
     if (r_output == R_NilValue) {
       output = dde_r_output_harness;
@@ -137,8 +138,6 @@ SEXP r_dopri(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
         Rf_error("Was passed null pointer for 'output'");
       }
     }
-    r_out = PROTECT(allocMatrix(REALSXP, n_out, nt));
-    out = REAL(r_out);
   }
 
   // TODO: as an option save the conditions here.  That's not too bad
@@ -166,11 +165,18 @@ SEXP r_dopri(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
   SEXP r_y = PROTECT(allocMatrix(REALSXP, n, nt));
   memset(REAL(r_y), 0, n * nt * sizeof(double));
 
+  if (n_out > 0) {
+    r_out = PROTECT(allocMatrix(REALSXP, n_out, nt));
+    out = REAL(r_out);
+    setAttrib(r_y, install("output"), r_out);
+    UNPROTECT(1);
+  }
+
   double *y = REAL(r_y);
   dopri_integrate(obj, y_initial, times, n_times, tcrit, n_tcrit,
                   is_event, events, y, out, return_initial);
 
-  r_dopri_cleanup(obj, r_ptr, r_y, r_out,
+  r_dopri_cleanup(obj, r_ptr, r_y,
                   return_history, return_statistics, return_pointer);
   UNPROTECT(2);
   return r_y;
@@ -234,6 +240,8 @@ SEXP r_dopri_continue(SEXP r_ptr, SEXP r_y_initial, SEXP r_times,
   if (n_out > 0) {
     r_out = PROTECT(allocMatrix(REALSXP, n_out, nt));
     out = REAL(r_out);
+    setAttrib(r_y, install("output"), r_out);
+    UNPROTECT(1);
   }
 
   bool *is_event = (bool*)R_alloc(n_tcrit, sizeof(bool));
@@ -244,7 +252,7 @@ SEXP r_dopri_continue(SEXP r_ptr, SEXP r_y_initial, SEXP r_times,
   dopri_integrate(obj, y_initial, times, n_times, tcrit, n_tcrit,
                   is_event, NULL, // FIXME
                   y, out, return_initial);
-  r_dopri_cleanup(obj, r_ptr, r_y, r_out,
+  r_dopri_cleanup(obj, r_ptr, r_y,
                   return_history, return_statistics, return_pointer);
   UNPROTECT(1);
   return r_y;
@@ -381,7 +389,7 @@ dopri_data* dopri_ptr_get(SEXP r_ptr) {
   return (dopri_data*) ptr_get(r_ptr);
 }
 
-void r_dopri_cleanup(dopri_data *obj, SEXP r_ptr, SEXP r_y, SEXP r_out,
+void r_dopri_cleanup(dopri_data *obj, SEXP r_ptr, SEXP r_y,
                      bool return_history, bool return_statistics,
                      bool return_pointer) {
   if (obj->error) {
@@ -395,11 +403,6 @@ void r_dopri_cleanup(dopri_data *obj, SEXP r_ptr, SEXP r_y, SEXP r_out,
     setAttrib(history, install("n"), ScalarInteger(obj->n));
     setAttrib(history, R_ClassSymbol, mkString("dopri_history"));
     setAttrib(r_y, install("history"), history);
-    UNPROTECT(1);
-  }
-
-  if (obj->n_out > 0) {
-    setAttrib(r_y, install("output"), r_out);
     UNPROTECT(1);
   }
 

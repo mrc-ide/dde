@@ -23,5 +23,5 @@ void difeq_r_harness(size_t n, size_t step,
 SEXP difeq_ptr_create(difeq_data *obj);
 void difeq_ptr_finalizer(SEXP extPtr);
 difeq_data* difeq_ptr_get(SEXP r_ptr);
-void r_difeq_cleanup(difeq_data *obj, SEXP r_ptr, SEXP r_y, SEXP r_out,
+void r_difeq_cleanup(difeq_data *obj, SEXP r_ptr, SEXP r_y,
                      bool return_history, bool return_pointer);
