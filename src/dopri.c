@@ -429,6 +429,7 @@ void dopri_integrate(dopri_data *obj, const double *y,
 
         y_out += obj->n;
         obj->times_idx++;
+		if (last) break;
       }
 
       // Advance the ring buffer; we'll write to the next place after

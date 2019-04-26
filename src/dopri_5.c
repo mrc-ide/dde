@@ -50,7 +50,6 @@ void dopri5_step(dopri_data *obj, double h) {
     *k5 = obj->k[4],
     *k6 = obj->k[5];
   double *y = obj->y, *y1 = obj->y1, *ysti = obj->k[6];
-  const void *data = obj->data;
 
   for (size_t i = 0; i < n; ++i) { // 22
     y1[i] = y[i] + h * A21 * k1[i];
