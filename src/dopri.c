@@ -421,15 +421,24 @@ void dopri_integrate(dopri_data *obj, const double *y,
         break;
       }
       obj->t += h;
+    
+    /*  
+//  bool condition = (obj->times_idx < obj->n_times &&
+//obj->sign * obj->times[obj->times_idx] <= obj->sign * obj->t);
+  //    Rprintf("condition: %d, a: %d, b: %d\n", 
+    //          condition, 
+              obj->times_idx < obj->n_times,
+              obj->sign * obj->times[obj->times_idx] <= obj->sign * obj->t);
+      Rprintf("part 2: %d\n", 
+              obj->times[obj->times_idx] <= obj->sign);
+     */
       
-//      bool condition = (obj->times_idx < obj->n_times &&
-//             obj->sign * obj->times[obj->times_idx] <= obj->sign * obj->t);
-
       while ((obj->times_idx < obj->n_times &&
              obj->sign * obj->times[obj->times_idx] <= obj->sign * obj->t) 
-//             || condition) {
-            ) {
-       
+               //|| last) {
+      ){
+
+       Rprintf("interpolating time %d / %d\n", obj->times_idx, obj->n_times);
         // Here, it might be nice to allow transposed output or not;
         // that would be an argument to interpolate_all.  That's a bit
         // of a faff.
@@ -445,6 +454,7 @@ void dopri_integrate(dopri_data *obj, const double *y,
         obj->times_idx++;
 //        condition = (obj->times_idx < obj->n_times &&
 //                     obj->sign * obj->times[obj->times_idx] <= obj->sign * obj->t);
+  if( last) break;
       }
 
       // Advance the ring buffer; we'll write to the next place after

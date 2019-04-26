@@ -169,7 +169,10 @@ SEXP r_dopri(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
   obj->stiff_check = INTEGER(r_stiff_check)[0];
 
   SEXP r_y = PROTECT(allocMatrix(REALSXP, n, nt));
-  memset(REAL(r_y), 0, n * nt * sizeof(double));
+  //memset(REAL(r_y), 0, n * nt * sizeof(double));
+  for (size_t i = 0; i < n * nt; ++i) {
+    REAL(r_y)[i] = 999;
+  }
 
   if (n_out > 0) {
     r_out = PROTECT(allocMatrix(REALSXP, n_out, nt));
@@ -187,8 +190,7 @@ SEXP r_dopri(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
   
   r_dopri_cleanup(obj, r_ptr, r_y,
                   return_history, return_statistics, return_pointer);
-  Rprintf("3) obj-> order = %d\n", obj->order);
-  
+
   UNPROTECT(2);
   return r_y;
 }
@@ -270,8 +272,7 @@ SEXP r_dopri_continue(SEXP r_ptr, SEXP r_y_initial, SEXP r_times,
 
   r_dopri_cleanup(obj, r_ptr, r_y,
                   return_history, return_statistics, return_pointer);
-  Rprintf("3) obj-> order = %d\n", obj->order);
-  
+
   UNPROTECT(1);
   return r_y;
 }
@@ -413,7 +414,7 @@ void r_dopri_cleanup(dopri_data *obj, SEXP r_ptr, SEXP r_y,
   if (obj->error) {
     r_dopri_error(obj); // will error
   }
-
+  Rprintf("A) obj-> order = %d\n", obj->order);
   if (return_history) {
     size_t nh = ring_buffer_used(obj->history, 0);
     SEXP history = PROTECT(allocMatrix(REALSXP, obj->history_len, nh));
@@ -423,7 +424,8 @@ void r_dopri_cleanup(dopri_data *obj, SEXP r_ptr, SEXP r_y,
     setAttrib(r_y, install("history"), history);
     UNPROTECT(1);
   }
-
+  Rprintf("B) obj-> order = %d\n", obj->order);
+  
   if (return_statistics) {
     SEXP stats = PROTECT(allocVector(INTSXP, 4));
     SEXP stats_nms = PROTECT(allocVector(STRSXP, 4));
@@ -440,7 +442,8 @@ void r_dopri_cleanup(dopri_data *obj, SEXP r_ptr, SEXP r_y,
     setAttrib(r_y, install("step_size"), ScalarReal(obj->step_size_initial));
     UNPROTECT(2);
   }
-
+  Rprintf("C) obj-> order = %d\n", obj->order);
+  
   // Deterministically clean up if we can, otherwise we clean up by R
   // running the finaliser for us when it garbage collects ptr above.
   if (return_pointer) {
