@@ -172,11 +172,16 @@ SEXP r_dopri(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
   memset(REAL(r_y), 0, n * nt * sizeof(double));
 
   double *y = REAL(r_y);
+  Rprintf("1) obj-> order = %d\n", obj->order);
+  
   dopri_integrate(obj, y_initial, times, n_times, tcrit, n_tcrit,
                   is_event, events, y, out, return_initial);
-
+  Rprintf("2) obj-> order = %d\n", obj->order);
+  
   r_dopri_cleanup(obj, r_ptr, r_y, r_out,
                   return_history, return_statistics, return_pointer);
+  Rprintf("3) obj-> order = %d\n", obj->order);
+  
   UNPROTECT(2);
   return r_y;
 }
@@ -247,12 +252,16 @@ SEXP r_dopri_continue(SEXP r_ptr, SEXP r_y_initial, SEXP r_times,
   for (size_t i = 0; i < n_tcrit; ++i) {
     is_event[i] = false;
   }
-
+  Rprintf("1) obj-> order = %d\n", obj->order);
   dopri_integrate(obj, y_initial, times, n_times, tcrit, n_tcrit,
                   is_event, NULL, // FIXME
                   y, out, return_initial);
+  Rprintf("2) obj-> order = %d\n", obj->order);
+  
   r_dopri_cleanup(obj, r_ptr, r_y, r_out,
                   return_history, return_statistics, return_pointer);
+  Rprintf("3) obj-> order = %d\n", obj->order);
+  
   UNPROTECT(1);
   return r_y;
 }
