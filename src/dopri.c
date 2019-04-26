@@ -414,8 +414,23 @@ void dopri_integrate(dopri_data *obj, const double *y,
       }
       obj->t += h;
 
-      while (obj->times_idx < obj->n_times &&
+      // The next six lines contain a workaround for a problem in which
+      // gcc 4.9.3 on Win32 incorrectly optimises this (for -O1, -O2, and -O3)
+      // changing the behaviour and causing too few iterations to take place
+      // under certain circumstances.
+
+      // The use of the variable `last`, along with the way the while loop
+      // logic is now written, together seem to persuade gcc against whatever
+      // optimisation causes the problem; it is difficult to tell exactly how.
+
+      // See https://github.com/mrc-ide/dde/issues/14 for the original issue
+      // and https://github.com/mrc-ide/dde/pull/19 for the specific changes.
+      while (last ||
              obj->sign * obj->times[obj->times_idx] <= obj->sign * obj->t) {
+        if (obj->times_idx >= obj->n_times) {
+          // Exists so that we eventually exit on the 'last' integration step.
+          break;
+        }
         // Here, it might be nice to allow transposed output or not;
         // that would be an argument to interpolate_all.  That's a bit
         // of a faff.
