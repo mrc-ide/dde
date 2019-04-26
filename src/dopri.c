@@ -414,8 +414,12 @@ void dopri_integrate(dopri_data *obj, const double *y,
       }
       obj->t += h;
 
-      while (obj->times_idx < obj->n_times &&
+      while (last ||
              obj->sign * obj->times[obj->times_idx] <= obj->sign * obj->t) {
+        if (obj->times_idx >= obj->n_times) {
+          // Exists so that we eventually exit on the 'last' integration step.
+          break;
+        }
         // Here, it might be nice to allow transposed output or not;
         // that would be an argument to interpolate_all.  That's a bit
         // of a faff.
@@ -429,7 +433,6 @@ void dopri_integrate(dopri_data *obj, const double *y,
 
         y_out += obj->n;
         obj->times_idx++;
-        if (last) break;
       }
 
       // Advance the ring buffer; we'll write to the next place after
