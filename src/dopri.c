@@ -419,12 +419,12 @@ void dopri_integrate(dopri_data *obj, const double *y,
 	  // changing the behaviour and causing too few iterations to take place
 	  // under certain circumstances.
 
-	  // The use of the variable `last`, along with the way the while loop
-	  // logic is now written, together seem to persuade gcc against whatever
-	  // optimisation causes the problem; it is difficult to tell exactly how.
+      // The use of the variable `last`, along with the way the while loop
+      // logic is now written, together seem to persuade gcc against whatever
+      // optimisation causes the problem; it is difficult to tell exactly how.
 
-	  // See https://github.com/mrc-ide/dde/issues/14 for the original issue
-	  // and https://github.com/mrc-ide/dde/pull/19 for the specific changes.
+      // See https://github.com/mrc-ide/dde/issues/14 for the original issue
+      // and https://github.com/mrc-ide/dde/pull/19 for the specific changes.
 
 	  while (last ||
              obj->sign * obj->times[obj->times_idx] <= obj->sign * obj->t) {
