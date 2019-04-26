@@ -425,8 +425,7 @@ void dopri_integrate(dopri_data *obj, const double *y,
 
       // See https://github.com/mrc-ide/dde/issues/14 for the original issue
       // and https://github.com/mrc-ide/dde/pull/19 for the specific changes.
-
-	  while (last ||
+      while (last ||
              obj->sign * obj->times[obj->times_idx] <= obj->sign * obj->t) {
         if (obj->times_idx >= obj->n_times) {
           // Exists so that we eventually exit on the 'last' integration step.
