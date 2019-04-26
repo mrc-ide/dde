@@ -415,9 +415,9 @@ void dopri_integrate(dopri_data *obj, const double *y,
       obj->t += h;
 
       // The next six lines contain a workaround for a problem in which
-	  // gcc 4.9.3 on Win32 incorrectly optimises this (for -O1, -O2, and -O3)
-	  // changing the behaviour and causing too few iterations to take place
-	  // under certain circumstances.
+      // gcc 4.9.3 on Win32 incorrectly optimises this (for -O1, -O2, and -O3)
+      // changing the behaviour and causing too few iterations to take place
+      // under certain circumstances.
 
       // The use of the variable `last`, along with the way the while loop
       // logic is now written, together seem to persuade gcc against whatever
