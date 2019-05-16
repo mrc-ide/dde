@@ -22,6 +22,7 @@
 ^src/.*\.gcov$
 ^\.lintr$
 ^vignettes/figure$
+^vignettes_src$
 ^scripts$
 ^docs$
 ^CONDUCT.md$

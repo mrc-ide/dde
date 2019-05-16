@@ -281,7 +281,7 @@ used.
 
 Debugging a failed integration can be difficult, but \code{dopri}
   provides a couple of tools to get more information about where a
-  failure might have occured.  Most simply, one can pass
+  failure might have occurred.  Most simply, one can pass
   \code{verbose = TRUE} which will print information about the
   time and the step size at each point just before the step is
   stated.  Passing in \code{verbose = dde:::VERBOSE_EVAL} will
