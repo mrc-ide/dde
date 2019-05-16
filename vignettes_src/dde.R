@@ -202,7 +202,7 @@ seir <- function(t, y, p) {
 ## y_lag <- dde::ylag(tau, c(1L, 3L))
 ## ```
 ##
-## To get the values of the first and third variables (S and I) at time
+## to get the values of the first and third variables (S and I) at time
 ## `tau`.  Alternatively you can get all values with
 ##
 ## ```r
