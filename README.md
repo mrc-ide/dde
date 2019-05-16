@@ -21,7 +21,7 @@ By using the dense output, the solution can be computed at any time point the so
 
 To store the history without using ever-growing (or just huge) amounts of memory, `dde` uses a [ring buffer](https://github.com/richfitz/ring) to hold the history over time.  This means that the memory required to store the solution does not grow as the total integration length increases (though you still need to pick an amount of memory that scales with the maximum number of steps that span your longest lag at any point in the integration).
 
-These solvers are suitable only for nonstiff problems.
+These solvers are suitable only for non-stiff problems.
 
 The interface is fairly different to the deSolve interface.  A `deSolve` compatible interface may be provided later (see [this issue](https://github.com/mrc-ide/dde/issues/2)).
 

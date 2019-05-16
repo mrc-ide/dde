@@ -194,15 +194,15 @@ seir <- function(t, y, p) {
     sigma * I - b * R - delta * R)
 }
 
-## The model needs to know how many susceptibles there were 14 days
-## ago, and how many infected there were 14 days ago.  To get this
-## from the model, we use
+## The model needs to know how many susceptible individuals there were
+## 14 days ago, and how many infected there were 14 days ago.  To get
+## this from the model, we use
 ##
 ## ```r
 ## y_lag <- dde::ylag(tau, c(1L, 3L))
 ## ```
 ##
-## To get the values of the first and third variables (SeIr) at time
+## To get the values of the first and third variables (S and I) at time
 ## `tau`.  Alternatively you can get all values with
 ##
 ## ```r
@@ -385,8 +385,8 @@ output_c(readLines(system.file("examples/seir_ds.c", package = "dde")))
 ##   loading some R-related headers (in `dde` this is achieved by
 ##   including `<dde/dde.h>` and `<dde/dde.c>`.
 ##
-## Apart from these logicstical differences, the model definition
-## should appear very similar.
+## Apart from these details, the model definition should appear very
+## similar.
 initial <- c(0.0, y0[[1]], y0[[3]])
 
 zz_ds <- deSolve::dede(y0, tt, "seir_deSolve", initial,
@@ -421,7 +421,7 @@ tC
 ## nontrivial with bigger models, though the cost of running a larger
 ## model will likely be larger still.  Previous version of R suffered
 ## from a large cost of looking up the address of the compiled
-## function (Windows may still take longer to do this than OSX/Linux).
+## function (Windows may still take longer to do this than macOS/Linux).
 ## In that case, use `getNativeSymbolInfo("seir")` and pass that
 ## through to `dopri` as the `func` argument.
 ptr <- getNativeSymbolInfo("seir")
