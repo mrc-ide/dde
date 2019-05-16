@@ -1,8 +1,10 @@
 Package: dde
 Title: Solve Delay Differential Equations
-Version: 0.9.1
-Authors@R: person("Rich", "FitzJohn", role = c("aut", "cre"),
-    email = "rich.fitzjohn@gmail.com")
+Version: 1.0.0
+Authors@R: c(person("Rich", "FitzJohn", role = c("aut", "cre"),
+                    email = "rich.fitzjohn@gmail.com"),
+             person("Imperial College of Science, Technology and Medicine",
+                    role = "cph"))
 Description: Solves ordinary and delay differential equations, where
     the objective funtion is written in either R or C.  Suitable only
     for non-stiff equations, the solver uses a 'Dormand-Prince' method
