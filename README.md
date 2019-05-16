@@ -1,9 +1,12 @@
 # dde
 
+<!-- badges: start -->
 [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 [![Travis-CI Build Status](https://travis-ci.org/mrc-ide/dde.svg?branch=master)](https://travis-ci.org/mrc-ide/dde)
 [![AppVeyor Build status](https://ci.appveyor.com/api/projects/status/96hrpw9ubhhun566?svg=true)](https://ci.appveyor.com/project/richfitz/dde)
 [![codecov.io](https://codecov.io/github/mrc-ide/dde/coverage.svg?branch=master)](https://codecov.io/github/mrc-ide/dde?branch=master)
+[![](http://www.r-pkg.org/badges/version/dde)](https://cran.r-project.org/package=dde)
+<!-- badges: end -->
 
 This package solves ordinary differential equations (ODEs), delay differential equations (DDEs) and discrete-time *difference* (or recursion) equations, perhaps involving delays.
 
@@ -29,8 +32,32 @@ The interface is fairly different to the deSolve interface.  A `deSolve` compati
 
 Solving discrete time equations is much simpler; you don't have much choice but just to iterate the model.  The package implements this efficiently for compiled models, and also allows models to reference their previous history.
 
+## Installation
+
+Install `dde` from CRAN with
+
+```r
+install.packages("dde")
+```
+
+To install our internally released version (which might be ahead of CRAN) via drat, use
+
+
+```r
+# install.packages("drat") # (if needed)
+drat:::add("mrc-ide")
+install.packages("dde")
+```
+
+or install the bleeding edge with
+
+```r
+# install.packages("devtools") # (if needed)
+devtools::install_gitub("mrc-ide/dde", upgrade = FALSE)
+```
+
 ## License
 
-MIT + file LICENSE © [Rich FitzJohn](https://github.com/richfitz).
+MIT © Imperial College of Science, Technology and Medicine
 
 Please note that this project is released with a [Contributor Code of Conduct](CONDUCT.md). By participating in this project you agree to abide by its terms.
