@@ -193,8 +193,8 @@ void dopri_data_reset(dopri_data *obj, const double *y,
   obj->tcrit_idx = 0;
   if (n_tcrit > 0) {
     double t0 = obj->sign * times[0]; // because of the restart condition above.
-    while (obj->sign * tcrit[obj->tcrit_idx] <= t0 &&
-           obj->tcrit_idx < n_tcrit) {
+    while (obj->tcrit_idx < n_tcrit &&
+           obj->sign * tcrit[obj->tcrit_idx] <= t0) {
       obj->tcrit_idx++;
     }
   }
@@ -742,7 +742,9 @@ const double* dopri_find_time(dopri_data *obj, double t) {
     const double
       t0 = ((double*) ring_buffer_tail(obj->history))[idx_t],
       t1 = ((double*) ring_buffer_tail_offset(obj->history, n - 1))[idx_t];
-    idx0 = min_size((t - t0) / (t1 - t0) / (n - 1), n - 1);
+    if ((t0 - t) * (t1 - t) < 0) {
+      idx0 = (t - t0) / (t1 - t0) / (n - 1);
+    }
   }
   const void *h =
     ring_buffer_search_bisect(obj->history, idx0,
@@ -863,9 +865,4 @@ void dopri_callback(dopri_data *obj, double t, double h, double *y) {
 // Utility
 double square(double x) {
   return x * x;
-}
-
-
-size_t min_size(size_t a, size_t b) {
-  return a <= b ? a : b;
 }

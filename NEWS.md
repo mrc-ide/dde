@@ -1,3 +1,7 @@
+## dde 1.0.1
+
+* Several memory errors fixed [#22](https://github.com/mrc-ide/dde/pull/22)
+
 ## dde 1.0.0
 
 * Initial public release

@@ -311,7 +311,6 @@ SEXP r_ylag(SEXP r_t, SEXP r_idx) {
     if (ni == 1) {
       REAL(r_y)[0] = ylag_1(t, r_index(r_idx, n));
     } else {
-      r_y = allocVector(REALSXP, ni);
       ylag_vec(t, r_indices(r_idx, n), ni, REAL(r_y));
     }
   }
@@ -400,10 +399,11 @@ void r_dopri_cleanup(dopri_data *obj, SEXP r_ptr, SEXP r_y,
     size_t nh = ring_buffer_used(obj->history, 0);
     SEXP history = PROTECT(allocMatrix(REALSXP, obj->history_len, nh));
     ring_buffer_read(obj->history, REAL(history), nh);
-    setAttrib(history, install("n"), ScalarInteger(obj->n));
+    SEXP r_n = PROTECT(ScalarInteger(obj->n));
+    setAttrib(history, install("n"), r_n);
     setAttrib(history, R_ClassSymbol, mkString("dopri_history"));
     setAttrib(r_y, install("history"), history);
-    UNPROTECT(1);
+    UNPROTECT(2);
   }
 
   if (return_statistics) {
@@ -419,8 +419,9 @@ void r_dopri_cleanup(dopri_data *obj, SEXP r_ptr, SEXP r_y,
     SET_STRING_ELT(stats_nms, 3, mkChar("n_reject"));
     setAttrib(stats, R_NamesSymbol, stats_nms);
     setAttrib(r_y, install("statistics"), stats);
-    setAttrib(r_y, install("step_size"), ScalarReal(obj->step_size_initial));
-    UNPROTECT(2);
+    SEXP r_step_size_initial = PROTECT(ScalarReal(obj->step_size_initial));
+    setAttrib(r_y, install("step_size"), r_step_size_initial);
+    UNPROTECT(3);
   }
 
   // Deterministically clean up if we can, otherwise we clean up by R
