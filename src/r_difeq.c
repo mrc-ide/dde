@@ -157,7 +157,6 @@ SEXP r_yprev(SEXP r_i, SEXP r_idx) {
     if (ni == 1) {
       REAL(r_y)[0] = yprev_1(step, r_index(r_idx, n));
     } else {
-      r_y = allocVector(REALSXP, ni);
       yprev_vec(step, r_indices(r_idx, n), ni, REAL(r_y));
     }
   }
@@ -224,9 +223,10 @@ void r_difeq_cleanup(difeq_data *obj, SEXP r_ptr, SEXP r_y,
     size_t nh = ring_buffer_used(obj->history, 0);
     SEXP history = PROTECT(allocMatrix(REALSXP, obj->history_len, nh));
     ring_buffer_read(obj->history, REAL(history), nh);
-    setAttrib(history, install("n"), ScalarInteger(obj->n));
+    SEXP r_n = PROTECT(ScalarInteger(obj->n));
+    setAttrib(history, install("n"), r_n);
     setAttrib(r_y, install("history"), history);
-    UNPROTECT(1);
+    UNPROTECT(2);
   }
 
   // Deterministically clean up if we can, otherwise we clean up by R
