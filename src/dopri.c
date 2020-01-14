@@ -193,8 +193,8 @@ void dopri_data_reset(dopri_data *obj, const double *y,
   obj->tcrit_idx = 0;
   if (n_tcrit > 0) {
     double t0 = obj->sign * times[0]; // because of the restart condition above.
-    while (obj->sign * tcrit[obj->tcrit_idx] <= t0 &&
-           obj->tcrit_idx < n_tcrit) {
+    while (obj->tcrit_idx < n_tcrit &&
+           obj->sign * tcrit[obj->tcrit_idx] <= t0) {
       obj->tcrit_idx++;
     }
   }
