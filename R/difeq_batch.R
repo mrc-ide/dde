@@ -10,10 +10,12 @@ difeq_batch <- function(y, steps, target, parms, ...,
     ## TODO: could accept a matrix here and convert too
     stop("Expected a list of parameters")
   }
-  if (is.matrix(y) || is.list(y)) {
-    stop("FIXME")
+  if (is.list(y)) {
+    len <- lengths(y)
+    stopifnot(length(unique(len)) == 1L)
+    y <- matrix(unlist(y), len, length(y))
   }
-  
+
   ## TODO: for now start by replicating exactly the difeq starting
   ## point and we'l see where we get to.
   DOTS <- list(...)
@@ -59,6 +61,7 @@ difeq_batch <- function(y, steps, target, parms, ...,
     stop("History-returning batch models not yet possible")
   }
 
+  ## TODO: this will fail
   ynames <- check_ynames(y, ynames)
 
   assert_size(n_out)
@@ -75,11 +78,12 @@ difeq_batch <- function(y, steps, target, parms, ...,
     stop("If given, n_history must be at least 2")
   }
 
-  ret <- .Call(Cdifeq_batch, as.numeric(y), as.integer(steps), target, parms,
+  ret <- .Call(Cdifeq_batch, y, as.integer(steps), target, parms,
                as.integer(n_out), parms_are_real,
                ## Return information:
                as.integer(n_history), grow_history, return_initial)
-  dim(ret) <- c(length(y), length(steps), length(parms))
+  ny <- if (is.matrix(y)) nrow(y) else length(y)
+  dim(ret) <- c(ny, length(steps), length(parms))
 
   has_output <- n_out > 0L
   if (has_output) {

@@ -48,3 +48,30 @@ test_that("add output, time", {
   expect_equal(res[, , 2], b)
   expect_equal(res[, , 3], c)
 })
+
+
+test_that("starting positions", {
+  rhs <- function(i, y, p) {
+    y + p
+  }
+
+  y0 <- list(
+    as.numeric(1:5),
+    as.numeric(2:6),
+    as.numeric(3:7))
+  p <- as.list(1:3)
+  i <- 0:10
+
+  ## This is what we're trying to achieve:
+  a <- difeq(y0[[1]], i, rhs, p[[1]], return_step = FALSE)
+  b <- difeq(y0[[2]], i, rhs, p[[2]], return_step = FALSE)
+  c <- difeq(y0[[3]], i, rhs, p[[3]], return_step = FALSE)
+  d <- difeq_replicate(3, y0[[1]], i, rhs, p[[1]], return_step = FALSE)
+
+  res <- difeq_batch(y0, i, rhs, p, return_step = FALSE)
+
+  expect_equal(dim(res), dim(d))
+  expect_equal(res[, , 1], a)
+  expect_equal(res[, , 2], b)
+  expect_equal(res[, , 3], c)
+})
