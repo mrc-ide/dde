@@ -1,6 +1,6 @@
 ## dde 1.1.0
 
-* New batch mode for use with `difeq`, `difeq_batch` to run models with varying parameters (VIMC-1445)
+* New batch mode for use with `difeq`, `difeq_batch` to run models with varying parameters (mrc-1445)
 
 ## dde 1.0.1
 
