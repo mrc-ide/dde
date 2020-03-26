@@ -18,6 +18,8 @@ static const R_CallMethodDef call_methods[] = {
   {"Cdifeq_copy",     (DL_FUNC) &r_difeq_copy,         1},
   {"Cyprev",          (DL_FUNC) &r_yprev,              2},
 
+  {"Cdifeq_batch",    (DL_FUNC) &r_difeq_batch,        9},
+
   {NULL,              NULL,                            0}
 };
 

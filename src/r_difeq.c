@@ -239,3 +239,86 @@ void r_difeq_cleanup(difeq_data *obj, SEXP r_ptr, SEXP r_y,
     R_ClearExternalPtr(r_ptr);
   }
 }
+
+
+SEXP r_difeq_batch(SEXP r_y_initial, SEXP r_steps, SEXP r_target, SEXP r_data,
+                   SEXP r_n_out,
+                   SEXP r_data_is_real,
+                   SEXP r_n_history, SEXP r_grow_history,
+                   SEXP r_return_initial) {
+  size_t np = length(r_data);
+
+  double *y_initial = REAL(r_y_initial);
+  bool varying_y_initial = isMatrix(r_y_initial);
+  size_t n;
+  if (varying_y_initial) {
+    n = nrows(r_y_initial);
+    if (ncols(r_y_initial) != (int)np) {
+      Rf_error("Expected '%d' columns in 'y'", np);
+    }
+  } else {
+    n = length(r_y_initial);
+  }
+
+  size_t n_steps = LENGTH(r_steps);
+  size_t *steps = (size_t*) R_alloc(n_steps, sizeof(size_t));
+  int* tmp = INTEGER(r_steps);
+  for (size_t i = 0; i < n_steps; ++i) {
+    steps[i] = (size_t) tmp[i];
+  }
+
+  difeq_target *target = NULL;
+  if (r_target == R_NilValue) {
+    target = difeq_r_harness;
+  } else {
+    target = (difeq_target*)ptr_fn_get(r_target);
+    if (target == NULL) {
+      Rf_error("Was passed null pointer for 'target'");
+    }
+  }
+
+  size_t n_history = (size_t)INTEGER(r_n_history)[0];
+  bool return_initial = INTEGER(r_return_initial)[0];
+  bool grow_history = INTEGER(r_grow_history)[0];
+  size_t nt = return_initial ? n_steps : n_steps - 1;
+
+  size_t n_out = INTEGER(r_n_out)[0];
+  double *out = NULL;
+
+  SEXP r_out = R_NilValue;
+
+  // Then solve things:
+  SEXP r_y = PROTECT(allocVector(REALSXP, n * nt * np));
+  double *y = REAL(r_y);
+
+  if (n_out > 0) {
+    r_out = PROTECT(allocVector(REALSXP, n_out * nt * np));
+    out = REAL(r_out);
+    setAttrib(r_y, install("output"), r_out);
+    UNPROTECT(1);
+  }
+
+  GetRNGstate();
+  for (size_t i = 0; i < np; ++i) {
+    void *data = data_pointer(VECTOR_ELT(r_data, i), r_data_is_real);
+    difeq_data* obj = difeq_data_alloc(target, n, n_out, data,
+                                       n_history, grow_history);
+    SEXP r_ptr = PROTECT(difeq_ptr_create(obj));
+    difeq_run(obj, y_initial, steps, n_steps, y, out, return_initial);
+    if (varying_y_initial) {
+      y_initial += n;
+    }
+    y += n * nt;
+    if (n_out > 0) {
+      out += n_out * nt;
+    }
+
+    difeq_data_free(obj);
+    R_ClearExternalPtr(r_ptr);
+    UNPROTECT(1);
+  }
+  PutRNGstate();
+
+  UNPROTECT(1);
+  return r_y;
+}
