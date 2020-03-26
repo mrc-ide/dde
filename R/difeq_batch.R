@@ -79,16 +79,15 @@ difeq_batch <- function(y, steps, target, parms, ...,
                as.integer(n_out), parms_are_real,
                ## Return information:
                as.integer(n_history), grow_history, return_initial)
+  dim(ret) <- c(length(y), length(steps), length(parms))
 
-  ret <- array(ret, c(length(y), length(steps), length(parms)))
+  has_output <- n_out > 0L
+  if (has_output) {
+    dim(attr(ret, "output")) <- c(length(n_out), length(steps), length(parms))
+  }
 
   ## Then we start with the repacking output.  This is actually pretty
   ## tedious to deal with
-  has_output <- n_out > 0L
-  if (has_output) {
-    browser()
-  }
-
   prepare_output_batch(ret, steps, ynames, outnames, has_output,
                        return_by_column, return_initial, return_step,
                        return_output_with_y,
@@ -109,34 +108,33 @@ prepare_output_batch <- function(ret, times, ynames, outnames, has_output,
   }
   if (!is.null(ynames)) {
     named <- TRUE
-    rownames(ret) <- ynames
   }
 
   if (return_time || bind_output) {
-    stop("This needs implementing")
-    at <- attributes(ret)
-    if (return_time) {
-      time <- matrix(if (return_initial) times else times[-1L], 1L,
-                     dimnames = if (named) list(time_name, NULL) else NULL)
-    } else {
-      time <- NULL
-    }
+    y <- ret
+    at <- attributes(y)
+    output <- attr(y, "output")
+    n_out <- if (bind_output) nrow(output) else 0L
 
-    ret <- rbind(if (return_time) time,
-                 ret,
-                 if (bind_output) at[["output"]],
-                 deparse.level = 0L)
+    ny <- dim(y)[[1L]]
+    nt <- dim(y)[[2L]]
+    np <- dim(y)[[3L]]
+
+    ret <- array(NA_real_, c(as.integer(return_time) + ny + n_out, nt, np))
+    ret[1, , ] <- rep(times, np)
+    ret[seq_len(ny) + 1L, , ] <- y
     if (bind_output) {
-      at[["output"]] <- NULL
+      ret[seq_len(n_out) + ny + 1L, , ] <- output
       has_output <- FALSE
     }
-    ## This is a real pain, but we need to include any attributes set
-    ## on the output by Cdopri; this is going to be "statistics" and
-    ## "history", but it's always possible that additional attributes
-    ## will be added later.
-    for (x in setdiff(names(at), c("dim", "dimnames"))) {
-      attr(ret, x) <- at[[x]]
+
+    if (named) {
+      rownames(ret) <- c(if (return_time) time_name,
+                         ynames,
+                         if (bind_output) outnames)
     }
+  } else if (named) {
+    rownames(ret) <- ynames
   }
 
   if (return_by_column) {
