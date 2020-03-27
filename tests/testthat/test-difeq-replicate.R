@@ -162,3 +162,30 @@ test_that("basic replication", {
 
   expect_identical(difeq_replicate(3, do.call(cbind, y0), i, rhs, p), res)
 })
+
+
+test_that("add output, time", {
+  rhs <- function(i, y, p) {
+    ret <- y + p
+    attr(ret, "output") <- sum(y)
+    ret
+  }
+
+  y0 <- list(
+    as.numeric(1:5),
+    as.numeric(2:6),
+    as.numeric(3:7))
+  p <- 3
+  i <- 0:10
+
+  ## This is what we're trying to achieve:
+  a <- difeq(y0[[1]], i, rhs, p, n_out = 1L)
+  b <- difeq(y0[[2]], i, rhs, p, n_out = 1L)
+  c <- difeq(y0[[3]], i, rhs, p, n_out = 1L)
+  d <- difeq_replicate(3, y0, i, rhs, p, n_out = 1L)
+
+  expect_equal(dim(d), c(dim(a), 3))
+  expect_equal(d[, , 1], a)
+  expect_equal(d[, , 2], b)
+  expect_equal(d[, , 3], c)
+})
