@@ -83,8 +83,8 @@ difeq_replicate <- function(n, y, steps, target, parms, ...,
     y <- matrix(rep(y, n), length(y), n,
                 dimnames = list(names(y), NULL))
   }
-  if (!is.numeric(y)) {
-    storage.mode(y) <- "numeric"
+  if (storage.mode(y) != "double") {
+    storage.mode(y) <- "double"
   }
 
   if (is.null(ynames) && !is.null(rownames(y))) {
@@ -196,7 +196,7 @@ prepare_output_replicate <- function(ret, times, ynames, outnames, has_output,
   if (return_by_column) {
     ret <- aperm(ret, c(2, 1, 3))
     if (has_output) {
-      attr(ret, "output") <- aperm(attr(ret, "output"), c(2, 1, 3))
+      attr(ret, "output") <- aperm(output, c(2, 1, 3))
     }
   }
 
