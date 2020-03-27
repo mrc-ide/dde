@@ -87,7 +87,7 @@ difeq_batch <- function(y, steps, target, parms, ...,
 
   has_output <- n_out > 0L
   if (has_output) {
-    dim(attr(ret, "output")) <- c(length(n_out), length(steps), length(parms))
+    dim(attr(ret, "output")) <- c(n_out, length(steps), length(parms))
   }
 
   ## Then we start with the repacking output.  This is actually pretty
