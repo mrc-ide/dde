@@ -8,7 +8,15 @@ SEXP r_difeq(SEXP r_y_initial, SEXP r_steps, SEXP r_target, SEXP r_data,
              SEXP r_n_history, SEXP r_grow_history, SEXP r_return_history,
              SEXP r_return_initial, SEXP r_return_pointer) {
   double *y_initial = REAL(r_y_initial);
-  size_t n = length(r_y_initial);
+  size_t n, n_replicates;
+  bool replicates = isMatrix(r_y_initial);
+  if (replicates) {
+    n = nrows(r_y_initial);
+    n_replicates = ncols(r_y_initial);
+  } else {
+    n = length(r_y_initial);
+    n_replicates = 1;
+  }
 
   size_t n_steps = LENGTH(r_steps);
   // This is required to avoid the issue that int* and size_t* need
@@ -38,9 +46,18 @@ SEXP r_difeq(SEXP r_y_initial, SEXP r_steps, SEXP r_target, SEXP r_data,
   bool grow_history = INTEGER(r_grow_history)[0];
   size_t nt = return_initial ? n_steps : n_steps - 1;
 
+  if (replicates) {
+    if (return_history) {
+      Rf_error("Can't return history when n_replicates > 1");
+    }
+    if (return_pointer) {
+      Rf_error("Can't return pointer when n_replicates > 1");
+    }
+  }
+
   size_t n_out = INTEGER(r_n_out)[0];
   double *out = NULL;
-  SEXP r_out = R_NilValue;
+  SEXP r_y, r_out = R_NilValue;
 
   // TODO: as an option save the conditions here.  That's not too bad
   // because we just don't pass through REAL(r_y) but REAL(r_y) +
@@ -56,18 +73,33 @@ SEXP r_difeq(SEXP r_y_initial, SEXP r_steps, SEXP r_target, SEXP r_data,
   SEXP r_ptr = PROTECT(difeq_ptr_create(obj));
 
   // Then solve things:
-  SEXP r_y = PROTECT(allocMatrix(REALSXP, n, nt));
+  if (replicates) {
+    r_y = PROTECT(alloc3DArray(REALSXP, n, nt, n_replicates));
+  } else {
+    r_y = PROTECT(allocMatrix(REALSXP, n, nt));
+  }
   double *y = REAL(r_y);
 
   if (n_out > 0) {
-    r_out = PROTECT(allocMatrix(REALSXP, n_out, nt));
+    if (replicates) {
+      r_out = PROTECT(alloc3DArray(REALSXP, n_out, nt, n_replicates));
+    } else {
+      r_out = PROTECT(allocMatrix(REALSXP, n_out, nt));
+    }
     out = REAL(r_out);
     setAttrib(r_y, install("output"), r_out);
     UNPROTECT(1);
   }
 
   GetRNGstate();
-  difeq_run(obj, y_initial, steps, n_steps, y, out, return_initial);
+  for (size_t i = 0; i < n_replicates; ++i) {
+    difeq_run(obj, y_initial, steps, n_steps, y, out, return_initial);
+    y += n * nt;
+    y_initial += n;
+    if (n_out > 0) {
+      out += n_out * nt;
+    }
+  }
   PutRNGstate();
 
   r_difeq_cleanup(obj, r_ptr, r_y, return_history, return_pointer);
