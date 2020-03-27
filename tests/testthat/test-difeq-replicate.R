@@ -33,10 +33,8 @@ test_that("preserve y names", {
   res <- difeq(y0, i, rhs, p)
 
   res2 <- difeq_replicate(3, y0, i, rhs, p, as_array = TRUE)
-  ## res3 <- difeq_replicate(3, y0, i, rhs, p, as_array = FALSE)
 
   expect_equal(dimnames(res2), c(dimnames(res), list(NULL)))
-  ## expect_equal(res3, rep(list(res), 3))
 })
 
 
@@ -70,14 +68,8 @@ test_that("names from varying initial conditions", {
   p <- 1
   i <- 0:10
   cmp <- difeq(y0[[1]], i, rhs, p, return_step = FALSE)
-  ## res2 <- difeq_replicate(3, y0, i, rhs, p,
-  ##                         return_step = FALSE, as_array = FALSE)
   res3 <- difeq_replicate(3, y0, i, rhs, p,
                           return_step = FALSE, as_array = TRUE)
-
-  ## expect_equal(names(res2), names(y0))
-  ## expect_equal(dimnames(res2[[1]]), dimnames(cmp))
-  ## expect_equal(dimnames(res2[[3]]), dimnames(cmp))
 
   expect_equal(dimnames(res3), c(dimnames(cmp), list(NULL)))
 })
