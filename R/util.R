@@ -129,11 +129,3 @@ logopt <- function(value, default, name = deparse(substitute(value))) {
 is_native_symbol_info <- function(x) {
   inherits(x, "NativeSymbolInfo")
 }
-
-
-collect_attributes <- function(object, name, target) {
-  if (!is.null(attr(object[[1L]], name, exact = TRUE))) {
-    attr(target, name) <- lapply(object, "attr", name, exact = TRUE)
-  }
-  target
-}

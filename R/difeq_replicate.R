@@ -65,9 +65,7 @@ difeq_replicate <- function(n, y, steps, target, parms, ...,
   assert_positive_integer(n)
 
   if (is.list(y)) {
-    if (length(y) != n) {
-      stop(sprintf("'y' must have %d elements", n))
-    }
+    assert_length(y, n)
     if (!all(lengths(y) == length(y[[1L]]))) {
       stop("All 'y' lengths must be the same")
     }
