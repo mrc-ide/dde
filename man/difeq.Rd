@@ -14,9 +14,8 @@ difeq(y, steps, target, parms, ..., n_out = 0L, n_history = 0L,
   return_minimal = FALSE)
 
 difeq_continue(obj, steps, y = NULL, ..., copy = FALSE, parms = NULL,
-  return_history = NULL, return_by_column = NULL,
-  return_initial = NULL, return_step = NULL,
-  return_output_with_y = NULL, restartable = NULL)
+  return_history = NULL, return_by_column = NULL, return_initial = NULL,
+  return_step = NULL, return_output_with_y = NULL, restartable = NULL)
 
 yprev(step, i = NULL)
 }

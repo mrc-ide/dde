@@ -1,6 +1,6 @@
 check_ynames <- function(y, ynames) {
   if (isTRUE(ynames)) {
-    ynames <- names(y)
+    ynames <- if (is.matrix(y)) rownames(y) else names(y)
     ## This doesn't seem ideal but does produce more deSolve-like output
     if (is.null(ynames)) {
       ynames <- as.character(seq_along(y))
@@ -8,7 +8,8 @@ check_ynames <- function(y, ynames) {
   } else if (is.null(ynames) || identical(as.vector(ynames), FALSE)) {
     ynames <- NULL
   } else if (is.character(ynames)) {
-    if (length(ynames) != length(y)) {
+    len <- if (is.matrix(y)) nrow(y) else length(y)
+    if (length(ynames) != len) {
       stop("ynames must be the same length as y")
     }
   } else {

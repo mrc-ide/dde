@@ -1,6 +1,6 @@
 Package: dde
 Title: Solve Delay Differential Equations
-Version: 1.0.1
+Version: 1.0.2
 Authors@R: c(person("Rich", "FitzJohn", role = c("aut", "cre"),
                     email = "rich.fitzjohn@gmail.com"),
              person("Wes", "Hinsley", role = "aut"),
@@ -24,7 +24,8 @@ Suggests:
     microbenchmark,
     rmarkdown,
     testthat
-RoxygenNote: 6.1.1
+RoxygenNote: 7.0.2
+Roxygen: list(old_usage = TRUE)
 VignetteBuilder: knitr
 Encoding: UTF-8
 Language: en-GB
