@@ -8,13 +8,12 @@
 \alias{ylag}
 \title{Integrate ODE/DDE with dopri}
 \usage{
-dopri(y, times, func, parms, ..., n_out = 0L, output = NULL,
-  rtol = 1e-06, atol = 1e-06, step_size_min = 0,
-  step_size_max = Inf, step_size_initial = 0, step_max_n = 100000L,
-  tcrit = NULL, event_time = NULL, event_function = NULL,
-  method = "dopri5", stiff_check = 0, verbose = FALSE,
-  callback = NULL, n_history = 0, grow_history = FALSE,
-  return_history = n_history > 0, dllname = "",
+dopri(y, times, func, parms, ..., n_out = 0L, output = NULL, rtol = 1e-06,
+  atol = 1e-06, step_size_min = 0, step_size_max = Inf,
+  step_size_initial = 0, step_max_n = 100000L, tcrit = NULL,
+  event_time = NULL, event_function = NULL, method = "dopri5",
+  stiff_check = 0, verbose = FALSE, callback = NULL, n_history = 0,
+  grow_history = FALSE, return_history = n_history > 0, dllname = "",
   parms_are_real = TRUE, ynames = names(y), outnames = NULL,
   return_by_column = TRUE, return_initial = TRUE, return_time = TRUE,
   return_output_with_y = TRUE, return_statistics = FALSE,
@@ -26,9 +25,8 @@ dopri853(y, times, func, parms, ...)
 
 dopri_continue(obj, times, y = NULL, ..., copy = FALSE, parms = NULL,
   tcrit = NULL, return_history = NULL, return_by_column = NULL,
-  return_initial = NULL, return_statistics = NULL,
-  return_time = NULL, return_output_with_y = NULL,
-  restartable = NULL)
+  return_initial = NULL, return_statistics = NULL, return_time = NULL,
+  return_output_with_y = NULL, restartable = NULL)
 
 ylag(t, i = NULL)
 }

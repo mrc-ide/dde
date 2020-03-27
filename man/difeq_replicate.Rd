@@ -4,7 +4,12 @@
 \alias{difeq_replicate}
 \title{Solve difference equations repeatedly}
 \usage{
-difeq_replicate(n, y, ..., as_array = TRUE)
+difeq_replicate(n, y, steps, target, parms, ..., n_out = 0L, n_history = 0L,
+  grow_history = FALSE, return_history = n_history > 0, dllname = "",
+  parms_are_real = TRUE, ynames = NULL, outnames = NULL,
+  return_by_column = TRUE, return_initial = TRUE, return_step = TRUE,
+  return_output_with_y = TRUE, restartable = FALSE,
+  return_minimal = FALSE, as_array = TRUE)
 }
 \arguments{
 \item{n}{Number of replicates.  It is an error to request zero
@@ -14,12 +19,111 @@ replicates.}
 numeric vector or a \code{list} of numeric vectors.  If the
 latter, it must have length \code{n}.}
 
-\item{...}{Additional arguments passed through to
-\code{\link{difeq}}.}
+\item{steps}{A vector of steps to return the system at.  The
+\emph{first} step is taken as step zero, and the solution will
+be recorded at every other step in the vector.  So to step a
+system from time zero to times 1, 2, 3, ..., n use 0:n.  Must be
+integer values and will be passed through \code{as.integer}
+(which may truncate or otherwise butcher non-integer values).}
 
-\item{as_array}{Logical, indicating if the output should be
-converted into an array.  If \code{TRUE} then \code{res[, , i]}
-will contain the \code{i}'th replicate, if \code{FALSE} then
+\item{target}{The target function to advance.  This can either be
+an R function taking arguments \code{n, i, t, y, parms} or be a
+scalar character with the name of a compiled function with
+arguments \code{size_t n, size_t step, double time, const double
+*y, double *dydt, size_t n_out, double *output void *data}.}
+
+\item{parms}{Parameters to pass through to the difference function}
+
+\item{...}{Dummy arguments - nothing is allowed here, but this
+means that all further arguments \emph{must} be specified by
+name (not order) so I can easily reorder them later on.}
+
+\item{n_out}{The number of output variables (in addition to the
+difference equation variables).  If given, then an R function
+must return an \emph{attribute} \code{output} with the output
+variables.}
+
+\item{n_history}{The number of iterations of history to save
+during the simulation.  By default, no history is saved.}
+
+\item{grow_history}{Logical indicating if history should be grown
+during the simulation.  If \code{FALSE} (the default) then when
+history is used it is overwritten as needed (so only the most
+recent \code{n_history} elements are saved.  This may require
+some tuning so that you have enough history to run your
+simulation (i.e. to the longest delay) or an error will be
+thrown when it underflows.  The required history length will
+vary with your delay sizes and with the timestep for dopri.  If
+\code{TRUE}, then history will grow as the buffer is exhausted.
+The growth is geometric, so every time it reaches the end of the
+buffer it will increase by a factor of about 1.6 (see the
+\code{ring} documentation).  This may consume more memory than
+necessary, but may be useful where you don't want to care about
+picking the history length carefully.}
+
+\item{return_history}{Logical indicating if history is to be
+returned.  By default, history is returned if \code{n_history}
+is nonzero.}
+
+\item{dllname}{Name of the shared library (without extension) to
+find the function \code{func} in the case where \code{func}
+refers to compiled function.}
+
+\item{parms_are_real}{Logical, indicating if \code{parms} should
+be treated as vector of doubles by \code{func} (when it is a
+compiled function).  If \code{TRUE} (the default), then
+\code{REAL(parms)}, which is \code{double*} is passed through.
+If \code{FALSE} then if \code{params} is an externalptr type
+(\code{EXTPTRSXP}) we pass through the result of
+\code{R_ExternalPtrAddr}, otherwise we pass \code{params}
+through unmodified as a \code{SEXP}.  In the last case, in your
+target function you will need to include \code{<Rinternals.h>},
+cast to \code{SEXP} and then pull it apart using the R API (or
+Rcpp).}
+
+\item{ynames}{Logical, indicating if the output should be named
+following the names of the input vector \code{y}.
+Alternatively, if \code{ynames} is a character vector of the
+same length as \code{y}, these will be used as the output names.}
+
+\item{outnames}{An optional character vector, used when
+\code{n_out} is greater than 0, to name the model output matrix.}
+
+\item{return_by_column}{Logical, indicating if the output should be
+returned organised by column (rather than row).  This incurs a
+slight cost for transposing the matrices.  If you can work with
+matrices that are transposed relative to \code{deSolve}, then
+set this to \code{FALSE}.}
+
+\item{return_initial}{Logical, indicating if the output should
+include the initial conditions.  Specifying \code{FALSE} avoids
+binding this onto the output.}
+
+\item{return_step}{Logical, indicating if a row (or column if
+\code{return_by_column} is \code{TRUE}) representing step is included.}
+
+\item{return_output_with_y}{Logical, indicating if the output
+should be bound together with the returned matrix \code{y} (as
+it is with \code{deSolve}).  If \code{FALSE}, then output will
+be returned as the attribute \code{output}.}
+
+\item{restartable}{Logical, indicating if the problem should be
+restartable.  If \code{TRUE}, then the return value of a
+simulation can be passed to \code{difeq_restart} to continue the
+simulation after arbitrary changes to the state or the
+parameters.  Note that this is really only useful for delay
+difference equations where you want to keep the history but make
+changes to the parameters or to the state vector while keeping
+the history of the problem so far.}
+
+\item{return_minimal}{Shorthand option - if set to \code{TRUE}
+then it sets all of \code{return_by_column},
+\code{return_initial}, \code{return_time},
+\code{return_output_with_y} to \code{FALSE}}
+
+\item{as_array}{(Defunct) Logical, indicating if the output should
+be converted into an array.  If \code{TRUE} then \code{res[, ,
+i]} will contain the \code{i}'th replicate, if \code{FALSE} then
 \code{res[[i]]} does instead.  If both \code{as_array} and
 \code{restartable} are \code{TRUE}, then the attributes
 \code{ptr} and \code{restart_data} will be present as a

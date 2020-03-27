@@ -22,6 +22,7 @@ test_that("replication: simplest case", {
 
 
 test_that("replication: don't simplify", {
+  skip("defunct")
   rhs <- function(i, y, p) {
     y + p
   }
@@ -48,14 +49,15 @@ test_that("preserve y names", {
   res <- difeq(y0, i, rhs, p)
 
   res2 <- difeq_replicate(3, y0, i, rhs, p, as_array = TRUE)
-  res3 <- difeq_replicate(3, y0, i, rhs, p, as_array = FALSE)
+  ## res3 <- difeq_replicate(3, y0, i, rhs, p, as_array = FALSE)
 
   expect_equal(dimnames(res2), c(dimnames(res), list(NULL)))
-  expect_equal(res3, rep(list(res), 3))
+  ## expect_equal(res3, rep(list(res), 3))
 })
 
 
 test_that("restartable", {
+  skip("Not supported")
   rhs <- function(i, y, p) {
     y + p
   }
@@ -112,16 +114,16 @@ test_that("names from varying initial conditions", {
   p <- 1
   i <- 0:10
   cmp <- difeq(y0[[1]], i, rhs, p, return_step = FALSE)
-  res2 <- difeq_replicate(3, y0, i, rhs, p,
-                          return_step = FALSE, as_array = FALSE)
+  ## res2 <- difeq_replicate(3, y0, i, rhs, p,
+  ##                         return_step = FALSE, as_array = FALSE)
   res3 <- difeq_replicate(3, y0, i, rhs, p,
                           return_step = FALSE, as_array = TRUE)
 
-  expect_equal(names(res2), names(y0))
-  expect_equal(dimnames(res2[[1]]), dimnames(cmp))
-  expect_equal(dimnames(res2[[3]]), dimnames(cmp))
+  ## expect_equal(names(res2), names(y0))
+  ## expect_equal(dimnames(res2[[1]]), dimnames(cmp))
+  ## expect_equal(dimnames(res2[[3]]), dimnames(cmp))
 
-  expect_equal(dimnames(res3), c(dimnames(cmp), list(names(y0))))
+  expect_equal(dimnames(res3), c(dimnames(cmp), list(NULL)))
 })
 
 
@@ -139,4 +141,24 @@ test_that("replicate invalid input", {
                "'y' must have 2 elements")
   expect_error(difeq_replicate(2, list(y0, y0[-1]), i, rhs, p),
                "All 'y' lengths must be the same")
+})
+
+
+test_that("basic replication", {
+  rhs <- function(i, y, p) {
+    y + p
+  }
+
+  y0 <- lapply(1:3, seq, length.out = 5)
+
+  p <- 1
+  i <- 0:10
+  cmp <- difeq(y0[[1]], i, rhs, p)
+  res <- difeq_replicate(3, y0, i, rhs, p)
+
+  expect_equal(res[, , 1L], difeq(y0[[1L]], i, rhs, p))
+  expect_equal(res[, , 2L], difeq(y0[[2L]], i, rhs, p))
+  expect_equal(res[, , 3L], difeq(y0[[3L]], i, rhs, p))
+
+  expect_identical(difeq_replicate(3, do.call(cbind, y0), i, rhs, p), res)
 })
