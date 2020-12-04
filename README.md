@@ -2,8 +2,7 @@
 
 <!-- badges: start -->
 [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
-[![Travis-CI Build Status](https://travis-ci.org/mrc-ide/dde.svg?branch=master)](https://travis-ci.org/mrc-ide/dde)
-[![AppVeyor Build status](https://ci.appveyor.com/api/projects/status/96hrpw9ubhhun566?svg=true)](https://ci.appveyor.com/project/richfitz/dde)
+[![R build status](https://github.com/mrc-ide/dde/workflows/R-CMD-check/badge.svg)](https://github.com/mrc-ide/dde/actions)
 [![codecov.io](https://codecov.io/github/mrc-ide/dde/coverage.svg?branch=master)](https://codecov.io/github/mrc-ide/dde?branch=master)
 [![](http://www.r-pkg.org/badges/version/dde)](https://cran.r-project.org/package=dde)
 <!-- badges: end -->
