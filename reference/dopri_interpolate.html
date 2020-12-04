@@ -8,21 +8,29 @@
 
 <title>Interpolate Dormand-Prince output — dopri_interpolate • dde</title>
 
+
 <!-- jquery -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous" />
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous" />
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script>
+
+<!-- bootstrap-toc -->
+<link rel="stylesheet" href="../bootstrap-toc.css">
+<script src="../bootstrap-toc.js"></script>
 
 <!-- Font Awesome icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous" />
 
 <!-- clipboard.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script>
 
-<!-- sticky kit -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script>
+<!-- headroom.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
@@ -30,12 +38,12 @@
 
 
 
-<meta property="og:title" content="Interpolate Dormand-Prince output — dopri_interpolate" />
 
+<meta property="og:title" content="Interpolate Dormand-Prince output — dopri_interpolate" />
 <meta property="og:description" content="Interpolate the Dormand-Prince output after an integration.  This
 only interpolates the core integration variables and not any
 additional output variables." />
-<meta name="twitter:card" content="summary" />
+
 
 
 
@@ -49,9 +57,10 @@ additional output variables." />
 <![endif]-->
 
 
+
   </head>
 
-  <body>
+  <body data-spy="scroll" data-target="#toc">
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -65,7 +74,7 @@ additional output variables." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">dde</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.2</span>
       </span>
     </div>
 
@@ -73,7 +82,7 @@ additional output variables." />
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fa fa-home fa-lg"></span>
+    <span class="fas fa fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -87,11 +96,10 @@ additional output variables." />
   <a href="../news/index.html">Changelog</a>
 </li>
       </ul>
-      
       <ul class="nav navbar-nav navbar-right">
         <li>
-  <a href="https://github.com/mrc-ide/dde">
-    <span class="fa fa-github fa-lg"></span>
+  <a href="https://github.com/mrc-ide/dde/">
+    <span class="fab fa fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -102,6 +110,7 @@ additional output variables." />
 </div><!--/.navbar -->
 
       
+
       </header>
 
 <div class="row">
@@ -113,15 +122,13 @@ additional output variables." />
     </div>
 
     <div class="ref-description">
-    
     <p>Interpolate the Dormand-Prince output after an integration.  This
 only interpolates the core integration variables and not any
 additional output variables.</p>
-    
     </div>
 
-    <pre class="usage"><span class='fu'>dopri_interpolate</span>(<span class='no'>h</span>, <span class='no'>t</span>)</pre>
-    
+    <pre class="usage"><span class='fu'>dopri_interpolate</span><span class='op'>(</span><span class='va'>h</span>, <span class='va'>t</span><span class='op'>)</span></pre>
+
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
@@ -130,7 +137,7 @@ additional output variables.</p>
       <td><p>The interpolation history.  This can be the output
 running <code>dopri</code> with <code>return_history = TRUE</code>, or the
 history attribute of this object (retrievable with
-<code><a href='https://www.rdocumentation.org/packages/base/topics/attr'>attr(res, "history")</a></code>).</p></td>
+<code><a href='https://rdrr.io/r/base/attr.html'>attr(res, "history")</a></code>).</p></td>
     </tr>
     <tr>
       <th>t</th>
@@ -140,7 +147,7 @@ times that the original simulation was run) or an error will be
 thrown.</p></td>
     </tr>
     </table>
-    
+
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>This decouples the integration of the equations and the generation
@@ -149,29 +156,31 @@ come in useful where you need to do (for example) root finding on
 the time course of a problem, or generate minimal output in some
 cases and interrogate the solution more deeply in others.  See the
 examples and the package vignette for a full worked example.</p>
-    
+    <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
+
+    <p>Rich FitzJohn</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># Here is the Lorenz attractor implemented as an R function</span>
-<span class='no'>lorenz</span> <span class='kw'>&lt;-</span> <span class='kw'>function</span>(<span class='no'>t</span>, <span class='no'>y</span>, <span class='no'>p</span>) {
-  <span class='no'>sigma</span> <span class='kw'>&lt;-</span> <span class='no'>p</span><span class='kw'>[[</span><span class='fl'>1L</span>]]
-  <span class='no'>R</span> <span class='kw'>&lt;-</span> <span class='no'>p</span><span class='kw'>[[</span><span class='fl'>2L</span>]]
-  <span class='no'>b</span> <span class='kw'>&lt;-</span> <span class='no'>p</span><span class='kw'>[[</span><span class='fl'>3L</span>]]
-  <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='no'>sigma</span> * (<span class='no'>y</span><span class='kw'>[[</span><span class='fl'>2L</span>]] - <span class='no'>y</span><span class='kw'>[[</span><span class='fl'>1L</span>]]),
-    <span class='no'>R</span> * <span class='no'>y</span><span class='kw'>[[</span><span class='fl'>1L</span>]] - <span class='no'>y</span><span class='kw'>[[</span><span class='fl'>2L</span>]] - <span class='no'>y</span><span class='kw'>[[</span><span class='fl'>1L</span>]] * <span class='no'>y</span><span class='kw'>[[</span><span class='fl'>3L</span>]],
-    -<span class='no'>b</span> * <span class='no'>y</span><span class='kw'>[[</span><span class='fl'>3L</span>]] + <span class='no'>y</span><span class='kw'>[[</span><span class='fl'>1L</span>]] * <span class='no'>y</span><span class='kw'>[[</span><span class='fl'>2L</span>]])
-}
+<span class='va'>lorenz</span> <span class='op'>&lt;-</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>t</span>, <span class='va'>y</span>, <span class='va'>p</span><span class='op'>)</span> <span class='op'>{</span>
+  <span class='va'>sigma</span> <span class='op'>&lt;-</span> <span class='va'>p</span><span class='op'>[[</span><span class='fl'>1L</span><span class='op'>]</span><span class='op'>]</span>
+  <span class='va'>R</span> <span class='op'>&lt;-</span> <span class='va'>p</span><span class='op'>[[</span><span class='fl'>2L</span><span class='op'>]</span><span class='op'>]</span>
+  <span class='va'>b</span> <span class='op'>&lt;-</span> <span class='va'>p</span><span class='op'>[[</span><span class='fl'>3L</span><span class='op'>]</span><span class='op'>]</span>
+  <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='va'>sigma</span> <span class='op'>*</span> <span class='op'>(</span><span class='va'>y</span><span class='op'>[[</span><span class='fl'>2L</span><span class='op'>]</span><span class='op'>]</span> <span class='op'>-</span> <span class='va'>y</span><span class='op'>[[</span><span class='fl'>1L</span><span class='op'>]</span><span class='op'>]</span><span class='op'>)</span>,
+    <span class='va'>R</span> <span class='op'>*</span> <span class='va'>y</span><span class='op'>[[</span><span class='fl'>1L</span><span class='op'>]</span><span class='op'>]</span> <span class='op'>-</span> <span class='va'>y</span><span class='op'>[[</span><span class='fl'>2L</span><span class='op'>]</span><span class='op'>]</span> <span class='op'>-</span> <span class='va'>y</span><span class='op'>[[</span><span class='fl'>1L</span><span class='op'>]</span><span class='op'>]</span> <span class='op'>*</span> <span class='va'>y</span><span class='op'>[[</span><span class='fl'>3L</span><span class='op'>]</span><span class='op'>]</span>,
+    <span class='op'>-</span><span class='va'>b</span> <span class='op'>*</span> <span class='va'>y</span><span class='op'>[[</span><span class='fl'>3L</span><span class='op'>]</span><span class='op'>]</span> <span class='op'>+</span> <span class='va'>y</span><span class='op'>[[</span><span class='fl'>1L</span><span class='op'>]</span><span class='op'>]</span> <span class='op'>*</span> <span class='va'>y</span><span class='op'>[[</span><span class='fl'>2L</span><span class='op'>]</span><span class='op'>]</span><span class='op'>)</span>
+<span class='op'>}</span>
 
 <span class='co'># Standard parameters and a reasonable starting point:</span>
-<span class='no'>p</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>10</span>, <span class='fl'>28</span>, <span class='fl'>8</span> / <span class='fl'>3</span>)
-<span class='no'>y0</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>10</span>, <span class='fl'>1</span>, <span class='fl'>1</span>)
+<span class='va'>p</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>10</span>, <span class='fl'>28</span>, <span class='fl'>8</span> <span class='op'>/</span> <span class='fl'>3</span><span class='op'>)</span>
+<span class='va'>y0</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>10</span>, <span class='fl'>1</span>, <span class='fl'>1</span><span class='op'>)</span>
 
 <span class='co'># Run the integration for times [0, 50] and return minimal output,</span>
 <span class='co'># but *do* record and return history.</span>
-<span class='no'>y</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='dopri.html'>dopri</a></span>(<span class='no'>y0</span>, <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>0</span>, <span class='fl'>50</span>), <span class='no'>lorenz</span>, <span class='no'>p</span>,
-           <span class='kw'>n_history</span> <span class='kw'>=</span> <span class='fl'>5000</span>, <span class='kw'>return_history</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-           <span class='kw'>return_time</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>return_initial</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-           <span class='kw'>return_by_column</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
+<span class='va'>y</span> <span class='op'>&lt;-</span> <span class='fu'><a href='dopri.html'>dopri</a></span><span class='op'>(</span><span class='va'>y0</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0</span>, <span class='fl'>50</span><span class='op'>)</span>, <span class='va'>lorenz</span>, <span class='va'>p</span>,
+           n_history <span class='op'>=</span> <span class='fl'>5000</span>, return_history <span class='op'>=</span> <span class='cn'>TRUE</span>,
+           return_time <span class='op'>=</span> <span class='cn'>FALSE</span>, return_initial <span class='op'>=</span> <span class='cn'>FALSE</span>,
+           return_by_column <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
 
 <span class='co'># Very little output is returned (just 3 numbers being the final</span>
 <span class='co'># state of the system), but the "history" attribute is fairly</span>
@@ -179,10 +188,11 @@ examples and the package vignette for a full worked example.</p>
 <span class='co'># as its contents should not be relied on.  What does matter is</span>
 <span class='co'># the range of supported times printed (i.e., [0, 50]) and the</span>
 <span class='co'># number of entries (~2000).</span>
-<span class='no'>y</span></div><div class='output co'>#&gt;            [,1]
-#&gt; [1,] -0.1744216
-#&gt; [2,] -0.2826909
-#&gt; [3,] 11.1341157
+<span class='va'>y</span>
+</div><div class='output co'>#&gt;          [,1]
+#&gt; [1,]  4.71880
+#&gt; [2,]  7.09094
+#&gt; [3,] 17.02268
 #&gt; attr(,"history")
 #&gt; &lt;dopri_history&gt;
 #&gt;   - equations: 3
@@ -191,28 +201,23 @@ examples and the package vignette for a full worked example.</p>
 #&gt;   - order: 5</div><div class='input'>
 <span class='co'># Generate an interpolated set of variables using this; first for</span>
 <span class='co'># 1000 steps over the full range:</span>
-<span class='no'>tt</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/seq'>seq</a></span>(<span class='fl'>0</span>, <span class='fl'>50</span>, <span class='kw'>length.out</span> <span class='kw'>=</span> <span class='fl'>1000</span>)
-<span class='no'>yy</span> <span class='kw'>&lt;-</span> <span class='fu'>dopri_interpolate</span>(<span class='no'>y</span>, <span class='no'>tt</span>)
-<span class='fu'><a href='https://www.rdocumentation.org/packages/graphics/topics/plot'>plot</a></span>(<span class='no'>yy</span>[, <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>1</span>, <span class='fl'>3</span>)], <span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"l"</span>)</div><div class='img'><img src='dopri_interpolate-1.png' alt='' width='700' height='433' /></div><div class='input'>
+<span class='va'>tt</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span><span class='op'>(</span><span class='fl'>0</span>, <span class='fl'>50</span>, length.out <span class='op'>=</span> <span class='fl'>1000</span><span class='op'>)</span>
+<span class='va'>yy</span> <span class='op'>&lt;-</span> <span class='fu'>dopri_interpolate</span><span class='op'>(</span><span class='va'>y</span>, <span class='va'>tt</span><span class='op'>)</span>
+<span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span><span class='op'>(</span><span class='va'>yy</span><span class='op'>[</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>1</span>, <span class='fl'>3</span><span class='op'>)</span><span class='op'>]</span>, type <span class='op'>=</span> <span class='st'>"l"</span><span class='op'>)</span>
+</div><div class='img'><img src='dopri_interpolate-1.png' alt='' width='700' height='433' /></div><div class='input'>
 <span class='co'># Then for 50000</span>
-<span class='no'>tt</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/seq'>seq</a></span>(<span class='fl'>0</span>, <span class='fl'>50</span>, <span class='kw'>length.out</span> <span class='kw'>=</span> <span class='fl'>50000</span>)
-<span class='no'>yy</span> <span class='kw'>&lt;-</span> <span class='fu'>dopri_interpolate</span>(<span class='no'>y</span>, <span class='no'>tt</span>)
-<span class='fu'><a href='https://www.rdocumentation.org/packages/graphics/topics/plot'>plot</a></span>(<span class='no'>yy</span>[, <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>1</span>, <span class='fl'>3</span>)], <span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"l"</span>)</div><div class='img'><img src='dopri_interpolate-2.png' alt='' width='700' height='433' /></div></pre>
+<span class='va'>tt</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span><span class='op'>(</span><span class='fl'>0</span>, <span class='fl'>50</span>, length.out <span class='op'>=</span> <span class='fl'>50000</span><span class='op'>)</span>
+<span class='va'>yy</span> <span class='op'>&lt;-</span> <span class='fu'>dopri_interpolate</span><span class='op'>(</span><span class='va'>y</span>, <span class='va'>tt</span><span class='op'>)</span>
+<span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span><span class='op'>(</span><span class='va'>yy</span><span class='op'>[</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>1</span>, <span class='fl'>3</span><span class='op'>)</span><span class='op'>]</span>, type <span class='op'>=</span> <span class='st'>"l"</span><span class='op'>)</span>
+</div><div class='img'><img src='dopri_interpolate-2.png' alt='' width='700' height='433' /></div></pre>
   </div>
-  <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
-    <h2>Contents</h2>
-    <ul class="nav nav-pills nav-stacked">
-      <li><a href="#arguments">Arguments</a></li>
-      
-      <li><a href="#details">Details</a></li>
-      
-      <li><a href="#examples">Examples</a></li>
-    </ul>
-
-    <h2>Author</h2>
-    <p>Rich FitzJohn</p>
+  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
+    <nav id="toc" data-toggle="toc" class="sticky-top">
+      <h2 data-toc-skip>Contents</h2>
+    </nav>
   </div>
 </div>
+
 
       <footer>
       <div class="copyright">
@@ -220,13 +225,16 @@ examples and the package vignette for a full worked example.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
+
       </footer>
    </div>
 
   
 
+
   </body>
 </html>
+
 

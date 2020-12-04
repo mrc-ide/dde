@@ -8,21 +8,29 @@
 
 <title>Solve difference equation — difeq • dde</title>
 
+
 <!-- jquery -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous" />
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous" />
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script>
+
+<!-- bootstrap-toc -->
+<link rel="stylesheet" href="../bootstrap-toc.css">
+<script src="../bootstrap-toc.js"></script>
 
 <!-- Font Awesome icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous" />
 
 <!-- clipboard.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script>
 
-<!-- sticky kit -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script>
+<!-- headroom.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
@@ -30,11 +38,11 @@
 
 
 
-<meta property="og:title" content="Solve difference equation — difeq" />
 
+<meta property="og:title" content="Solve difference equation — difeq" />
 <meta property="og:description" content="Solve a difference (or recurrence) equation by iterating it a
 number of times." />
-<meta name="twitter:card" content="summary" />
+
 
 
 
@@ -48,9 +56,10 @@ number of times." />
 <![endif]-->
 
 
+
   </head>
 
-  <body>
+  <body data-spy="scroll" data-target="#toc">
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -64,7 +73,7 @@ number of times." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">dde</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.2</span>
       </span>
     </div>
 
@@ -72,7 +81,7 @@ number of times." />
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fa fa-home fa-lg"></span>
+    <span class="fas fa fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -86,11 +95,10 @@ number of times." />
   <a href="../news/index.html">Changelog</a>
 </li>
       </ul>
-      
       <ul class="nav navbar-nav navbar-right">
         <li>
-  <a href="https://github.com/mrc-ide/dde">
-    <span class="fa fa-github fa-lg"></span>
+  <a href="https://github.com/mrc-ide/dde/">
+    <span class="fab fa fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -101,6 +109,7 @@ number of times." />
 </div><!--/.navbar -->
 
       
+
       </header>
 
 <div class="row">
@@ -112,26 +121,23 @@ number of times." />
     </div>
 
     <div class="ref-description">
-    
     <p>Solve a difference (or recurrence) equation by iterating it a
 number of times.</p>
-    
     </div>
 
-    <pre class="usage"><span class='fu'>difeq</span>(<span class='no'>y</span>, <span class='no'>steps</span>, <span class='no'>target</span>, <span class='no'>parms</span>, <span class='no'>...</span>, <span class='kw'>n_out</span> <span class='kw'>=</span> <span class='fl'>0L</span>, <span class='kw'>n_history</span> <span class='kw'>=</span> <span class='fl'>0L</span>,
-  <span class='kw'>grow_history</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>return_history</span> <span class='kw'>=</span> <span class='no'>n_history</span> <span class='kw'>&gt;</span> <span class='fl'>0</span>, <span class='kw'>dllname</span> <span class='kw'>=</span> <span class='st'>""</span>,
-  <span class='kw'>parms_are_real</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>ynames</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/names'>names</a></span>(<span class='no'>y</span>), <span class='kw'>outnames</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>return_by_column</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>return_initial</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>return_step</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>return_output_with_y</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>restartable</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>return_minimal</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
+    <pre class="usage"><span class='fu'>difeq</span><span class='op'>(</span><span class='va'>y</span>, <span class='va'>steps</span>, <span class='va'>target</span>, <span class='va'>parms</span>, <span class='va'>...</span>, n_out <span class='op'>=</span> <span class='fl'>0L</span>, n_history <span class='op'>=</span> <span class='fl'>0L</span>,
+  grow_history <span class='op'>=</span> <span class='cn'>FALSE</span>, return_history <span class='op'>=</span> <span class='va'>n_history</span> <span class='op'>&gt;</span> <span class='fl'>0</span>, dllname <span class='op'>=</span> <span class='st'>""</span>,
+  parms_are_real <span class='op'>=</span> <span class='cn'>TRUE</span>, ynames <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/names.html'>names</a></span><span class='op'>(</span><span class='va'>y</span><span class='op'>)</span>, outnames <span class='op'>=</span> <span class='cn'>NULL</span>,
+  return_by_column <span class='op'>=</span> <span class='cn'>TRUE</span>, return_initial <span class='op'>=</span> <span class='cn'>TRUE</span>, return_step <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  return_output_with_y <span class='op'>=</span> <span class='cn'>TRUE</span>, restartable <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  return_minimal <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
 
-<span class='fu'>difeq_continue</span>(<span class='no'>obj</span>, <span class='no'>steps</span>, <span class='kw'>y</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>, <span class='kw'>copy</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>parms</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>return_history</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>return_by_column</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>return_initial</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>return_step</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>return_output_with_y</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>restartable</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)
+<span class='fu'>difeq_continue</span><span class='op'>(</span><span class='va'>obj</span>, <span class='va'>steps</span>, y <span class='op'>=</span> <span class='cn'>NULL</span>, <span class='va'>...</span>, copy <span class='op'>=</span> <span class='cn'>FALSE</span>, parms <span class='op'>=</span> <span class='cn'>NULL</span>,
+  return_history <span class='op'>=</span> <span class='cn'>NULL</span>, return_by_column <span class='op'>=</span> <span class='cn'>NULL</span>, return_initial <span class='op'>=</span> <span class='cn'>NULL</span>,
+  return_step <span class='op'>=</span> <span class='cn'>NULL</span>, return_output_with_y <span class='op'>=</span> <span class='cn'>NULL</span>, restartable <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span>
 
-<span class='fu'>yprev</span>(<span class='no'>step</span>, <span class='kw'>i</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
-    
+<span class='fu'>yprev</span><span class='op'>(</span><span class='va'>step</span>, i <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span></pre>
+
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
@@ -310,18 +316,19 @@ access the first element.  This can be left <code>NULL</code> to
 return all the elements or a vector longer than one.</p></td>
     </tr>
     </table>
-    
+
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'>
 <span class='co'># Here is a really simple equation that just increases by 'p' each</span>
 <span class='co'># time (p is the parameter vector and could be any R structure).</span>
-<span class='no'>rhs</span> <span class='kw'>&lt;-</span> <span class='kw'>function</span>(<span class='no'>i</span>, <span class='no'>y</span>, <span class='no'>p</span>) <span class='no'>y</span> + <span class='no'>p</span>
+<span class='va'>rhs</span> <span class='op'>&lt;-</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>i</span>, <span class='va'>y</span>, <span class='va'>p</span><span class='op'>)</span> <span class='va'>y</span> <span class='op'>+</span> <span class='va'>p</span>
 
-<span class='no'>y0</span> <span class='kw'>&lt;-</span> <span class='fl'>1</span>
-<span class='no'>t</span> <span class='kw'>&lt;-</span> <span class='fl'>0</span>:<span class='fl'>10</span>
-<span class='no'>p</span> <span class='kw'>&lt;-</span> <span class='fl'>5</span>
-<span class='kw pkg'>dde</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/dde/topics/difeq'>difeq</a></span>(<span class='no'>y0</span>, <span class='no'>t</span>, <span class='no'>rhs</span>, <span class='no'>p</span>)</div><div class='output co'>#&gt;       [,1] [,2]
+<span class='va'>y0</span> <span class='op'>&lt;-</span> <span class='fl'>1</span>
+<span class='va'>t</span> <span class='op'>&lt;-</span> <span class='fl'>0</span><span class='op'>:</span><span class='fl'>10</span>
+<span class='va'>p</span> <span class='op'>&lt;-</span> <span class='fl'>5</span>
+<span class='fu'>dde</span><span class='fu'>::</span><span class='fu'>difeq</span><span class='op'>(</span><span class='va'>y0</span>, <span class='va'>t</span>, <span class='va'>rhs</span>, <span class='va'>p</span><span class='op'>)</span>
+</div><div class='output co'>#&gt;       [,1] [,2]
 #&gt;  [1,]    0    1
 #&gt;  [2,]    1    6
 #&gt;  [3,]    2   11
@@ -334,16 +341,13 @@ return all the elements or a vector longer than one.</p></td>
 #&gt; [10,]    9   46
 #&gt; [11,]   10   51</div></pre>
   </div>
-  <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
-    <h2>Contents</h2>
-    <ul class="nav nav-pills nav-stacked">
-      <li><a href="#arguments">Arguments</a></li>
-            
-      <li><a href="#examples">Examples</a></li>
-    </ul>
-
+  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
+    <nav id="toc" data-toggle="toc" class="sticky-top">
+      <h2 data-toc-skip>Contents</h2>
+    </nav>
   </div>
 </div>
+
 
       <footer>
       <div class="copyright">
@@ -351,13 +355,16 @@ return all the elements or a vector longer than one.</p></td>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
+
       </footer>
    </div>
 
   
 
+
   </body>
 </html>
+
 

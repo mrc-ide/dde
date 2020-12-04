@@ -6,18 +6,19 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>dde • dde</title>
-<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous">
-<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script><!-- sticky kit --><script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
+<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="../bootstrap-toc.css">
+<script src="../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
+<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
 <script src="../pkgdown.js"></script><meta property="og:title" content="dde">
-<meta property="og:description" content="">
-<meta name="twitter:card" content="summary">
+<meta property="og:description" content="dde">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]-->
 </head>
-<body>
+<body data-spy="scroll" data-target="#toc">
     <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -30,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">dde</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.2</span>
       </span>
     </div>
 
@@ -38,7 +39,7 @@
       <ul class="nav navbar-nav">
 <li>
   <a href="../index.html">
-    <span class="fa fa-home fa-lg"></span>
+    <span class="fas fa fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -54,8 +55,8 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://github.com/mrc-ide/dde">
-    <span class="fa fa-github fa-lg"></span>
+  <a href="https://github.com/mrc-ide/dde/">
+    <span class="fab fa fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -68,13 +69,15 @@
 <!--/.navbar -->
 
       
-      </header><div class="row">
+
+      </header><script src="dde_files/accessible-code-block-0.0.1/empty-anchor.js"></script><link href="dde_files/anchor-sections-1.0/anchor-sections.css" rel="stylesheet">
+<script src="dde_files/anchor-sections-1.0/anchor-sections.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
-      <h1>dde</h1>
+      <h1 data-toc-skip>dde</h1>
                         <h4 class="author">Rich FitzJohn</h4>
             
-            <h4 class="date">2019-05-16</h4>
+            <h4 class="date">2020-12-04</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/mrc-ide/dde/blob/master/vignettes/dde.Rmd"><code>vignettes/dde.Rmd</code></a></small>
       <div class="hidden name"><code>dde.Rmd</code></div>
@@ -108,66 +111,75 @@
 <h3 class="hasAnchor">
 <a href="#models-implemented-in-r" class="anchor"></a>Models implemented in R</h3>
 <p>Models implemented in R look very similar to <code>deSolve</code>. Here is the Lorenz attractor implemented for <code>dde</code>:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1">lorenz_dde &lt;-<span class="st"> </span><span class="cf">function</span>(t, y, p) {</a>
-<a class="sourceLine" id="cb1-2" title="2">  sigma &lt;-<span class="st"> </span>p<span class="op">$</span>sigma</a>
-<a class="sourceLine" id="cb1-3" title="3">  R     &lt;-<span class="st"> </span>p<span class="op">$</span>R</a>
-<a class="sourceLine" id="cb1-4" title="4">  b     &lt;-<span class="st"> </span>p<span class="op">$</span>b</a>
-<a class="sourceLine" id="cb1-5" title="5">  y1 &lt;-<span class="st"> </span>y[[1L]]</a>
-<a class="sourceLine" id="cb1-6" title="6">  y2 &lt;-<span class="st"> </span>y[[2L]]</a>
-<a class="sourceLine" id="cb1-7" title="7">  y3 &lt;-<span class="st"> </span>y[[3L]]</a>
-<a class="sourceLine" id="cb1-8" title="8">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(sigma <span class="op">*</span><span class="st"> </span>(y2 <span class="op">-</span><span class="st"> </span>y1),</a>
-<a class="sourceLine" id="cb1-9" title="9">    R <span class="op">*</span><span class="st"> </span>y1 <span class="op">-</span><span class="st"> </span>y2 <span class="op">-</span><span class="st"> </span>y1 <span class="op">*</span><span class="st"> </span>y3,</a>
-<a class="sourceLine" id="cb1-10" title="10">    <span class="op">-</span>b <span class="op">*</span><span class="st"> </span>y3 <span class="op">+</span><span class="st"> </span>y1 <span class="op">*</span><span class="st"> </span>y2)</a>
-<a class="sourceLine" id="cb1-11" title="11">}</a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">lorenz_dde</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">t</span>, <span class="va">y</span>, <span class="va">p</span><span class="op">)</span> <span class="op">{</span>
+  <span class="va">sigma</span> <span class="op">&lt;-</span> <span class="va">p</span><span class="op">$</span><span class="va">sigma</span>
+  <span class="va">R</span>     <span class="op">&lt;-</span> <span class="va">p</span><span class="op">$</span><span class="va">R</span>
+  <span class="va">b</span>     <span class="op">&lt;-</span> <span class="va">p</span><span class="op">$</span><span class="va">b</span>
+  <span class="va">y1</span> <span class="op">&lt;-</span> <span class="va">y</span><span class="op">[[</span><span class="fl">1L</span><span class="op">]</span><span class="op">]</span>
+  <span class="va">y2</span> <span class="op">&lt;-</span> <span class="va">y</span><span class="op">[[</span><span class="fl">2L</span><span class="op">]</span><span class="op">]</span>
+  <span class="va">y3</span> <span class="op">&lt;-</span> <span class="va">y</span><span class="op">[[</span><span class="fl">3L</span><span class="op">]</span><span class="op">]</span>
+  <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">sigma</span> <span class="op">*</span> <span class="op">(</span><span class="va">y2</span> <span class="op">-</span> <span class="va">y1</span><span class="op">)</span>,
+    <span class="va">R</span> <span class="op">*</span> <span class="va">y1</span> <span class="op">-</span> <span class="va">y2</span> <span class="op">-</span> <span class="va">y1</span> <span class="op">*</span> <span class="va">y3</span>,
+    <span class="op">-</span><span class="va">b</span> <span class="op">*</span> <span class="va">y3</span> <span class="op">+</span> <span class="va">y1</span> <span class="op">*</span> <span class="va">y2</span><span class="op">)</span>
+<span class="op">}</span></code></pre></div>
 <p>The <code>p</code> argument is the parameters and can be any R object. Here I’ll use a <code>list</code> to hold the standard Lorenz attractor parameters:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" title="1">p &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(<span class="dt">sigma =</span> <span class="fl">10.0</span>,</a>
-<a class="sourceLine" id="cb2-2" title="2">          <span class="dt">R     =</span> <span class="fl">28.0</span>,</a>
-<a class="sourceLine" id="cb2-3" title="3">          <span class="dt">b     =</span>  <span class="fl">8.0</span> <span class="op">/</span><span class="st"> </span><span class="fl">3.0</span>)</a>
-<a class="sourceLine" id="cb2-4" title="4"></a>
-<a class="sourceLine" id="cb2-5" title="5">tt &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/seq">seq</a></span>(<span class="dv">0</span>, <span class="dv">100</span>, <span class="dt">length.out =</span> <span class="dv">50001</span>)</a>
-<a class="sourceLine" id="cb2-6" title="6">y0 &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>)</a>
-<a class="sourceLine" id="cb2-7" title="7">yy &lt;-<span class="st"> </span>dde<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/dde/topics/dopri">dopri</a></span>(y0, tt, lorenz_dde, p)</a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>sigma <span class="op">=</span> <span class="fl">10.0</span>,
+          R     <span class="op">=</span> <span class="fl">28.0</span>,
+          b     <span class="op">=</span>  <span class="fl">8.0</span> <span class="op">/</span> <span class="fl">3.0</span><span class="op">)</span>
+
+<span class="va">tt</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">100</span>, length.out <span class="op">=</span> <span class="fl">50001</span><span class="op">)</span>
+<span class="va">y0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span>
+<span class="va">yy</span> <span class="op">&lt;-</span> <span class="fu">dde</span><span class="fu">::</span><span class="fu"><a href="../reference/dopri.html">dopri</a></span><span class="op">(</span><span class="va">y0</span>, <span class="va">tt</span>, <span class="va">lorenz_dde</span>, <span class="va">p</span><span class="op">)</span></code></pre></div>
 <p>Here is the iconic attractor</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" title="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/par">par</a></span>(<span class="dt">mar=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/rep">rep</a></span>(.<span class="dv">5</span>, <span class="dv">4</span>))</a>
-<a class="sourceLine" id="cb3-2" title="2"><span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/plot">plot</a></span>(yy[, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">2</span>, <span class="dv">4</span>)], <span class="dt">type =</span> <span class="st">"l"</span>, <span class="dt">lwd =</span> <span class="fl">0.5</span>, <span class="dt">col =</span> <span class="st">"#00000066"</span>,</a>
-<a class="sourceLine" id="cb3-3" title="3">     <span class="dt">axes =</span> <span class="ot">FALSE</span>, <span class="dt">xlab =</span> <span class="st">""</span>, <span class="dt">ylab =</span> <span class="st">""</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/par.html">par</a></span><span class="op">(</span>mar<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="fl">.5</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">yy</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">4</span><span class="op">)</span><span class="op">]</span>, type <span class="op">=</span> <span class="st">"l"</span>, lwd <span class="op">=</span> <span class="fl">0.5</span>, col <span class="op">=</span> <span class="st">"#00000066"</span>,
+     axes <span class="op">=</span> <span class="cn">FALSE</span>, xlab <span class="op">=</span> <span class="st">""</span>, ylab <span class="op">=</span> <span class="st">""</span><span class="op">)</span></code></pre></div>
 <p><img src="dde_files/figure-html/unnamed-chunk-4-1.png" width="672"></p>
 <p>The approach above is almost identical to implementing this model using <code>deSolve</code>:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" title="1">lorenz_ds &lt;-<span class="st"> </span><span class="cf">function</span>(t, y, p) {</a>
-<a class="sourceLine" id="cb4-2" title="2">  sigma &lt;-<span class="st"> </span><span class="fl">10.0</span></a>
-<a class="sourceLine" id="cb4-3" title="3">  R     &lt;-<span class="st"> </span><span class="fl">28.0</span></a>
-<a class="sourceLine" id="cb4-4" title="4">  b     &lt;-<span class="st">  </span><span class="fl">8.0</span> <span class="op">/</span><span class="st"> </span><span class="fl">3.0</span></a>
-<a class="sourceLine" id="cb4-5" title="5">  y1 &lt;-<span class="st"> </span>y[[1L]]</a>
-<a class="sourceLine" id="cb4-6" title="6">  y2 &lt;-<span class="st"> </span>y[[2L]]</a>
-<a class="sourceLine" id="cb4-7" title="7">  y3 &lt;-<span class="st"> </span>y[[3L]]</a>
-<a class="sourceLine" id="cb4-8" title="8">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(sigma <span class="op">*</span><span class="st"> </span>(y2 <span class="op">-</span><span class="st"> </span>y1),</a>
-<a class="sourceLine" id="cb4-9" title="9">         R <span class="op">*</span><span class="st"> </span>y1 <span class="op">-</span><span class="st"> </span>y2 <span class="op">-</span><span class="st"> </span>y1 <span class="op">*</span><span class="st"> </span>y3,</a>
-<a class="sourceLine" id="cb4-10" title="10">         <span class="op">-</span>b <span class="op">*</span><span class="st"> </span>y3 <span class="op">+</span><span class="st"> </span>y1 <span class="op">*</span><span class="st"> </span>y2))</a>
-<a class="sourceLine" id="cb4-11" title="11">}</a>
-<a class="sourceLine" id="cb4-12" title="12">yy_ds &lt;-<span class="st"> </span>deSolve<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/deSolve/topics/ode">ode</a></span>(y0, tt, lorenz_ds, p)</a></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">lorenz_ds</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">t</span>, <span class="va">y</span>, <span class="va">p</span><span class="op">)</span> <span class="op">{</span>
+  <span class="va">sigma</span> <span class="op">&lt;-</span> <span class="fl">10.0</span>
+  <span class="va">R</span>     <span class="op">&lt;-</span> <span class="fl">28.0</span>
+  <span class="va">b</span>     <span class="op">&lt;-</span>  <span class="fl">8.0</span> <span class="op">/</span> <span class="fl">3.0</span>
+  <span class="va">y1</span> <span class="op">&lt;-</span> <span class="va">y</span><span class="op">[[</span><span class="fl">1L</span><span class="op">]</span><span class="op">]</span>
+  <span class="va">y2</span> <span class="op">&lt;-</span> <span class="va">y</span><span class="op">[[</span><span class="fl">2L</span><span class="op">]</span><span class="op">]</span>
+  <span class="va">y3</span> <span class="op">&lt;-</span> <span class="va">y</span><span class="op">[[</span><span class="fl">3L</span><span class="op">]</span><span class="op">]</span>
+  <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">sigma</span> <span class="op">*</span> <span class="op">(</span><span class="va">y2</span> <span class="op">-</span> <span class="va">y1</span><span class="op">)</span>,
+         <span class="va">R</span> <span class="op">*</span> <span class="va">y1</span> <span class="op">-</span> <span class="va">y2</span> <span class="op">-</span> <span class="va">y1</span> <span class="op">*</span> <span class="va">y3</span>,
+         <span class="op">-</span><span class="va">b</span> <span class="op">*</span> <span class="va">y3</span> <span class="op">+</span> <span class="va">y1</span> <span class="op">*</span> <span class="va">y2</span><span class="op">)</span><span class="op">)</span>
+<span class="op">}</span>
+<span class="va">yy_ds</span> <span class="op">&lt;-</span> <span class="fu">deSolve</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/deSolve/man/ode.html">ode</a></span><span class="op">(</span><span class="va">y0</span>, <span class="va">tt</span>, <span class="va">lorenz_ds</span>, <span class="va">p</span><span class="op">)</span></code></pre></div>
 </div>
 <div id="dense-output-and-interpolation" class="section level3">
 <h3 class="hasAnchor">
 <a href="#dense-output-and-interpolation" class="anchor"></a>Dense output and interpolation</h3>
 <p>One of the nice things about the <code>dopri</code> solvers is that they do not need to stop the integration at the times that you request output at:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" title="1">yy &lt;-<span class="st"> </span>dde<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/dde/topics/dopri">dopri</a></span>(y0, tt, lorenz_dde, p, <span class="dt">return_statistics =</span> <span class="ot">TRUE</span>)</a>
-<a class="sourceLine" id="cb5-2" title="2"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/attr">attr</a></span>(yy, <span class="st">"statistics"</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">yy</span> <span class="op">&lt;-</span> <span class="fu">dde</span><span class="fu">::</span><span class="fu"><a href="../reference/dopri.html">dopri</a></span><span class="op">(</span><span class="va">y0</span>, <span class="va">tt</span>, <span class="va">lorenz_dde</span>, <span class="va">p</span>, return_statistics <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/attr.html">attr</a></span><span class="op">(</span><span class="va">yy</span>, <span class="st">"statistics"</span><span class="op">)</span></code></pre></div>
 <pre><code>##   n_eval   n_step n_accept n_reject 
-##    26738     4456     4261      195</code></pre>
+##    27446     4574     4386      188</code></pre>
 <p>Above, the number of function evaluations (~6 per step), steps, and rejected steps is indicated (a rejected step occurs where the solver has to reduce step size multiple times to achieve the required accuracy). The number of steps here is about 1/10 the number of returned samples. This works because the solver here returns “<strong>dense output</strong>” which allows it to interpolate the solution between points that it has not visited. This is supported by many of the solvers in <code>deSolve</code>, too.</p>
 <p>In contrast with <code>deSolve</code>, the dense output here can be collected and worked with later, though doing this requires a bit of faff.</p>
 <p>Specify the history length; this needs to be an <em>overestimate</em> because once the end of the history buffer is reached it will be silently overwritten to return the <em>last</em> steps in history. (This is the behaviour required to support delay models without running out of memory).</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" title="1">yy2 &lt;-<span class="st"> </span>dde<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/dde/topics/dopri">dopri</a></span>(y0, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/range">range</a></span>(tt), lorenz_dde, p, <span class="dt">return_minimal =</span> <span class="ot">TRUE</span>,</a>
-<a class="sourceLine" id="cb7-2" title="2">                  <span class="dt">n_history =</span> <span class="dv">5000</span>, <span class="dt">return_history =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">yy2</span> <span class="op">&lt;-</span> <span class="fu">dde</span><span class="fu">::</span><span class="fu"><a href="../reference/dopri.html">dopri</a></span><span class="op">(</span><span class="va">y0</span>, <span class="fu"><a href="https://rdrr.io/r/base/range.html">range</a></span><span class="op">(</span><span class="va">tt</span><span class="op">)</span>, <span class="va">lorenz_dde</span>, <span class="va">p</span>, return_minimal <span class="op">=</span> <span class="cn">TRUE</span>,
+                  n_history <span class="op">=</span> <span class="fl">5000</span>, return_history <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
 <p>With these arguments <code>yy2</code> is a 3 x 1 matrix, but it comes with a massive “history” matrix":</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" title="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/dim">dim</a></span>(yy2)</a></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/dim.html">dim</a></span><span class="op">(</span><span class="va">yy2</span><span class="op">)</span></code></pre></div>
 <pre><code>## [1] 3 1</code></pre>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" title="1">h &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/attr">attr</a></span>(yy2, <span class="st">"history"</span>)</a>
-<a class="sourceLine" id="cb10-2" title="2"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/dim">dim</a></span>(h)</a></code></pre></div>
-<pre><code>## [1]   17 4261</code></pre>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">h</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/attr.html">attr</a></span><span class="op">(</span><span class="va">yy2</span>, <span class="st">"history"</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/dim.html">dim</a></span><span class="op">(</span><span class="va">h</span><span class="op">)</span></code></pre></div>
+<pre><code>## [1]   17 4386</code></pre>
 <p>The contents of this matrix are designed to be opaque (i.e., I may change how things are represented at a future time). However, the solution can be interpolated to any number of points using this matrix:</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" title="1">yy2 &lt;-<span class="st"> </span>dde<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/dde/topics/dopri_interpolate">dopri_interpolate</a></span>(h, tt)</a>
-<a class="sourceLine" id="cb12-2" title="2"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/all.equal">all.equal</a></span>(yy2, yy[, <span class="dv">-1</span>], <span class="dt">check.attributes =</span> <span class="ot">FALSE</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">yy2</span> <span class="op">&lt;-</span> <span class="fu">dde</span><span class="fu">::</span><span class="fu"><a href="../reference/dopri_interpolate.html">dopri_interpolate</a></span><span class="op">(</span><span class="va">h</span>, <span class="va">tt</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/all.equal.html">all.equal</a></span><span class="op">(</span><span class="va">yy2</span>, <span class="va">yy</span><span class="op">[</span>, <span class="op">-</span><span class="fl">1</span><span class="op">]</span>, check.attributes <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
 <pre><code>## [1] TRUE</code></pre>
 </div>
 </div>
@@ -179,41 +191,45 @@
 <h3 class="hasAnchor">
 <a href="#a-model-in-r" class="anchor"></a>A model in R</h3>
 <p>This is a simple SEIR (Susceptible - Exposed - Infected - Resistant) model from epidemiology. Once exposed to the disease, an individual exists in an “Exposed” state for exactly 14 days before becoming “Infected” (you could model this with a series of compartments and get a distribution of exposed times).</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" title="1">seir &lt;-<span class="st"> </span><span class="cf">function</span>(t, y, p) {</a>
-<a class="sourceLine" id="cb14-2" title="2">  b &lt;-<span class="st"> </span><span class="fl">0.1</span></a>
-<a class="sourceLine" id="cb14-3" title="3">  N &lt;-<span class="st"> </span><span class="fl">1e7</span></a>
-<a class="sourceLine" id="cb14-4" title="4">  beta &lt;-<span class="st"> </span><span class="fl">10.0</span></a>
-<a class="sourceLine" id="cb14-5" title="5">  sigma &lt;-<span class="st"> </span><span class="fl">1.0</span> <span class="op">/</span><span class="st"> </span><span class="fl">3.0</span></a>
-<a class="sourceLine" id="cb14-6" title="6">  delta &lt;-<span class="st"> </span><span class="fl">1.0</span> <span class="op">/</span><span class="st"> </span><span class="fl">21.0</span></a>
-<a class="sourceLine" id="cb14-7" title="7">  t_latent &lt;-<span class="st"> </span><span class="fl">14.0</span></a>
-<a class="sourceLine" id="cb14-8" title="8">  Births &lt;-<span class="st"> </span>N <span class="op">*</span><span class="st"> </span>b</a>
-<a class="sourceLine" id="cb14-9" title="9">  surv &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Log">exp</a></span>(<span class="op">-</span>b <span class="op">*</span><span class="st"> </span>t_latent)</a>
-<a class="sourceLine" id="cb14-10" title="10"></a>
-<a class="sourceLine" id="cb14-11" title="11">  S &lt;-<span class="st"> </span>y[[1L]]</a>
-<a class="sourceLine" id="cb14-12" title="12">  E &lt;-<span class="st"> </span>y[[2L]]</a>
-<a class="sourceLine" id="cb14-13" title="13">  I &lt;-<span class="st"> </span>y[[3L]]</a>
-<a class="sourceLine" id="cb14-14" title="14">  R &lt;-<span class="st"> </span>y[[4L]]</a>
-<a class="sourceLine" id="cb14-15" title="15"></a>
-<a class="sourceLine" id="cb14-16" title="16">  tau &lt;-<span class="st"> </span>t <span class="op">-</span><span class="st"> </span>t_latent</a>
-<a class="sourceLine" id="cb14-17" title="17">  y_lag &lt;-<span class="st"> </span>dde<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/dde/topics/dopri">ylag</a></span>(tau, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(1L, 3L)) <span class="co"># Here is ylag!</span></a>
-<a class="sourceLine" id="cb14-18" title="18">  S_lag &lt;-<span class="st"> </span>y_lag[[1L]]</a>
-<a class="sourceLine" id="cb14-19" title="19">  I_lag &lt;-<span class="st"> </span>y_lag[[2L]]</a>
-<a class="sourceLine" id="cb14-20" title="20"></a>
-<a class="sourceLine" id="cb14-21" title="21">  new_inf &lt;-<span class="st"> </span>beta <span class="op">*</span><span class="st"> </span>S <span class="op">*</span><span class="st"> </span>I <span class="op">/</span><span class="st"> </span>N</a>
-<a class="sourceLine" id="cb14-22" title="22">  lag_inf &lt;-<span class="st"> </span>beta <span class="op">*</span><span class="st"> </span>S_lag <span class="op">*</span><span class="st"> </span>I_lag <span class="op">*</span><span class="st"> </span>surv <span class="op">/</span><span class="st"> </span>N</a>
-<a class="sourceLine" id="cb14-23" title="23"></a>
-<a class="sourceLine" id="cb14-24" title="24">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(Births  <span class="op">-</span><span class="st"> </span>b <span class="op">*</span><span class="st"> </span>S <span class="op">-</span><span class="st"> </span>new_inf <span class="op">+</span><span class="st"> </span>delta <span class="op">*</span><span class="st"> </span>R,</a>
-<a class="sourceLine" id="cb14-25" title="25">    new_inf <span class="op">-</span><span class="st"> </span>lag_inf <span class="op">-</span><span class="st"> </span>b <span class="op">*</span><span class="st"> </span>E,</a>
-<a class="sourceLine" id="cb14-26" title="26">    lag_inf <span class="op">-</span><span class="st"> </span>(b <span class="op">+</span><span class="st"> </span>sigma) <span class="op">*</span><span class="st"> </span>I,</a>
-<a class="sourceLine" id="cb14-27" title="27">    sigma <span class="op">*</span><span class="st"> </span>I <span class="op">-</span><span class="st"> </span>b <span class="op">*</span><span class="st"> </span>R <span class="op">-</span><span class="st"> </span>delta <span class="op">*</span><span class="st"> </span>R)</a>
-<a class="sourceLine" id="cb14-28" title="28">}</a></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">seir</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">t</span>, <span class="va">y</span>, <span class="va">p</span><span class="op">)</span> <span class="op">{</span>
+  <span class="va">b</span> <span class="op">&lt;-</span> <span class="fl">0.1</span>
+  <span class="va">N</span> <span class="op">&lt;-</span> <span class="fl">1e7</span>
+  <span class="va">beta</span> <span class="op">&lt;-</span> <span class="fl">10.0</span>
+  <span class="va">sigma</span> <span class="op">&lt;-</span> <span class="fl">1.0</span> <span class="op">/</span> <span class="fl">3.0</span>
+  <span class="va">delta</span> <span class="op">&lt;-</span> <span class="fl">1.0</span> <span class="op">/</span> <span class="fl">21.0</span>
+  <span class="va">t_latent</span> <span class="op">&lt;-</span> <span class="fl">14.0</span>
+  <span class="va">Births</span> <span class="op">&lt;-</span> <span class="va">N</span> <span class="op">*</span> <span class="va">b</span>
+  <span class="va">surv</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html">exp</a></span><span class="op">(</span><span class="op">-</span><span class="va">b</span> <span class="op">*</span> <span class="va">t_latent</span><span class="op">)</span>
+
+  <span class="va">S</span> <span class="op">&lt;-</span> <span class="va">y</span><span class="op">[[</span><span class="fl">1L</span><span class="op">]</span><span class="op">]</span>
+  <span class="va">E</span> <span class="op">&lt;-</span> <span class="va">y</span><span class="op">[[</span><span class="fl">2L</span><span class="op">]</span><span class="op">]</span>
+  <span class="va">I</span> <span class="op">&lt;-</span> <span class="va">y</span><span class="op">[[</span><span class="fl">3L</span><span class="op">]</span><span class="op">]</span>
+  <span class="va">R</span> <span class="op">&lt;-</span> <span class="va">y</span><span class="op">[[</span><span class="fl">4L</span><span class="op">]</span><span class="op">]</span>
+
+  <span class="va">tau</span> <span class="op">&lt;-</span> <span class="va">t</span> <span class="op">-</span> <span class="va">t_latent</span>
+  <span class="va">y_lag</span> <span class="op">&lt;-</span> <span class="fu">dde</span><span class="fu">::</span><span class="fu"><a href="../reference/dopri.html">ylag</a></span><span class="op">(</span><span class="va">tau</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1L</span>, <span class="fl">3L</span><span class="op">)</span><span class="op">)</span> <span class="co"># Here is ylag!</span>
+  <span class="va">S_lag</span> <span class="op">&lt;-</span> <span class="va">y_lag</span><span class="op">[[</span><span class="fl">1L</span><span class="op">]</span><span class="op">]</span>
+  <span class="va">I_lag</span> <span class="op">&lt;-</span> <span class="va">y_lag</span><span class="op">[[</span><span class="fl">2L</span><span class="op">]</span><span class="op">]</span>
+
+  <span class="va">new_inf</span> <span class="op">&lt;-</span> <span class="va">beta</span> <span class="op">*</span> <span class="va">S</span> <span class="op">*</span> <span class="va">I</span> <span class="op">/</span> <span class="va">N</span>
+  <span class="va">lag_inf</span> <span class="op">&lt;-</span> <span class="va">beta</span> <span class="op">*</span> <span class="va">S_lag</span> <span class="op">*</span> <span class="va">I_lag</span> <span class="op">*</span> <span class="va">surv</span> <span class="op">/</span> <span class="va">N</span>
+
+  <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">Births</span>  <span class="op">-</span> <span class="va">b</span> <span class="op">*</span> <span class="va">S</span> <span class="op">-</span> <span class="va">new_inf</span> <span class="op">+</span> <span class="va">delta</span> <span class="op">*</span> <span class="va">R</span>,
+    <span class="va">new_inf</span> <span class="op">-</span> <span class="va">lag_inf</span> <span class="op">-</span> <span class="va">b</span> <span class="op">*</span> <span class="va">E</span>,
+    <span class="va">lag_inf</span> <span class="op">-</span> <span class="op">(</span><span class="va">b</span> <span class="op">+</span> <span class="va">sigma</span><span class="op">)</span> <span class="op">*</span> <span class="va">I</span>,
+    <span class="va">sigma</span> <span class="op">*</span> <span class="va">I</span> <span class="op">-</span> <span class="va">b</span> <span class="op">*</span> <span class="va">R</span> <span class="op">-</span> <span class="va">delta</span> <span class="op">*</span> <span class="va">R</span><span class="op">)</span>
+<span class="op">}</span></code></pre></div>
 <p>The model needs to know how many susceptible individuals there were 14 days ago, and how many infected there were 14 days ago. To get this from the model, we use</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" title="1">y_lag &lt;-<span class="st"> </span>dde<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/dde/topics/dopri">ylag</a></span>(tau, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(1L, 3L))</a></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">y_lag</span> <span class="op">&lt;-</span> <span class="fu">dde</span><span class="fu">::</span><span class="fu"><a href="../reference/dopri.html">ylag</a></span><span class="op">(</span><span class="va">tau</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1L</span>, <span class="fl">3L</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <p>to get the values of the first and third variables (S and I) at time <code>tau</code>. Alternatively you can get all values with</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" title="1">y_lag &lt;-<span class="st"> </span>dde<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/dde/topics/dopri">ylag</a></span>(tau)</a></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">y_lag</span> <span class="op">&lt;-</span> <span class="fu">dde</span><span class="fu">::</span><span class="fu"><a href="../reference/dopri.html">ylag</a></span><span class="op">(</span><span class="va">tau</span><span class="op">)</span></code></pre></div>
 <p>or get them individually</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb17-1" title="1">S_lag &lt;-<span class="st"> </span>dde<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/dde/topics/dopri">ylag</a></span>(tau, 1L)</a>
-<a class="sourceLine" id="cb17-2" title="2">I_lag &lt;-<span class="st"> </span>dde<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/dde/topics/dopri">ylag</a></span>(tau, 3L)</a></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">S_lag</span> <span class="op">&lt;-</span> <span class="fu">dde</span><span class="fu">::</span><span class="fu"><a href="../reference/dopri.html">ylag</a></span><span class="op">(</span><span class="va">tau</span>, <span class="fl">1L</span><span class="op">)</span>
+<span class="va">I_lag</span> <span class="op">&lt;-</span> <span class="fu">dde</span><span class="fu">::</span><span class="fu"><a href="../reference/dopri.html">ylag</a></span><span class="op">(</span><span class="va">tau</span>, <span class="fl">3L</span><span class="op">)</span></code></pre></div>
 <p>The <code>ylag</code> function can only be called from within an integration; it will throw an error if you try to call it otherwise.</p>
 <p>What happens when we start though? If time starts at 0, then the first <code>tau</code> is -14 and we have no history then. <code>dde</code> keeps track of the initial state of the system and if a time before this is requested it returns the initial state of a variable. This is going to be reasonable for many applications but will lead to discontinuities in the <em>derivative</em> of your solution (and the second derivative and so on). This can make the problem hard to solve, and it may be preferable to provide your own information (see the deSolve implementation below for one possible way of implementing this).</p>
 <p>To integrate the problem, use the <code><a href="../reference/dopri.html">dde::dopri</a></code> function (which by default will use the 5th order method, which is probably the best bet for most problems). You need to provide arguments:</p>
@@ -223,10 +239,11 @@
 <li>
 <code>return_history</code>: set this to <code>FALSE</code> if you won’t want the history matrix returned; returning it costs a little time and if you don’t want to inspect it it’s better to leave it off</li>
 </ul>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb18-1" title="1">y0 &lt;-<span class="st">  </span>y0 &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">1e7</span> <span class="op">-</span><span class="st"> </span><span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>)</a>
-<a class="sourceLine" id="cb18-2" title="2">tt &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/seq">seq</a></span>(<span class="dv">0</span>, <span class="dv">365</span>, <span class="dt">length.out =</span> <span class="dv">100</span>)</a>
-<a class="sourceLine" id="cb18-3" title="3">yy &lt;-<span class="st"> </span>dde<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/dde/topics/dopri">dopri</a></span>(y0, tt, seir, <span class="ot">NULL</span>, <span class="dt">n_history =</span> 1000L, <span class="dt">return_history =</span> <span class="ot">FALSE</span>)</a>
-<a class="sourceLine" id="cb18-4" title="4"><span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/matplot">matplot</a></span>(tt, yy[, <span class="dv">2</span><span class="op">:</span><span class="dv">5</span>], <span class="dt">type=</span><span class="st">"l"</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">y0</span> <span class="op">&lt;-</span>  <span class="va">y0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1e7</span> <span class="op">-</span> <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0</span><span class="op">)</span>
+<span class="va">tt</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">365</span>, length.out <span class="op">=</span> <span class="fl">100</span><span class="op">)</span>
+<span class="va">yy</span> <span class="op">&lt;-</span> <span class="fu">dde</span><span class="fu">::</span><span class="fu"><a href="../reference/dopri.html">dopri</a></span><span class="op">(</span><span class="va">y0</span>, <span class="va">tt</span>, <span class="va">seir</span>, <span class="cn">NULL</span>, n_history <span class="op">=</span> <span class="fl">1000L</span>, return_history <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/graphics/matplot.html">matplot</a></span><span class="op">(</span><span class="va">tt</span>, <span class="va">yy</span><span class="op">[</span>, <span class="fl">2</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span>, type<span class="op">=</span><span class="st">"l"</span><span class="op">)</span></code></pre></div>
 <p><img src="dde_files/figure-html/unnamed-chunk-11-1.png" width="672"></p>
 </div>
 </div>
@@ -245,175 +262,179 @@
 <h3 class="hasAnchor">
 <a href="#models-implemented-in-r-1" class="anchor"></a>Models implemented in R</h3>
 <p>Above, I implemented a derivative function for an SEIR model for <code>dde</code> as</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb19-1" title="1"><span class="cf">function</span>(t, y, p) {</a>
-<a class="sourceLine" id="cb19-2" title="2">  b &lt;-<span class="st"> </span><span class="fl">0.1</span></a>
-<a class="sourceLine" id="cb19-3" title="3">  N &lt;-<span class="st"> </span><span class="fl">1e7</span></a>
-<a class="sourceLine" id="cb19-4" title="4">  beta &lt;-<span class="st"> </span><span class="fl">10.0</span></a>
-<a class="sourceLine" id="cb19-5" title="5">  sigma &lt;-<span class="st"> </span><span class="fl">1.0</span> <span class="op">/</span><span class="st"> </span><span class="fl">3.0</span></a>
-<a class="sourceLine" id="cb19-6" title="6">  delta &lt;-<span class="st"> </span><span class="fl">1.0</span> <span class="op">/</span><span class="st"> </span><span class="fl">21.0</span></a>
-<a class="sourceLine" id="cb19-7" title="7">  t_latent &lt;-<span class="st"> </span><span class="fl">14.0</span></a>
-<a class="sourceLine" id="cb19-8" title="8">  Births &lt;-<span class="st"> </span>N <span class="op">*</span><span class="st"> </span>b</a>
-<a class="sourceLine" id="cb19-9" title="9">  surv &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Log">exp</a></span>(<span class="op">-</span>b <span class="op">*</span><span class="st"> </span>t_latent)</a>
-<a class="sourceLine" id="cb19-10" title="10"></a>
-<a class="sourceLine" id="cb19-11" title="11">  S &lt;-<span class="st"> </span>y[[1L]]</a>
-<a class="sourceLine" id="cb19-12" title="12">  E &lt;-<span class="st"> </span>y[[2L]]</a>
-<a class="sourceLine" id="cb19-13" title="13">  I &lt;-<span class="st"> </span>y[[3L]]</a>
-<a class="sourceLine" id="cb19-14" title="14">  R &lt;-<span class="st"> </span>y[[4L]]</a>
-<a class="sourceLine" id="cb19-15" title="15"></a>
-<a class="sourceLine" id="cb19-16" title="16">  tau &lt;-<span class="st"> </span>t <span class="op">-</span><span class="st"> </span>t_latent</a>
-<a class="sourceLine" id="cb19-17" title="17">  y_lag &lt;-<span class="st"> </span>dde<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/dde/topics/dopri">ylag</a></span>(tau, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(1L, 3L)) <span class="co"># Here is ylag!</span></a>
-<a class="sourceLine" id="cb19-18" title="18">  S_lag &lt;-<span class="st"> </span>y_lag[[1L]]</a>
-<a class="sourceLine" id="cb19-19" title="19">  I_lag &lt;-<span class="st"> </span>y_lag[[2L]]</a>
-<a class="sourceLine" id="cb19-20" title="20"></a>
-<a class="sourceLine" id="cb19-21" title="21">  new_inf &lt;-<span class="st"> </span>beta <span class="op">*</span><span class="st"> </span>S <span class="op">*</span><span class="st"> </span>I <span class="op">/</span><span class="st"> </span>N</a>
-<a class="sourceLine" id="cb19-22" title="22">  lag_inf &lt;-<span class="st"> </span>beta <span class="op">*</span><span class="st"> </span>S_lag <span class="op">*</span><span class="st"> </span>I_lag <span class="op">*</span><span class="st"> </span>surv <span class="op">/</span><span class="st"> </span>N</a>
-<a class="sourceLine" id="cb19-23" title="23"></a>
-<a class="sourceLine" id="cb19-24" title="24">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(Births  <span class="op">-</span><span class="st"> </span>b <span class="op">*</span><span class="st"> </span>S <span class="op">-</span><span class="st"> </span>new_inf <span class="op">+</span><span class="st"> </span>delta <span class="op">*</span><span class="st"> </span>R,</a>
-<a class="sourceLine" id="cb19-25" title="25">    new_inf <span class="op">-</span><span class="st"> </span>lag_inf <span class="op">-</span><span class="st"> </span>b <span class="op">*</span><span class="st"> </span>E,</a>
-<a class="sourceLine" id="cb19-26" title="26">    lag_inf <span class="op">-</span><span class="st"> </span>(b <span class="op">+</span><span class="st"> </span>sigma) <span class="op">*</span><span class="st"> </span>I,</a>
-<a class="sourceLine" id="cb19-27" title="27">    sigma <span class="op">*</span><span class="st"> </span>I <span class="op">-</span><span class="st"> </span>b <span class="op">*</span><span class="st"> </span>R <span class="op">-</span><span class="st"> </span>delta <span class="op">*</span><span class="st"> </span>R)</a>
-<a class="sourceLine" id="cb19-28" title="28">}</a>
-<a class="sourceLine" id="cb19-29" title="29"><span class="op">&lt;</span>bytecode<span class="op">:</span><span class="st"> </span><span class="dv">0x7ff72335c348</span><span class="op">&gt;</span></a></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a><span class="cf">function</span>(t, y, p) {</span>
+<span id="cb19-2"><a href="#cb19-2"></a>  b &lt;-<span class="st"> </span><span class="fl">0.1</span></span>
+<span id="cb19-3"><a href="#cb19-3"></a>  N &lt;-<span class="st"> </span><span class="fl">1e7</span></span>
+<span id="cb19-4"><a href="#cb19-4"></a>  beta &lt;-<span class="st"> </span><span class="fl">10.0</span></span>
+<span id="cb19-5"><a href="#cb19-5"></a>  sigma &lt;-<span class="st"> </span><span class="fl">1.0</span> <span class="op">/</span><span class="st"> </span><span class="fl">3.0</span></span>
+<span id="cb19-6"><a href="#cb19-6"></a>  delta &lt;-<span class="st"> </span><span class="fl">1.0</span> <span class="op">/</span><span class="st"> </span><span class="fl">21.0</span></span>
+<span id="cb19-7"><a href="#cb19-7"></a>  t_latent &lt;-<span class="st"> </span><span class="fl">14.0</span></span>
+<span id="cb19-8"><a href="#cb19-8"></a>  Births &lt;-<span class="st"> </span>N <span class="op">*</span><span class="st"> </span>b</span>
+<span id="cb19-9"><a href="#cb19-9"></a>  surv &lt;-<span class="st"> </span><span class="kw">exp</span>(<span class="op">-</span>b <span class="op">*</span><span class="st"> </span>t_latent)</span>
+<span id="cb19-10"><a href="#cb19-10"></a></span>
+<span id="cb19-11"><a href="#cb19-11"></a>  S &lt;-<span class="st"> </span>y[[1L]]</span>
+<span id="cb19-12"><a href="#cb19-12"></a>  E &lt;-<span class="st"> </span>y[[2L]]</span>
+<span id="cb19-13"><a href="#cb19-13"></a>  I &lt;-<span class="st"> </span>y[[3L]]</span>
+<span id="cb19-14"><a href="#cb19-14"></a>  R &lt;-<span class="st"> </span>y[[4L]]</span>
+<span id="cb19-15"><a href="#cb19-15"></a></span>
+<span id="cb19-16"><a href="#cb19-16"></a>  tau &lt;-<span class="st"> </span>t <span class="op">-</span><span class="st"> </span>t_latent</span>
+<span id="cb19-17"><a href="#cb19-17"></a>  y_lag &lt;-<span class="st"> </span>dde<span class="op">::</span><span class="kw">ylag</span>(tau, <span class="kw">c</span>(1L, 3L)) <span class="co"># Here is ylag!</span></span>
+<span id="cb19-18"><a href="#cb19-18"></a>  S_lag &lt;-<span class="st"> </span>y_lag[[1L]]</span>
+<span id="cb19-19"><a href="#cb19-19"></a>  I_lag &lt;-<span class="st"> </span>y_lag[[2L]]</span>
+<span id="cb19-20"><a href="#cb19-20"></a></span>
+<span id="cb19-21"><a href="#cb19-21"></a>  new_inf &lt;-<span class="st"> </span>beta <span class="op">*</span><span class="st"> </span>S <span class="op">*</span><span class="st"> </span>I <span class="op">/</span><span class="st"> </span>N</span>
+<span id="cb19-22"><a href="#cb19-22"></a>  lag_inf &lt;-<span class="st"> </span>beta <span class="op">*</span><span class="st"> </span>S_lag <span class="op">*</span><span class="st"> </span>I_lag <span class="op">*</span><span class="st"> </span>surv <span class="op">/</span><span class="st"> </span>N</span>
+<span id="cb19-23"><a href="#cb19-23"></a></span>
+<span id="cb19-24"><a href="#cb19-24"></a>  <span class="kw">c</span>(Births  <span class="op">-</span><span class="st"> </span>b <span class="op">*</span><span class="st"> </span>S <span class="op">-</span><span class="st"> </span>new_inf <span class="op">+</span><span class="st"> </span>delta <span class="op">*</span><span class="st"> </span>R,</span>
+<span id="cb19-25"><a href="#cb19-25"></a>    new_inf <span class="op">-</span><span class="st"> </span>lag_inf <span class="op">-</span><span class="st"> </span>b <span class="op">*</span><span class="st"> </span>E,</span>
+<span id="cb19-26"><a href="#cb19-26"></a>    lag_inf <span class="op">-</span><span class="st"> </span>(b <span class="op">+</span><span class="st"> </span>sigma) <span class="op">*</span><span class="st"> </span>I,</span>
+<span id="cb19-27"><a href="#cb19-27"></a>    sigma <span class="op">*</span><span class="st"> </span>I <span class="op">-</span><span class="st"> </span>b <span class="op">*</span><span class="st"> </span>R <span class="op">-</span><span class="st"> </span>delta <span class="op">*</span><span class="st"> </span>R)</span>
+<span id="cb19-28"><a href="#cb19-28"></a>}</span>
+<span id="cb19-29"><a href="#cb19-29"></a><span class="op">&lt;</span>bytecode<span class="op">:</span><span class="st"> </span><span class="dv">0x7f9f088b40a8</span><span class="op">&gt;</span></span></code></pre></div>
 <p>The implementation using <code>deSolve</code> looks very similar:</p>
-<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb20-1" title="1">seir_deSolve &lt;-<span class="st"> </span><span class="cf">function</span>(t, y, parms) {</a>
-<a class="sourceLine" id="cb20-2" title="2">  b &lt;-<span class="st"> </span><span class="fl">0.1</span></a>
-<a class="sourceLine" id="cb20-3" title="3">  N &lt;-<span class="st"> </span><span class="fl">1e7</span></a>
-<a class="sourceLine" id="cb20-4" title="4">  beta &lt;-<span class="st"> </span><span class="dv">10</span></a>
-<a class="sourceLine" id="cb20-5" title="5">  sigma &lt;-<span class="st"> </span><span class="dv">1</span> <span class="op">/</span><span class="st"> </span><span class="dv">3</span></a>
-<a class="sourceLine" id="cb20-6" title="6">  delta &lt;-<span class="st"> </span><span class="dv">1</span> <span class="op">/</span><span class="st"> </span><span class="dv">21</span></a>
-<a class="sourceLine" id="cb20-7" title="7">  t_latent &lt;-<span class="st"> </span><span class="fl">14.0</span></a>
-<a class="sourceLine" id="cb20-8" title="8">  I0 &lt;-<span class="st"> </span><span class="dv">1</span></a>
-<a class="sourceLine" id="cb20-9" title="9">  Births &lt;-<span class="st"> </span>N <span class="op">*</span><span class="st"> </span>b</a>
-<a class="sourceLine" id="cb20-10" title="10">  surv &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Log">exp</a></span>(<span class="op">-</span>b <span class="op">*</span><span class="st"> </span>t_latent)</a>
-<a class="sourceLine" id="cb20-11" title="11"></a>
-<a class="sourceLine" id="cb20-12" title="12">  S &lt;-<span class="st"> </span>y[[1L]]</a>
-<a class="sourceLine" id="cb20-13" title="13">  E &lt;-<span class="st"> </span>y[[2L]]</a>
-<a class="sourceLine" id="cb20-14" title="14">  I &lt;-<span class="st"> </span>y[[3L]]</a>
-<a class="sourceLine" id="cb20-15" title="15">  R &lt;-<span class="st"> </span>y[[4L]]</a>
-<a class="sourceLine" id="cb20-16" title="16"></a>
-<a class="sourceLine" id="cb20-17" title="17">  tau &lt;-<span class="st"> </span>t <span class="op">-</span><span class="st"> </span>t_latent</a>
-<a class="sourceLine" id="cb20-18" title="18">  <span class="cf">if</span> (tau <span class="op">&lt;</span><span class="st"> </span><span class="fl">0.0</span>) { <span class="co"># </span><span class="al">NOTE</span><span class="co">: assuming that t0 is always zero</span></a>
-<a class="sourceLine" id="cb20-19" title="19">    S_lag &lt;-<span class="st"> </span>parms<span class="op">$</span>S0</a>
-<a class="sourceLine" id="cb20-20" title="20">    I_lag &lt;-<span class="st"> </span>parms<span class="op">$</span>I0</a>
-<a class="sourceLine" id="cb20-21" title="21">  } <span class="cf">else</span> {</a>
-<a class="sourceLine" id="cb20-22" title="22">    y_lag &lt;-<span class="st"> </span>deSolve<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/deSolve/topics/timelags">lagvalue</a></span>(tau, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(1L, 3L))</a>
-<a class="sourceLine" id="cb20-23" title="23">    S_lag &lt;-<span class="st"> </span>y_lag[[1L]]</a>
-<a class="sourceLine" id="cb20-24" title="24">    I_lag &lt;-<span class="st"> </span>y_lag[[2L]]</a>
-<a class="sourceLine" id="cb20-25" title="25">  }</a>
-<a class="sourceLine" id="cb20-26" title="26"></a>
-<a class="sourceLine" id="cb20-27" title="27">  new_inf &lt;-<span class="st"> </span>beta <span class="op">*</span><span class="st"> </span>S <span class="op">*</span><span class="st"> </span>I <span class="op">/</span><span class="st"> </span>N</a>
-<a class="sourceLine" id="cb20-28" title="28">  lag_inf &lt;-<span class="st"> </span>beta <span class="op">*</span><span class="st"> </span>S_lag <span class="op">*</span><span class="st"> </span>I_lag <span class="op">*</span><span class="st"> </span>surv <span class="op">/</span><span class="st"> </span>N</a>
-<a class="sourceLine" id="cb20-29" title="29"></a>
-<a class="sourceLine" id="cb20-30" title="30">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(Births  <span class="op">-</span><span class="st"> </span>b <span class="op">*</span><span class="st"> </span>S <span class="op">-</span><span class="st"> </span>new_inf <span class="op">+</span><span class="st"> </span>delta <span class="op">*</span><span class="st"> </span>R,</a>
-<a class="sourceLine" id="cb20-31" title="31">         new_inf <span class="op">-</span><span class="st"> </span>lag_inf <span class="op">-</span><span class="st"> </span>b <span class="op">*</span><span class="st"> </span>E,</a>
-<a class="sourceLine" id="cb20-32" title="32">         lag_inf <span class="op">-</span><span class="st"> </span>(b <span class="op">+</span><span class="st"> </span>sigma) <span class="op">*</span><span class="st"> </span>I,</a>
-<a class="sourceLine" id="cb20-33" title="33">         sigma <span class="op">*</span><span class="st"> </span>I <span class="op">-</span><span class="st"> </span>b <span class="op">*</span><span class="st"> </span>R <span class="op">-</span><span class="st"> </span>delta <span class="op">*</span><span class="st"> </span>R))</a>
-<a class="sourceLine" id="cb20-34" title="34">}</a></code></pre></div>
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">seir_deSolve</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">t</span>, <span class="va">y</span>, <span class="va">parms</span><span class="op">)</span> <span class="op">{</span>
+  <span class="va">b</span> <span class="op">&lt;-</span> <span class="fl">0.1</span>
+  <span class="va">N</span> <span class="op">&lt;-</span> <span class="fl">1e7</span>
+  <span class="va">beta</span> <span class="op">&lt;-</span> <span class="fl">10</span>
+  <span class="va">sigma</span> <span class="op">&lt;-</span> <span class="fl">1</span> <span class="op">/</span> <span class="fl">3</span>
+  <span class="va">delta</span> <span class="op">&lt;-</span> <span class="fl">1</span> <span class="op">/</span> <span class="fl">21</span>
+  <span class="va">t_latent</span> <span class="op">&lt;-</span> <span class="fl">14.0</span>
+  <span class="va">I0</span> <span class="op">&lt;-</span> <span class="fl">1</span>
+  <span class="va">Births</span> <span class="op">&lt;-</span> <span class="va">N</span> <span class="op">*</span> <span class="va">b</span>
+  <span class="va">surv</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html">exp</a></span><span class="op">(</span><span class="op">-</span><span class="va">b</span> <span class="op">*</span> <span class="va">t_latent</span><span class="op">)</span>
+
+  <span class="va">S</span> <span class="op">&lt;-</span> <span class="va">y</span><span class="op">[[</span><span class="fl">1L</span><span class="op">]</span><span class="op">]</span>
+  <span class="va">E</span> <span class="op">&lt;-</span> <span class="va">y</span><span class="op">[[</span><span class="fl">2L</span><span class="op">]</span><span class="op">]</span>
+  <span class="va">I</span> <span class="op">&lt;-</span> <span class="va">y</span><span class="op">[[</span><span class="fl">3L</span><span class="op">]</span><span class="op">]</span>
+  <span class="va">R</span> <span class="op">&lt;-</span> <span class="va">y</span><span class="op">[[</span><span class="fl">4L</span><span class="op">]</span><span class="op">]</span>
+
+  <span class="va">tau</span> <span class="op">&lt;-</span> <span class="va">t</span> <span class="op">-</span> <span class="va">t_latent</span>
+  <span class="kw">if</span> <span class="op">(</span><span class="va">tau</span> <span class="op">&lt;</span> <span class="fl">0.0</span><span class="op">)</span> <span class="op">{</span> <span class="co"># NOTE: assuming that t0 is always zero</span>
+    <span class="va">S_lag</span> <span class="op">&lt;-</span> <span class="va">parms</span><span class="op">$</span><span class="va">S0</span>
+    <span class="va">I_lag</span> <span class="op">&lt;-</span> <span class="va">parms</span><span class="op">$</span><span class="va">I0</span>
+  <span class="op">}</span> <span class="kw">else</span> <span class="op">{</span>
+    <span class="va">y_lag</span> <span class="op">&lt;-</span> <span class="fu">deSolve</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/deSolve/man/timelags.html">lagvalue</a></span><span class="op">(</span><span class="va">tau</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1L</span>, <span class="fl">3L</span><span class="op">)</span><span class="op">)</span>
+    <span class="va">S_lag</span> <span class="op">&lt;-</span> <span class="va">y_lag</span><span class="op">[[</span><span class="fl">1L</span><span class="op">]</span><span class="op">]</span>
+    <span class="va">I_lag</span> <span class="op">&lt;-</span> <span class="va">y_lag</span><span class="op">[[</span><span class="fl">2L</span><span class="op">]</span><span class="op">]</span>
+  <span class="op">}</span>
+
+  <span class="va">new_inf</span> <span class="op">&lt;-</span> <span class="va">beta</span> <span class="op">*</span> <span class="va">S</span> <span class="op">*</span> <span class="va">I</span> <span class="op">/</span> <span class="va">N</span>
+  <span class="va">lag_inf</span> <span class="op">&lt;-</span> <span class="va">beta</span> <span class="op">*</span> <span class="va">S_lag</span> <span class="op">*</span> <span class="va">I_lag</span> <span class="op">*</span> <span class="va">surv</span> <span class="op">/</span> <span class="va">N</span>
+
+  <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">Births</span>  <span class="op">-</span> <span class="va">b</span> <span class="op">*</span> <span class="va">S</span> <span class="op">-</span> <span class="va">new_inf</span> <span class="op">+</span> <span class="va">delta</span> <span class="op">*</span> <span class="va">R</span>,
+         <span class="va">new_inf</span> <span class="op">-</span> <span class="va">lag_inf</span> <span class="op">-</span> <span class="va">b</span> <span class="op">*</span> <span class="va">E</span>,
+         <span class="va">lag_inf</span> <span class="op">-</span> <span class="op">(</span><span class="va">b</span> <span class="op">+</span> <span class="va">sigma</span><span class="op">)</span> <span class="op">*</span> <span class="va">I</span>,
+         <span class="va">sigma</span> <span class="op">*</span> <span class="va">I</span> <span class="op">-</span> <span class="va">b</span> <span class="op">*</span> <span class="va">R</span> <span class="op">-</span> <span class="va">delta</span> <span class="op">*</span> <span class="va">R</span><span class="op">)</span><span class="op">)</span>
+<span class="op">}</span></code></pre></div>
 <p>The differences are that:</p>
 <ul>
 <li>
 <code>deSolve</code> requires that the derivatives are returned as a list, whereas <code>dde</code> uses a numeric vector (see below for details about this)</li>
 <li>
 <code>deSolve</code> requires that you provide the initial values for the lagged values (and we also need to know what the initial <em>time</em> is too, but I’m assuming that as zero)</li>
-<li>The appropriate function for pulling previous values from the history buffer is <code><a href="https://www.rdocumentation.org/packages/deSolve/topics/timelags">deSolve::lagvalue</a></code> (for <code>dde</code> it is <code><a href="../reference/dopri.html">dde::ylag</a></code>)</li>
+<li>The appropriate function for pulling previous values from the history buffer is <code><a href="https://rdrr.io/pkg/deSolve/man/timelags.html">deSolve::lagvalue</a></code> (for <code>dde</code> it is <code><a href="../reference/dopri.html">dde::ylag</a></code>)</li>
 </ul>
 <p>Aside from this the code is essentially identical.</p>
-<p>To run the model with <code>deSolve</code>, use <code><a href="https://www.rdocumentation.org/packages/deSolve/topics/dede">deSolve::dede</a></code> which automatically sets up a history buffer of 10000 elements (the <code>mxhist</code> element of the control list alters this).</p>
-<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb21-1" title="1">y0 &lt;-<span class="st">  </span>y0 &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">1e7</span> <span class="op">-</span><span class="st"> </span><span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>)</a>
-<a class="sourceLine" id="cb21-2" title="2">tt &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/seq">seq</a></span>(<span class="dv">0</span>, <span class="dv">365</span>, <span class="dt">length.out =</span> <span class="dv">100</span>)</a>
-<a class="sourceLine" id="cb21-3" title="3">initial &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(<span class="dt">S0 =</span> y0[[<span class="dv">1</span>]], <span class="dt">I0 =</span> y0[[<span class="dv">3</span>]])</a>
-<a class="sourceLine" id="cb21-4" title="4">yy_ds &lt;-<span class="st"> </span>deSolve<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/deSolve/topics/dede">dede</a></span>(y0, tt, seir_deSolve, initial)</a></code></pre></div>
+<p>To run the model with <code>deSolve</code>, use <code><a href="https://rdrr.io/pkg/deSolve/man/dede.html">deSolve::dede</a></code> which automatically sets up a history buffer of 10000 elements (the <code>mxhist</code> element of the control list alters this).</p>
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">y0</span> <span class="op">&lt;-</span>  <span class="va">y0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1e7</span> <span class="op">-</span> <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0</span><span class="op">)</span>
+<span class="va">tt</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">365</span>, length.out <span class="op">=</span> <span class="fl">100</span><span class="op">)</span>
+<span class="va">initial</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>S0 <span class="op">=</span> <span class="va">y0</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, I0 <span class="op">=</span> <span class="va">y0</span><span class="op">[[</span><span class="fl">3</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>
+<span class="va">yy_ds</span> <span class="op">&lt;-</span> <span class="fu">deSolve</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/deSolve/man/dede.html">dede</a></span><span class="op">(</span><span class="va">y0</span>, <span class="va">tt</span>, <span class="va">seir_deSolve</span>, <span class="va">initial</span><span class="op">)</span></code></pre></div>
 <p>This produces output that the same as <code>dde</code>:</p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb22-1" title="1">yy_dde &lt;-<span class="st"> </span>dde<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/dde/topics/dopri">dopri</a></span>(y0, tt, seir, <span class="ot">NULL</span>, <span class="dt">n_history =</span> 1000L,</a>
-<a class="sourceLine" id="cb22-2" title="2">                     <span class="dt">return_history =</span> <span class="ot">FALSE</span>)</a>
-<a class="sourceLine" id="cb22-3" title="3">op &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/par">par</a></span>(<span class="dt">mfrow=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">1</span>, <span class="dv">2</span>), <span class="dt">mar=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">4</span>, <span class="fl">.5</span>, <span class="fl">1.4</span>, <span class="fl">.5</span>), <span class="dt">oma=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">0</span>, <span class="dv">2</span>, <span class="dv">0</span>, <span class="dv">0</span>))</a>
-<a class="sourceLine" id="cb22-4" title="4"><span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/matplot">matplot</a></span>(tt, yy_dde[, <span class="dv">-1</span>], <span class="dt">type=</span><span class="st">"l"</span>, <span class="dt">main =</span> <span class="st">"dde"</span>)</a>
-<a class="sourceLine" id="cb22-5" title="5"><span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/matplot">matplot</a></span>(tt, yy_ds[, <span class="dv">-1</span>], <span class="dt">type=</span><span class="st">"l"</span>, <span class="dt">main =</span> <span class="st">"deSolve"</span>, <span class="dt">yaxt=</span><span class="st">"n"</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">yy_dde</span> <span class="op">&lt;-</span> <span class="fu">dde</span><span class="fu">::</span><span class="fu"><a href="../reference/dopri.html">dopri</a></span><span class="op">(</span><span class="va">y0</span>, <span class="va">tt</span>, <span class="va">seir</span>, <span class="cn">NULL</span>, n_history <span class="op">=</span> <span class="fl">1000L</span>,
+                     return_history <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
+<span class="va">op</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/par.html">par</a></span><span class="op">(</span>mfrow<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>, mar<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">4</span>, <span class="fl">.5</span>, <span class="fl">1.4</span>, <span class="fl">.5</span><span class="op">)</span>, oma<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">2</span>, <span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/graphics/matplot.html">matplot</a></span><span class="op">(</span><span class="va">tt</span>, <span class="va">yy_dde</span><span class="op">[</span>, <span class="op">-</span><span class="fl">1</span><span class="op">]</span>, type<span class="op">=</span><span class="st">"l"</span>, main <span class="op">=</span> <span class="st">"dde"</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/graphics/matplot.html">matplot</a></span><span class="op">(</span><span class="va">tt</span>, <span class="va">yy_ds</span><span class="op">[</span>, <span class="op">-</span><span class="fl">1</span><span class="op">]</span>, type<span class="op">=</span><span class="st">"l"</span>, main <span class="op">=</span> <span class="st">"deSolve"</span>, yaxt<span class="op">=</span><span class="st">"n"</span><span class="op">)</span></code></pre></div>
 <p><img src="dde_files/figure-html/unnamed-chunk-15-1.png" width="672"></p>
 <p>The performance of both packages is fairly similar, taking a few tens of milliseconds to run on my machines</p>
-<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb23-1" title="1">tR &lt;-<span class="st"> </span>microbenchmark<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/microbenchmark/topics/microbenchmark">microbenchmark</a></span>(<span class="dt">times =</span> <span class="dv">30</span>,</a>
-<a class="sourceLine" id="cb23-2" title="2">  <span class="dt">deSolve =</span> deSolve<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/deSolve/topics/dede">dede</a></span>(y0, tt, seir_deSolve, initial),</a>
-<a class="sourceLine" id="cb23-3" title="3">  <span class="dt">dde =</span> dde<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/dde/topics/dopri">dopri</a></span>(y0, tt, seir, <span class="ot">NULL</span>, <span class="dt">n_history =</span> 1000L,</a>
-<a class="sourceLine" id="cb23-4" title="4">                   <span class="dt">return_history =</span> <span class="ot">FALSE</span>))</a>
-<a class="sourceLine" id="cb23-5" title="5">tR</a></code></pre></div>
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">tR</span> <span class="op">&lt;-</span> <span class="fu">microbenchmark</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/microbenchmark/man/microbenchmark.html">microbenchmark</a></span><span class="op">(</span>times <span class="op">=</span> <span class="fl">30</span>,
+  deSolve <span class="op">=</span> <span class="fu">deSolve</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/deSolve/man/dede.html">dede</a></span><span class="op">(</span><span class="va">y0</span>, <span class="va">tt</span>, <span class="va">seir_deSolve</span>, <span class="va">initial</span><span class="op">)</span>,
+  dde <span class="op">=</span> <span class="fu">dde</span><span class="fu">::</span><span class="fu"><a href="../reference/dopri.html">dopri</a></span><span class="op">(</span><span class="va">y0</span>, <span class="va">tt</span>, <span class="va">seir</span>, <span class="cn">NULL</span>, n_history <span class="op">=</span> <span class="fl">1000L</span>,
+                   return_history <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">)</span>
+<span class="va">tR</span></code></pre></div>
 <pre><code>## Unit: milliseconds
 ##     expr      min       lq     mean   median       uq      max neval
-##  deSolve 27.64510 29.15170 30.92423 30.85133 31.90844 38.02378    30
-##      dde 15.12744 15.61554 16.95700 17.00621 18.17972 19.66439    30</code></pre>
+##  deSolve 55.53649 57.37409 58.81610 58.50712 59.37256 65.50588    30
+##      dde 26.12380 26.73617 28.03976 27.60328 29.11844 34.00117    30</code></pre>
 </div>
 <div id="models-implemented-in-c" class="section level3">
 <h3 class="hasAnchor">
 <a href="#models-implemented-in-c" class="anchor"></a>Models implemented in C</h3>
 <p>The compiled code interface for <code>deSolve</code> has greatly influenced <code>dde</code> and models implemented in either framework will be similar. Eventually <code>dde</code> may support a fully <code>deSolve</code> compatible interface but for now there are a few differences.</p>
-<div class="sourceCode" id="cb25"><pre class="sourceCode c"><code class="sourceCode c"><a class="sourceLine" id="cb25-1" title="1"><span class="pp">#include </span><span class="im">&lt;R.h&gt;</span></a>
-<a class="sourceLine" id="cb25-2" title="2"><span class="pp">#include </span><span class="im">&lt;R_ext/Rdynload.h&gt;</span></a>
-<a class="sourceLine" id="cb25-3" title="3"></a>
-<a class="sourceLine" id="cb25-4" title="4"><span class="dt">void</span> lagvalue(<span class="dt">double</span> tau, <span class="dt">int</span> *nr, <span class="dt">int</span> N, <span class="dt">double</span> *ytau);</a>
-<a class="sourceLine" id="cb25-5" title="5"></a>
-<a class="sourceLine" id="cb25-6" title="6"><span class="co">// The parameters are going to be arranged:</span></a>
-<a class="sourceLine" id="cb25-7" title="7"><span class="co">//</span></a>
-<a class="sourceLine" id="cb25-8" title="8"><span class="co">//   t0</span></a>
-<a class="sourceLine" id="cb25-9" title="9"><span class="co">//   S0, I0</span></a>
-<a class="sourceLine" id="cb25-10" title="10"><span class="co">//   (b, N, beta, sigma, delta, t_latent)</span></a>
-<a class="sourceLine" id="cb25-11" title="11"><span class="co">//</span></a>
-<a class="sourceLine" id="cb25-12" title="12"><span class="co">// See below for why t0, S0 and I0 are stored</span></a>
-<a class="sourceLine" id="cb25-13" title="13"><span class="dt">static</span> <span class="dt">double</span> parms[<span class="dv">3</span>];</a>
-<a class="sourceLine" id="cb25-14" title="14"></a>
-<a class="sourceLine" id="cb25-15" title="15"><span class="co">// The standard deSolve initialisation function</span></a>
-<a class="sourceLine" id="cb25-16" title="16"><span class="dt">void</span> seir_initmod(<span class="dt">void</span> (* odeparms)(<span class="dt">int</span> *, <span class="dt">double</span> *)) {</a>
-<a class="sourceLine" id="cb25-17" title="17">  <span class="dt">int</span> N = <span class="dv">3</span>;</a>
-<a class="sourceLine" id="cb25-18" title="18">  odeparms(&amp;N, parms);</a>
-<a class="sourceLine" id="cb25-19" title="19">}</a>
-<a class="sourceLine" id="cb25-20" title="20"></a>
-<a class="sourceLine" id="cb25-21" title="21"><span class="co">// The RHS</span></a>
-<a class="sourceLine" id="cb25-22" title="22"><span class="dt">void</span> seir_deSolve(<span class="dt">int</span> *n, <span class="dt">double</span> *t, <span class="dt">double</span> *y, <span class="dt">double</span> *dydt,</a>
-<a class="sourceLine" id="cb25-23" title="23">                  <span class="dt">double</span> *yout, <span class="dt">int</span> *ip) {</a>
-<a class="sourceLine" id="cb25-24" title="24">  <span class="co">// again, hard-coded parameters for now; will change this shortly</span></a>
-<a class="sourceLine" id="cb25-25" title="25">  <span class="co">// once I get the same working with the dde impementation.</span></a>
-<a class="sourceLine" id="cb25-26" title="26">  <span class="dt">double</span> b = <span class="fl">0.1</span>, N = <span class="fl">1e7</span>, beta = <span class="fl">10.0</span>, sigma = <span class="fl">1.0</span> / <span class="fl">3.0</span>,</a>
-<a class="sourceLine" id="cb25-27" title="27">    delta = <span class="fl">1.0</span> / <span class="fl">21.0</span>, t_latent = <span class="fl">14.0</span>;</a>
-<a class="sourceLine" id="cb25-28" title="28">  <span class="dt">double</span> Births = N * b, surv = exp(-b * t_latent);</a>
-<a class="sourceLine" id="cb25-29" title="29"></a>
-<a class="sourceLine" id="cb25-30" title="30">  <span class="co">// Because of the way that deSolve implements delays we need to</span></a>
-<a class="sourceLine" id="cb25-31" title="31">  <span class="co">// store the initial time and values in the parameters vector; if</span></a>
-<a class="sourceLine" id="cb25-32" title="32">  <span class="co">// the requested time is earlier than the time we started at then</span></a>
-<a class="sourceLine" id="cb25-33" title="33">  <span class="co">// the initial values need to be used, which we also store in the</span></a>
-<a class="sourceLine" id="cb25-34" title="34">  <span class="co">// parameters.</span></a>
-<a class="sourceLine" id="cb25-35" title="35">  <span class="dt">double</span> t0 = parms[<span class="dv">0</span>];</a>
-<a class="sourceLine" id="cb25-36" title="36">  <span class="dt">const</span> <span class="dt">double</span> tau = *t - t_latent;</a>
-<a class="sourceLine" id="cb25-37" title="37">  <span class="dt">static</span> <span class="dt">int</span> idx[<span class="dv">2</span>] = {<span class="dv">0</span>, <span class="dv">2</span>};</a>
-<a class="sourceLine" id="cb25-38" title="38">  <span class="dt">double</span> S_lag, I_lag;</a>
-<a class="sourceLine" id="cb25-39" title="39">  <span class="cf">if</span> (tau &lt;= t0) {</a>
-<a class="sourceLine" id="cb25-40" title="40">    S_lag = parms[<span class="dv">1</span>];</a>
-<a class="sourceLine" id="cb25-41" title="41">    I_lag = parms[<span class="dv">2</span>];</a>
-<a class="sourceLine" id="cb25-42" title="42">  } <span class="cf">else</span> {</a>
-<a class="sourceLine" id="cb25-43" title="43">    <span class="dt">double</span> ylag[<span class="dv">2</span>];</a>
-<a class="sourceLine" id="cb25-44" title="44">    lagvalue(tau, idx, <span class="dv">2</span>, ylag);</a>
-<a class="sourceLine" id="cb25-45" title="45">    S_lag = ylag[<span class="dv">0</span>];</a>
-<a class="sourceLine" id="cb25-46" title="46">    I_lag = ylag[<span class="dv">1</span>];</a>
-<a class="sourceLine" id="cb25-47" title="47">  }</a>
-<a class="sourceLine" id="cb25-48" title="48"></a>
-<a class="sourceLine" id="cb25-49" title="49">  <span class="dt">const</span> <span class="dt">double</span> S = y[<span class="dv">0</span>], E = y[<span class="dv">1</span>], I = y[<span class="dv">2</span>], R = y[<span class="dv">3</span>];</a>
-<a class="sourceLine" id="cb25-50" title="50">  <span class="dt">const</span> <span class="dt">double</span> new_inf = beta * S * I / N;</a>
-<a class="sourceLine" id="cb25-51" title="51">  <span class="dt">const</span> <span class="dt">double</span> lag_inf = beta * S_lag * I_lag * surv / N;</a>
-<a class="sourceLine" id="cb25-52" title="52"></a>
-<a class="sourceLine" id="cb25-53" title="53">  dydt[<span class="dv">0</span>] = Births  - b * S - new_inf + delta * R;</a>
-<a class="sourceLine" id="cb25-54" title="54">  dydt[<span class="dv">1</span>] = new_inf - lag_inf - b * E;</a>
-<a class="sourceLine" id="cb25-55" title="55">  dydt[<span class="dv">2</span>] = lag_inf - (b + sigma) * I;</a>
-<a class="sourceLine" id="cb25-56" title="56">  dydt[<span class="dv">3</span>] = sigma * I - b * R - delta * R;</a>
-<a class="sourceLine" id="cb25-57" title="57">}</a>
-<a class="sourceLine" id="cb25-58" title="58"></a>
-<a class="sourceLine" id="cb25-59" title="59"><span class="co">// This is the interface to deSolve's lag functions.  Note that unlike</span></a>
-<a class="sourceLine" id="cb25-60" title="60"><span class="co">// dde you are responsible for checking for underflows and providing</span></a>
-<a class="sourceLine" id="cb25-61" title="61"><span class="co">// values for underflowed times.</span></a>
-<a class="sourceLine" id="cb25-62" title="62"><span class="dt">void</span> lagvalue(<span class="dt">double</span> tau, <span class="dt">int</span> *nr, <span class="dt">int</span> N, <span class="dt">double</span> *ytau) {</a>
-<a class="sourceLine" id="cb25-63" title="63">  <span class="kw">typedef</span> <span class="dt">void</span> lagvalue_t(<span class="dt">double</span>, <span class="dt">int</span> *, <span class="dt">int</span>, <span class="dt">double</span> *);</a>
-<a class="sourceLine" id="cb25-64" title="64">  <span class="dt">static</span> lagvalue_t *fun = NULL;</a>
-<a class="sourceLine" id="cb25-65" title="65">  <span class="cf">if</span> (fun == NULL) {</a>
-<a class="sourceLine" id="cb25-66" title="66">    fun = (lagvalue_t*) R_GetCCallable(<span class="st">"deSolve"</span>, <span class="st">"lagvalue"</span>);</a>
-<a class="sourceLine" id="cb25-67" title="67">  }</a>
-<a class="sourceLine" id="cb25-68" title="68">  fun(tau, nr, N, ytau);</a>
-<a class="sourceLine" id="cb25-69" title="69">}</a></code></pre></div>
+<div class="sourceCode" id="cb25"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb25-1"><a href="#cb25-1"></a><span class="pp">#include </span><span class="im">&lt;R.h&gt;</span></span>
+<span id="cb25-2"><a href="#cb25-2"></a><span class="pp">#include </span><span class="im">&lt;R_ext/Rdynload.h&gt;</span></span>
+<span id="cb25-3"><a href="#cb25-3"></a></span>
+<span id="cb25-4"><a href="#cb25-4"></a><span class="dt">void</span> lagvalue(<span class="dt">double</span> tau, <span class="dt">int</span> *nr, <span class="dt">int</span> N, <span class="dt">double</span> *ytau);</span>
+<span id="cb25-5"><a href="#cb25-5"></a></span>
+<span id="cb25-6"><a href="#cb25-6"></a><span class="co">// The parameters are going to be arranged:</span></span>
+<span id="cb25-7"><a href="#cb25-7"></a><span class="co">//</span></span>
+<span id="cb25-8"><a href="#cb25-8"></a><span class="co">//   t0</span></span>
+<span id="cb25-9"><a href="#cb25-9"></a><span class="co">//   S0, I0</span></span>
+<span id="cb25-10"><a href="#cb25-10"></a><span class="co">//   (b, N, beta, sigma, delta, t_latent)</span></span>
+<span id="cb25-11"><a href="#cb25-11"></a><span class="co">//</span></span>
+<span id="cb25-12"><a href="#cb25-12"></a><span class="co">// See below for why t0, S0 and I0 are stored</span></span>
+<span id="cb25-13"><a href="#cb25-13"></a><span class="dt">static</span> <span class="dt">double</span> parms[<span class="dv">3</span>];</span>
+<span id="cb25-14"><a href="#cb25-14"></a></span>
+<span id="cb25-15"><a href="#cb25-15"></a><span class="co">// The standard deSolve initialisation function</span></span>
+<span id="cb25-16"><a href="#cb25-16"></a><span class="dt">void</span> seir_initmod(<span class="dt">void</span> (* odeparms)(<span class="dt">int</span> *, <span class="dt">double</span> *)) {</span>
+<span id="cb25-17"><a href="#cb25-17"></a>  <span class="dt">int</span> N = <span class="dv">3</span>;</span>
+<span id="cb25-18"><a href="#cb25-18"></a>  odeparms(&amp;N, parms);</span>
+<span id="cb25-19"><a href="#cb25-19"></a>}</span>
+<span id="cb25-20"><a href="#cb25-20"></a></span>
+<span id="cb25-21"><a href="#cb25-21"></a><span class="co">// The RHS</span></span>
+<span id="cb25-22"><a href="#cb25-22"></a><span class="dt">void</span> seir_deSolve(<span class="dt">int</span> *n, <span class="dt">double</span> *t, <span class="dt">double</span> *y, <span class="dt">double</span> *dydt,</span>
+<span id="cb25-23"><a href="#cb25-23"></a>                  <span class="dt">double</span> *yout, <span class="dt">int</span> *ip) {</span>
+<span id="cb25-24"><a href="#cb25-24"></a>  <span class="co">// again, hard-coded parameters for now; will change this shortly</span></span>
+<span id="cb25-25"><a href="#cb25-25"></a>  <span class="co">// once I get the same working with the dde impementation.</span></span>
+<span id="cb25-26"><a href="#cb25-26"></a>  <span class="dt">double</span> b = <span class="fl">0.1</span>, N = <span class="fl">1e7</span>, beta = <span class="fl">10.0</span>, sigma = <span class="fl">1.0</span> / <span class="fl">3.0</span>,</span>
+<span id="cb25-27"><a href="#cb25-27"></a>    delta = <span class="fl">1.0</span> / <span class="fl">21.0</span>, t_latent = <span class="fl">14.0</span>;</span>
+<span id="cb25-28"><a href="#cb25-28"></a>  <span class="dt">double</span> Births = N * b, surv = exp(-b * t_latent);</span>
+<span id="cb25-29"><a href="#cb25-29"></a></span>
+<span id="cb25-30"><a href="#cb25-30"></a>  <span class="co">// Because of the way that deSolve implements delays we need to</span></span>
+<span id="cb25-31"><a href="#cb25-31"></a>  <span class="co">// store the initial time and values in the parameters vector; if</span></span>
+<span id="cb25-32"><a href="#cb25-32"></a>  <span class="co">// the requested time is earlier than the time we started at then</span></span>
+<span id="cb25-33"><a href="#cb25-33"></a>  <span class="co">// the initial values need to be used, which we also store in the</span></span>
+<span id="cb25-34"><a href="#cb25-34"></a>  <span class="co">// parameters.</span></span>
+<span id="cb25-35"><a href="#cb25-35"></a>  <span class="dt">double</span> t0 = parms[<span class="dv">0</span>];</span>
+<span id="cb25-36"><a href="#cb25-36"></a>  <span class="dt">const</span> <span class="dt">double</span> tau = *t - t_latent;</span>
+<span id="cb25-37"><a href="#cb25-37"></a>  <span class="dt">static</span> <span class="dt">int</span> idx[<span class="dv">2</span>] = {<span class="dv">0</span>, <span class="dv">2</span>};</span>
+<span id="cb25-38"><a href="#cb25-38"></a>  <span class="dt">double</span> S_lag, I_lag;</span>
+<span id="cb25-39"><a href="#cb25-39"></a>  <span class="cf">if</span> (tau &lt;= t0) {</span>
+<span id="cb25-40"><a href="#cb25-40"></a>    S_lag = parms[<span class="dv">1</span>];</span>
+<span id="cb25-41"><a href="#cb25-41"></a>    I_lag = parms[<span class="dv">2</span>];</span>
+<span id="cb25-42"><a href="#cb25-42"></a>  } <span class="cf">else</span> {</span>
+<span id="cb25-43"><a href="#cb25-43"></a>    <span class="dt">double</span> ylag[<span class="dv">2</span>];</span>
+<span id="cb25-44"><a href="#cb25-44"></a>    lagvalue(tau, idx, <span class="dv">2</span>, ylag);</span>
+<span id="cb25-45"><a href="#cb25-45"></a>    S_lag = ylag[<span class="dv">0</span>];</span>
+<span id="cb25-46"><a href="#cb25-46"></a>    I_lag = ylag[<span class="dv">1</span>];</span>
+<span id="cb25-47"><a href="#cb25-47"></a>  }</span>
+<span id="cb25-48"><a href="#cb25-48"></a></span>
+<span id="cb25-49"><a href="#cb25-49"></a>  <span class="dt">const</span> <span class="dt">double</span> S = y[<span class="dv">0</span>], E = y[<span class="dv">1</span>], I = y[<span class="dv">2</span>], R = y[<span class="dv">3</span>];</span>
+<span id="cb25-50"><a href="#cb25-50"></a>  <span class="dt">const</span> <span class="dt">double</span> new_inf = beta * S * I / N;</span>
+<span id="cb25-51"><a href="#cb25-51"></a>  <span class="dt">const</span> <span class="dt">double</span> lag_inf = beta * S_lag * I_lag * surv / N;</span>
+<span id="cb25-52"><a href="#cb25-52"></a></span>
+<span id="cb25-53"><a href="#cb25-53"></a>  dydt[<span class="dv">0</span>] = Births  - b * S - new_inf + delta * R;</span>
+<span id="cb25-54"><a href="#cb25-54"></a>  dydt[<span class="dv">1</span>] = new_inf - lag_inf - b * E;</span>
+<span id="cb25-55"><a href="#cb25-55"></a>  dydt[<span class="dv">2</span>] = lag_inf - (b + sigma) * I;</span>
+<span id="cb25-56"><a href="#cb25-56"></a>  dydt[<span class="dv">3</span>] = sigma * I - b * R - delta * R;</span>
+<span id="cb25-57"><a href="#cb25-57"></a>}</span>
+<span id="cb25-58"><a href="#cb25-58"></a></span>
+<span id="cb25-59"><a href="#cb25-59"></a><span class="co">// This is the interface to deSolve's lag functions.  Note that unlike</span></span>
+<span id="cb25-60"><a href="#cb25-60"></a><span class="co">// dde you are responsible for checking for underflows and providing</span></span>
+<span id="cb25-61"><a href="#cb25-61"></a><span class="co">// values for underflowed times.</span></span>
+<span id="cb25-62"><a href="#cb25-62"></a><span class="dt">void</span> lagvalue(<span class="dt">double</span> tau, <span class="dt">int</span> *nr, <span class="dt">int</span> N, <span class="dt">double</span> *ytau) {</span>
+<span id="cb25-63"><a href="#cb25-63"></a>  <span class="kw">typedef</span> <span class="dt">void</span> lagvalue_t(<span class="dt">double</span>, <span class="dt">int</span> *, <span class="dt">int</span>, <span class="dt">double</span> *);</span>
+<span id="cb25-64"><a href="#cb25-64"></a>  <span class="dt">static</span> lagvalue_t *fun = NULL;</span>
+<span id="cb25-65"><a href="#cb25-65"></a>  <span class="cf">if</span> (fun == NULL) {</span>
+<span id="cb25-66"><a href="#cb25-66"></a>    fun = (lagvalue_t*) R_GetCCallable(<span class="st">"deSolve"</span>, <span class="st">"lagvalue"</span>);</span>
+<span id="cb25-67"><a href="#cb25-67"></a>  }</span>
+<span id="cb25-68"><a href="#cb25-68"></a>  fun(tau, nr, N, ytau);</span>
+<span id="cb25-69"><a href="#cb25-69"></a>}</span></code></pre></div>
 <p>This looks very similar to the <code>dde</code> version above but:</p>
 <ul>
 <li>
@@ -422,61 +443,61 @@
 <li>The lagvalue function must be explicitly defined (which requires loading some R-related headers (in <code>dde</code> this is achieved by including <code>&lt;dde/dde.h&gt;</code> and <code>&lt;dde/dde.c&gt;</code>.</li>
 </ul>
 <p>Apart from these details, the model definition should appear very similar.</p>
-<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb26-1" title="1">initial &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">0.0</span>, y0[[<span class="dv">1</span>]], y0[[<span class="dv">3</span>]])</a>
-<a class="sourceLine" id="cb26-2" title="2"></a>
-<a class="sourceLine" id="cb26-3" title="3">zz_ds &lt;-<span class="st"> </span>deSolve<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/deSolve/topics/dede">dede</a></span>(y0, tt, <span class="st">"seir_deSolve"</span>, initial,</a>
-<a class="sourceLine" id="cb26-4" title="4">                       <span class="dt">initfunc =</span> <span class="st">"seir_initmod"</span>, <span class="dt">dllname =</span> <span class="st">"dde_seir_ds"</span>)</a>
-<a class="sourceLine" id="cb26-5" title="5">zz_dde &lt;-<span class="st"> </span>dde<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/dde/topics/dopri">dopri</a></span>(y0, tt, <span class="st">"seir"</span>, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/numeric">numeric</a></span>(), <span class="dt">dllname =</span> <span class="st">"dde_seir"</span>,</a>
-<a class="sourceLine" id="cb26-6" title="6">                     <span class="dt">n_history =</span> 1000L, <span class="dt">return_history =</span> <span class="ot">FALSE</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">initial</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.0</span>, <span class="va">y0</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, <span class="va">y0</span><span class="op">[[</span><span class="fl">3</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>
+
+<span class="va">zz_ds</span> <span class="op">&lt;-</span> <span class="fu">deSolve</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/deSolve/man/dede.html">dede</a></span><span class="op">(</span><span class="va">y0</span>, <span class="va">tt</span>, <span class="st">"seir_deSolve"</span>, <span class="va">initial</span>,
+                       initfunc <span class="op">=</span> <span class="st">"seir_initmod"</span>, dllname <span class="op">=</span> <span class="st">"dde_seir_ds"</span><span class="op">)</span>
+<span class="va">zz_dde</span> <span class="op">&lt;-</span> <span class="fu">dde</span><span class="fu">::</span><span class="fu"><a href="../reference/dopri.html">dopri</a></span><span class="op">(</span><span class="va">y0</span>, <span class="va">tt</span>, <span class="st">"seir"</span>, <span class="fu"><a href="https://rdrr.io/r/base/numeric.html">numeric</a></span><span class="op">(</span><span class="op">)</span>, dllname <span class="op">=</span> <span class="st">"dde_seir"</span>,
+                     n_history <span class="op">=</span> <span class="fl">1000L</span>, return_history <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
 <p>Check that outputs of these models are the same as the R version above:</p>
-<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb27-1" title="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/all.equal">all.equal</a></span>(zz_ds, yy_ds, <span class="dt">check.attributes =</span> <span class="ot">FALSE</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/all.equal.html">all.equal</a></span><span class="op">(</span><span class="va">zz_ds</span>, <span class="va">yy_ds</span>, check.attributes <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
 <pre><code>## [1] TRUE</code></pre>
-<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb29-1" title="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/all.equal">all.equal</a></span>(zz_dde, yy_dde, <span class="dt">check.attributes =</span> <span class="ot">FALSE</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/all.equal.html">all.equal</a></span><span class="op">(</span><span class="va">zz_dde</span>, <span class="va">yy_dde</span>, check.attributes <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
 <pre><code>## [1] TRUE</code></pre>
 <p>Here, the timings are even closer and have dropped from on the order of 20 milliseconds to 0.5 milliseconds; so we’re getting a ~40x speed up from using compiled code.</p>
-<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb31-1" title="1">tC &lt;-<span class="st"> </span>microbenchmark<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/microbenchmark/topics/microbenchmark">microbenchmark</a></span>(</a>
-<a class="sourceLine" id="cb31-2" title="2">  <span class="dt">deSolve =</span> deSolve<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/deSolve/topics/dede">dede</a></span>(y0, tt, <span class="st">"seir_deSolve"</span>, initial,</a>
-<a class="sourceLine" id="cb31-3" title="3">                          <span class="dt">initfunc =</span> <span class="st">"seir_initmod"</span>, <span class="dt">dllname =</span> <span class="st">"dde_seir_ds"</span>),</a>
-<a class="sourceLine" id="cb31-4" title="4">  <span class="dt">dde =</span> dde<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/dde/topics/dopri">dopri</a></span>(y0, tt, <span class="st">"seir"</span>, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/numeric">numeric</a></span>(), <span class="dt">dllname =</span> <span class="st">"dde_seir"</span>,</a>
-<a class="sourceLine" id="cb31-5" title="5">                   <span class="dt">n_history =</span> 1000L, <span class="dt">return_history =</span> <span class="ot">FALSE</span>))</a>
-<a class="sourceLine" id="cb31-6" title="6">tC</a></code></pre></div>
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">tC</span> <span class="op">&lt;-</span> <span class="fu">microbenchmark</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/microbenchmark/man/microbenchmark.html">microbenchmark</a></span><span class="op">(</span>
+  deSolve <span class="op">=</span> <span class="fu">deSolve</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/deSolve/man/dede.html">dede</a></span><span class="op">(</span><span class="va">y0</span>, <span class="va">tt</span>, <span class="st">"seir_deSolve"</span>, <span class="va">initial</span>,
+                          initfunc <span class="op">=</span> <span class="st">"seir_initmod"</span>, dllname <span class="op">=</span> <span class="st">"dde_seir_ds"</span><span class="op">)</span>,
+  dde <span class="op">=</span> <span class="fu">dde</span><span class="fu">::</span><span class="fu"><a href="../reference/dopri.html">dopri</a></span><span class="op">(</span><span class="va">y0</span>, <span class="va">tt</span>, <span class="st">"seir"</span>, <span class="fu"><a href="https://rdrr.io/r/base/numeric.html">numeric</a></span><span class="op">(</span><span class="op">)</span>, dllname <span class="op">=</span> <span class="st">"dde_seir"</span>,
+                   n_history <span class="op">=</span> <span class="fl">1000L</span>, return_history <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">)</span>
+<span class="va">tC</span></code></pre></div>
 <pre><code>## Unit: microseconds
-##     expr     min       lq     mean  median      uq      max neval
-##  deSolve 566.298 613.7030 706.9760 630.508 735.355 4148.716   100
-##      dde 529.846 545.2495 593.2688 558.430 610.907  902.567   100</code></pre>
+##     expr     min       lq     mean   median      uq      max neval
+##  deSolve 768.319 816.8330 857.3461 825.1495 831.798 4015.409   100
+##      dde 687.747 710.6865 721.2253 715.8385 721.708  848.241   100</code></pre>
 <p>The difference in speed will tend to increase as the models become larger (in terms of numbers of equations and parameters). On the other hand, constructing large models in C can be a hassle (but see <a href="https://mrc-ide.github.io/odin">odin</a> for a possible solution).</p>
-<p>You can extract a little more performance by tweaking options to <code><a href="../reference/dopri.html">dde::dopri</a></code>; in particular, adding <code>return_minimal = TRUE</code> will avoid transposing the output, binding the times on, and (if given) avoiding binding output variables. These costs may be nontrivial with bigger models, though the cost of running a larger model will likely be larger still. Previous version of R suffered from a large cost of looking up the address of the compiled function (Windows may still take longer to do this than macOS/Linux). In that case, use <code><a href="https://www.rdocumentation.org/packages/base/topics/getNativeSymbolInfo">getNativeSymbolInfo("seir")</a></code> and pass that through to <code>dopri</code> as the <code>func</code> argument.</p>
-<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb33-1" title="1">ptr &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/getNativeSymbolInfo">getNativeSymbolInfo</a></span>(<span class="st">"seir"</span>)</a>
-<a class="sourceLine" id="cb33-2" title="2">tC2 &lt;-<span class="st"> </span>microbenchmark<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/microbenchmark/topics/microbenchmark">microbenchmark</a></span>(</a>
-<a class="sourceLine" id="cb33-3" title="3">  <span class="dt">deSolve =</span> deSolve<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/deSolve/topics/dede">dede</a></span>(y0, tt, <span class="st">"seir_deSolve"</span>, initial,</a>
-<a class="sourceLine" id="cb33-4" title="4">                          <span class="dt">initfunc =</span> <span class="st">"seir_initmod"</span>, <span class="dt">dllname =</span> <span class="st">"dde_seir_ds"</span>),</a>
-<a class="sourceLine" id="cb33-5" title="5">  <span class="dt">dde =</span> dde<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/dde/topics/dopri">dopri</a></span>(y0, tt, <span class="st">"seir"</span>, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/numeric">numeric</a></span>(), <span class="dt">dllname =</span> <span class="st">"dde_seir"</span>,</a>
-<a class="sourceLine" id="cb33-6" title="6">                   <span class="dt">n_history =</span> 1000L, <span class="dt">return_history =</span> <span class="ot">FALSE</span>),</a>
-<a class="sourceLine" id="cb33-7" title="7">  <span class="dt">dde2 =</span> dde<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/dde/topics/dopri">dopri</a></span>(y0, tt, ptr, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/numeric">numeric</a></span>(), <span class="dt">n_history =</span> 1000L,</a>
-<a class="sourceLine" id="cb33-8" title="8">                    <span class="dt">return_history =</span> <span class="ot">FALSE</span>, <span class="dt">return_minimal =</span> <span class="ot">TRUE</span>))</a>
-<a class="sourceLine" id="cb33-9" title="9">tC2</a></code></pre></div>
+<p>You can extract a little more performance by tweaking options to <code><a href="../reference/dopri.html">dde::dopri</a></code>; in particular, adding <code>return_minimal = TRUE</code> will avoid transposing the output, binding the times on, and (if given) avoiding binding output variables. These costs may be nontrivial with bigger models, though the cost of running a larger model will likely be larger still. Previous version of R suffered from a large cost of looking up the address of the compiled function (Windows may still take longer to do this than macOS/Linux). In that case, use <code><a href="https://rdrr.io/r/base/getNativeSymbolInfo.html">getNativeSymbolInfo("seir")</a></code> and pass that through to <code>dopri</code> as the <code>func</code> argument.</p>
+<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">ptr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/getNativeSymbolInfo.html">getNativeSymbolInfo</a></span><span class="op">(</span><span class="st">"seir"</span><span class="op">)</span>
+<span class="va">tC2</span> <span class="op">&lt;-</span> <span class="fu">microbenchmark</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/microbenchmark/man/microbenchmark.html">microbenchmark</a></span><span class="op">(</span>
+  deSolve <span class="op">=</span> <span class="fu">deSolve</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/deSolve/man/dede.html">dede</a></span><span class="op">(</span><span class="va">y0</span>, <span class="va">tt</span>, <span class="st">"seir_deSolve"</span>, <span class="va">initial</span>,
+                          initfunc <span class="op">=</span> <span class="st">"seir_initmod"</span>, dllname <span class="op">=</span> <span class="st">"dde_seir_ds"</span><span class="op">)</span>,
+  dde <span class="op">=</span> <span class="fu">dde</span><span class="fu">::</span><span class="fu"><a href="../reference/dopri.html">dopri</a></span><span class="op">(</span><span class="va">y0</span>, <span class="va">tt</span>, <span class="st">"seir"</span>, <span class="fu"><a href="https://rdrr.io/r/base/numeric.html">numeric</a></span><span class="op">(</span><span class="op">)</span>, dllname <span class="op">=</span> <span class="st">"dde_seir"</span>,
+                   n_history <span class="op">=</span> <span class="fl">1000L</span>, return_history <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>,
+  dde2 <span class="op">=</span> <span class="fu">dde</span><span class="fu">::</span><span class="fu"><a href="../reference/dopri.html">dopri</a></span><span class="op">(</span><span class="va">y0</span>, <span class="va">tt</span>, <span class="va">ptr</span>, <span class="fu"><a href="https://rdrr.io/r/base/numeric.html">numeric</a></span><span class="op">(</span><span class="op">)</span>, n_history <span class="op">=</span> <span class="fl">1000L</span>,
+                    return_history <span class="op">=</span> <span class="cn">FALSE</span>, return_minimal <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span>
+<span class="va">tC2</span></code></pre></div>
 <pre><code>## Unit: microseconds
-##     expr     min       lq     mean   median       uq      max neval
-##  deSolve 563.557 611.0640 715.7090 619.3525 740.4455 3967.837   100
-##      dde 527.615 544.0110 620.1472 559.8385 669.1040 1113.606   100
-##     dde2 495.562 502.4425 558.7047 513.0925 562.8285 1126.716   100</code></pre>
+##     expr     min       lq     mean  median       uq      max neval
+##  deSolve 778.614 825.5670 887.3970 834.922 856.9575 4361.968   100
+##      dde 689.532 713.4895 741.4638 720.331 739.3700 1115.613   100
+##     dde2 633.179 653.8755 683.3112 660.774 679.9320  956.491   100</code></pre>
 </div>
 </div>
   </div>
 
-  <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
-        <div id="tocnav">
-      <h2 class="hasAnchor">
-<a href="#tocnav" class="anchor"></a>Contents</h2>
-      <ul class="nav nav-pills nav-stacked">
-<li><a href="#ordinary-differential-equation-models">Ordinary differential equation models</a></li>
-      <li><a href="#delay-differential-equation-models">Delay differential equation models</a></li>
-      <li><a href="#differences-with-desolve">Differences with deSolve</a></li>
-      </ul>
+  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
+
+        <nav id="toc" data-toggle="toc"><h2 data-toc-skip>Contents</h2>
+    </nav>
 </div>
-      </div>
 
 </div>
+
 
 
       <footer><div class="copyright">
@@ -484,12 +505,14 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
+
       </footer>
 </div>
 
   
+
 
   </body>
 </html>
