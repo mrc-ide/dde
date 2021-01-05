@@ -8,11 +8,12 @@
 \alias{ylag}
 \title{Integrate ODE/DDE with dopri}
 \usage{
-dopri(y, times, func, parms, ..., n_out = 0L, output = NULL, rtol = 1e-06,
-  atol = 1e-06, step_size_min = 0, step_size_max = Inf,
-  step_size_initial = 0, step_max_n = 100000L, tcrit = NULL,
-  event_time = NULL, event_function = NULL, method = "dopri5",
-  stiff_check = 0, verbose = FALSE, callback = NULL, n_history = 0,
+dopri(y, times, func, parms, ..., n_out = 0L, output = NULL,
+  rtol = 1e-06, atol = 1e-06, step_size_min = 0, step_size_max = Inf,
+  step_size_initial = 0, step_max_n = 100000L,
+  step_size_min_allow = FALSE, tcrit = NULL, event_time = NULL,
+  event_function = NULL, method = "dopri5", stiff_check = 0,
+  verbose = FALSE, callback = NULL, n_history = 0,
   grow_history = FALSE, return_history = n_history > 0, dllname = "",
   parms_are_real = TRUE, ynames = names(y), outnames = NULL,
   return_by_column = TRUE, return_initial = TRUE, return_time = TRUE,
@@ -65,8 +66,10 @@ will be less than this.}
 used will be the largest of the absolute value of this
 \code{step_size_min} or \code{.Machine$double.eps}.  If the
 integration attempts to make a step smaller than this, it will
-throw an error, stopping the integration (note that this differs
-from the treatment of \code{hmin} in \code{deSolve::lsoda}).}
+throw an error by default, stopping the integration (note that
+this differs from the treatment of \code{hmin} in
+\code{deSolve::lsoda}). See \code{allow_step_size_min} to change
+this behaviour.}
 
 \item{step_size_max}{The largest step size.  By default there is
 no maximum step size (Inf) so the solver can take as large a
@@ -83,6 +86,11 @@ solver takes more steps than this it will throw an error.  Note
 the number of evaluations of \code{func} will be about 6 times
 the number of steps (or 11 times if using \code{method =
 "dopri853"}).}
+
+\item{step_size_min_allow}{Logical, indicating if when a step size
+is driven down to \code{step_size_min} we should allow it to
+proceed. This is the behaviour in of \code{hmin} in
+\code{deSolve::lsoda}.}
 
 \item{tcrit}{An optional vector of critical times that the solver
 must stop at (rather than interpolating over).  This can include

@@ -51,8 +51,10 @@
 ##'   used will be the largest of the absolute value of this
 ##'   \code{step_size_min} or \code{.Machine$double.eps}.  If the
 ##'   integration attempts to make a step smaller than this, it will
-##'   throw an error, stopping the integration (note that this differs
-##'   from the treatment of \code{hmin} in \code{deSolve::lsoda}).
+##'   throw an error by default, stopping the integration (note that
+##'   this differs from the treatment of \code{hmin} in
+##'   \code{deSolve::lsoda}). See \code{allow_step_size_min} to change
+##'   this behaviour.
 ##'
 ##' @param step_size_max The largest step size.  By default there is
 ##'   no maximum step size (Inf) so the solver can take as large a
@@ -69,6 +71,11 @@
 ##'   the number of evaluations of \code{func} will be about 6 times
 ##'   the number of steps (or 11 times if using \code{method =
 ##'   "dopri853"}).
+##'
+##' @param step_size_min_allow Logical, indicating if when a step size
+##'   is driven down to \code{step_size_min} we should allow it to
+##'   proceed. This is the behaviour in of \code{hmin} in
+##'   \code{deSolve::lsoda}.
 ##'
 ##' @param tcrit An optional vector of critical times that the solver
 ##'   must stop at (rather than interpolating over).  This can include
@@ -288,6 +295,7 @@ dopri <- function(y, times, func, parms, ...,
                   rtol = 1e-6, atol = 1e-6,
                   step_size_min = 0, step_size_max = Inf,
                   step_size_initial = 0, step_max_n = 100000L,
+                  step_size_min_allow = FALSE,
                   tcrit = NULL, event_time = NULL, event_function = NULL,
                   method = "dopri5",
                   stiff_check = 0,
@@ -335,6 +343,7 @@ dopri <- function(y, times, func, parms, ...,
   assert_scalar(step_size_max)
   assert_scalar(step_size_initial)
   assert_size(step_max_n)
+  assert_scalar_logical(step_size_min_allow)
   assert_size(n_history)
 
   assert_scalar_logical(grow_history)
@@ -398,6 +407,7 @@ dopri <- function(y, times, func, parms, ...,
                ## Step control:
                step_size_min, step_size_max,
                step_size_initial, as.integer(step_max_n),
+               step_size_min_allow,
                ## Critical and events
                as.numeric(tcrit), is_event, event,
                ## Other:

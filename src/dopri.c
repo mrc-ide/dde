@@ -78,6 +78,7 @@ dopri_data* dopri_data_alloc(deriv_func* target, size_t n,
   ret->step_size_min = DBL_EPSILON;
   ret->step_size_max = DBL_MAX;
   ret->step_size_initial = 0.0;
+  ret->step_size_min_allow = false;
   ret->step_max_n = 100000;    // from dopri5.f:212
   ret->step_factor_safe = 0.9; // from dopri5.f:265
 
@@ -110,6 +111,7 @@ dopri_data* dopri_data_copy(const dopri_data* obj) {
   ret->step_size_max = obj->step_size_max;
   ret->step_size_initial = obj->step_size_initial;
   ret->step_max_n = obj->step_max_n;
+  ret->step_size_min_allow = false;
   ret->step_beta = obj->step_beta;
   ret->step_constant = obj->step_constant;
 
@@ -338,15 +340,21 @@ void dopri_integrate(dopri_data *obj, const double *y,
 
   // TODO: factor into its own thing
   while (true) {
+    bool force_this_step = false;
     if (obj->n_step > obj->step_max_n) {
       obj->error = true;
       obj->code = ERR_TOO_MANY_STEPS;
       break;
     }
     if (fabs(h) <= obj->step_size_min) {
-      obj->error = true;
-      obj->code = ERR_STEP_SIZE_TOO_SMALL;
-      break;
+      if (obj->step_size_min_allow) {
+        h = copysign(obj->step_size_min, obj->sign);
+        force_this_step = true;
+      } else {
+        obj->error = true;
+        obj->code = ERR_STEP_SIZE_TOO_SMALL;
+        break;
+      }
     } else if (fabs(h) <= fabs(obj->t) * DBL_EPSILON) {
       obj->error = true;
       obj->code = ERR_STEP_SIZE_VANISHED;
@@ -384,7 +392,7 @@ void dopri_integrate(dopri_data *obj, const double *y,
     double h_new = dopri_h_new(obj, fac_old, h, err);
     const bool accept = err <= 1;
 
-    if (accept) {
+    if (accept || force_this_step) {
       // Step is accepted :)
       fac_old = fmax(err, 1e-4);
       obj->n_accept++;

@@ -410,6 +410,29 @@ test_that("step tuning", {
 })
 
 
+test_that("allow step size to get small", {
+  tt <- seq(0, 1, length.out = 200)
+  T_IDX <- 16L
+  m0 <- run_lorenz_dde(tt, n_history = 500, return_statistics = TRUE)
+  t0 <- attr(m0, "history")[T_IDX, ]
+  s0 <- attr(m0, "statistics")
+
+  step_size_min <- 0.01
+  m1 <- run_lorenz_dde(tt,
+                       step_size_min = step_size_min,
+                       step_size_min_allow = TRUE,
+                       n_history = 500,
+                       return_statistics = TRUE)
+  t1 <- attr(m1, "history")[T_IDX, ]
+  ## This is really annoying, as we might be off by a _very_ small
+  ## amount (~1e-18) due to general floating point horrors.
+  expect_lt(min(diff(t1) - step_size_min), 1e-16)
+  expect_equal(min(diff(t1)), step_size_min)
+  s1 <- attr(m1, "statistics")
+  expect_lt(s1[["n_eval"]], s0[["n_eval"]])
+})
+
+
 test_that("integrate function with no absolute error", {
   deriv <- function(t, y, p) {
     1

@@ -30,6 +30,7 @@ SEXP r_dopri(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
              // Step size control:
              SEXP r_step_size_min, SEXP r_step_size_max,
              SEXP r_step_size_initial, SEXP r_step_max_n,
+             SEXP r_step_size_min_allow,
              // Critical times and events:
              SEXP r_tcrit, SEXP r_is_event, SEXP r_events,
              // Other:
@@ -159,6 +160,7 @@ SEXP r_dopri(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
   obj->step_size_max = fmin(fabs(REAL(r_step_size_max)[0]), DBL_MAX);
   obj->step_size_initial = REAL(r_step_size_initial)[0];
   obj->step_max_n = INTEGER(r_step_max_n)[0];
+  obj->step_size_min_allow = INTEGER(r_step_size_min_allow)[0];
 
   obj->stiff_check = INTEGER(r_stiff_check)[0];
 
