@@ -1,3 +1,7 @@
+# dde 1.0.3
+
+* Added new option `step_size_min_allow`, which allows the solver to continue with a solution when a step size is driven too small (mrc-2095)
+
 # dde 1.0.2
 
 * Improved implementation of the replication interface, maintaining most backward compatibility (the `as_matrix` argument is defunct, at least for now) (mrc-1447)
