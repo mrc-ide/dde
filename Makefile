@@ -38,6 +38,7 @@ check_all:
 
 clean:
 	rm -f src/*.o src/*.so src/*.dll
+	rm -f src/*.gcda src/*.gcno src/*.gcov
 	rm -f tests/testthat/*.o tests/testthat/*.so tests/testthat/*.dll
 	rm -f inst/examples/*.o inst/examples/*.so inst/examples/*.dll
 	rm -rf src/dde.so.dSYM

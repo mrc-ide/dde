@@ -140,6 +140,7 @@ typedef struct {
   double step_size_max;
   double step_size_initial;
   size_t step_max_n; // max number of steps (100000)
+  bool step_size_min_allow;
   double step_beta;
   double step_constant; // internal
 

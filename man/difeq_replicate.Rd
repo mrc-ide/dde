@@ -4,9 +4,9 @@
 \alias{difeq_replicate}
 \title{Solve difference equations repeatedly}
 \usage{
-difeq_replicate(n, y, steps, target, parms, ..., n_out = 0L, n_history = 0L,
-  grow_history = FALSE, return_history = n_history > 0, dllname = "",
-  parms_are_real = TRUE, ynames = NULL, outnames = NULL,
+difeq_replicate(n, y, steps, target, parms, ..., n_out = 0L,
+  n_history = 0L, grow_history = FALSE, return_history = n_history > 0,
+  dllname = "", parms_are_real = TRUE, ynames = NULL, outnames = NULL,
   return_by_column = TRUE, return_initial = TRUE, return_step = TRUE,
   return_output_with_y = TRUE, restartable = FALSE,
   return_minimal = FALSE, as_array = TRUE)
