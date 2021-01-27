@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">dde</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.3</span>
       </span>
     </div>
 
@@ -80,7 +80,7 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -97,7 +97,7 @@
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/mrc-ide/dde/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -123,11 +123,12 @@
     <p>Integrate an ODE or DDE with dopri.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>dopri</span><span class='op'>(</span><span class='va'>y</span>, <span class='va'>times</span>, <span class='va'>func</span>, <span class='va'>parms</span>, <span class='va'>...</span>, n_out <span class='op'>=</span> <span class='fl'>0L</span>, output <span class='op'>=</span> <span class='cn'>NULL</span>, rtol <span class='op'>=</span> <span class='fl'>1e-06</span>,
-  atol <span class='op'>=</span> <span class='fl'>1e-06</span>, step_size_min <span class='op'>=</span> <span class='fl'>0</span>, step_size_max <span class='op'>=</span> <span class='cn'>Inf</span>,
-  step_size_initial <span class='op'>=</span> <span class='fl'>0</span>, step_max_n <span class='op'>=</span> <span class='fl'>100000L</span>, tcrit <span class='op'>=</span> <span class='cn'>NULL</span>,
-  event_time <span class='op'>=</span> <span class='cn'>NULL</span>, event_function <span class='op'>=</span> <span class='cn'>NULL</span>, method <span class='op'>=</span> <span class='st'>"dopri5"</span>,
-  stiff_check <span class='op'>=</span> <span class='fl'>0</span>, verbose <span class='op'>=</span> <span class='cn'>FALSE</span>, callback <span class='op'>=</span> <span class='cn'>NULL</span>, n_history <span class='op'>=</span> <span class='fl'>0</span>,
+    <pre class="usage"><span class='fu'>dopri</span><span class='op'>(</span><span class='va'>y</span>, <span class='va'>times</span>, <span class='va'>func</span>, <span class='va'>parms</span>, <span class='va'>...</span>, n_out <span class='op'>=</span> <span class='fl'>0L</span>, output <span class='op'>=</span> <span class='cn'>NULL</span>,
+  rtol <span class='op'>=</span> <span class='fl'>1e-06</span>, atol <span class='op'>=</span> <span class='fl'>1e-06</span>, step_size_min <span class='op'>=</span> <span class='fl'>0</span>, step_size_max <span class='op'>=</span> <span class='cn'>Inf</span>,
+  step_size_initial <span class='op'>=</span> <span class='fl'>0</span>, step_max_n <span class='op'>=</span> <span class='fl'>100000L</span>,
+  step_size_min_allow <span class='op'>=</span> <span class='cn'>FALSE</span>, tcrit <span class='op'>=</span> <span class='cn'>NULL</span>, event_time <span class='op'>=</span> <span class='cn'>NULL</span>,
+  event_function <span class='op'>=</span> <span class='cn'>NULL</span>, method <span class='op'>=</span> <span class='st'>"dopri5"</span>, stiff_check <span class='op'>=</span> <span class='fl'>0</span>,
+  verbose <span class='op'>=</span> <span class='cn'>FALSE</span>, callback <span class='op'>=</span> <span class='cn'>NULL</span>, n_history <span class='op'>=</span> <span class='fl'>0</span>,
   grow_history <span class='op'>=</span> <span class='cn'>FALSE</span>, return_history <span class='op'>=</span> <span class='va'>n_history</span> <span class='op'>&gt;</span> <span class='fl'>0</span>, dllname <span class='op'>=</span> <span class='st'>""</span>,
   parms_are_real <span class='op'>=</span> <span class='cn'>TRUE</span>, ynames <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/names.html'>names</a></span><span class='op'>(</span><span class='va'>y</span><span class='op'>)</span>, outnames <span class='op'>=</span> <span class='cn'>NULL</span>,
   return_by_column <span class='op'>=</span> <span class='cn'>TRUE</span>, return_initial <span class='op'>=</span> <span class='cn'>TRUE</span>, return_time <span class='op'>=</span> <span class='cn'>TRUE</span>,
@@ -202,8 +203,10 @@ will be less than this.</p></td>
 used will be the largest of the absolute value of this
 <code>step_size_min</code> or <code>.Machine$double.eps</code>.  If the
 integration attempts to make a step smaller than this, it will
-throw an error, stopping the integration (note that this differs
-from the treatment of <code>hmin</code> in <code><a href='https://rdrr.io/pkg/deSolve/man/lsoda.html'>deSolve::lsoda</a></code>).</p></td>
+throw an error by default, stopping the integration (note that
+this differs from the treatment of <code>hmin</code> in
+<code><a href='https://rdrr.io/pkg/deSolve/man/lsoda.html'>deSolve::lsoda</a></code>). See <code>allow_step_size_min</code> to change
+this behaviour.</p></td>
     </tr>
     <tr>
       <th>step_size_max</th>
@@ -226,6 +229,13 @@ solver takes more steps than this it will throw an error.  Note
 the number of evaluations of <code>func</code> will be about 6 times
 the number of steps (or 11 times if using <code>method =
 "dopri853"</code>).</p></td>
+    </tr>
+    <tr>
+      <th>step_size_min_allow</th>
+      <td><p>Logical, indicating if when a step size
+is driven down to <code>step_size_min</code> we should allow it to
+proceed. This is the behaviour in of <code>hmin</code> in
+<code><a href='https://rdrr.io/pkg/deSolve/man/lsoda.html'>deSolve::lsoda</a></code>.</p></td>
     </tr>
     <tr>
       <th>tcrit</th>
