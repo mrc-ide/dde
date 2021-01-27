@@ -111,7 +111,7 @@ dopri_data* dopri_data_copy(const dopri_data* obj) {
   ret->step_size_max = obj->step_size_max;
   ret->step_size_initial = obj->step_size_initial;
   ret->step_max_n = obj->step_max_n;
-  ret->step_size_min_allow = false;
+  ret->step_size_min_allow = obj->step_size_min_allow;
   ret->step_beta = obj->step_beta;
   ret->step_constant = obj->step_constant;
 
