@@ -206,7 +206,7 @@ void dopri_print_eval(dopri_data *obj, double t, double *y);
 void dopri_callback(dopri_data *obj, double t, double h, double *y);
 
 // Helper
-size_t get_current_problem_size_dde();
+size_t get_current_problem_size_dde(void);
 double square(double x);
 size_t min_size(size_t a, size_t b);
 

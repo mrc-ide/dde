@@ -62,6 +62,6 @@ void difeq_run(difeq_data *obj, const double *y,
                double *y_out, double *out,
                bool return_initial);
 
-size_t get_current_problem_size_difeq();
+size_t get_current_problem_size_difeq(void);
 
 #endif
