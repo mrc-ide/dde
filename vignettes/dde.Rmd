@@ -449,7 +449,7 @@ tC
 The difference in speed will tend to increase as the models become
 larger (in terms of numbers of equations and parameters).  On the
 other hand, constructing large models in C can be a hassle (but see
-[odin](https://mrc-ide.github.io/odin) for a possible solution).
+[odin](https://mrc-ide.github.io/odin/) for a possible solution).
 
 You can extract a little more performance by tweaking options to
 `dde::dopri`; in particular, adding `return_minimal = TRUE`
