@@ -120,7 +120,7 @@ void difeq_data_free(difeq_data *obj) {
 static difeq_data *difeq_global_obj;
 
 // Used to query the problem size safely from the interface.c file
-size_t get_current_problem_size_difeq() {
+size_t get_current_problem_size_difeq(void) {
   return difeq_global_obj == NULL ? 0 : difeq_global_obj->n;
 }
 
