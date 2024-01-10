@@ -90,7 +90,7 @@ SEXP r_dopri(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
         } else {
           events[i] = (event_func*)ptr_fn_get(el);
           if (events[i] == NULL) {
-            Rf_error("Was passed null pointer for events[%d]", j);
+            Rf_error("Was passed null pointer for events[%d]", (int)j);
           }
         }
       }

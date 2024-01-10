@@ -330,7 +330,7 @@ void dopri_integrate(dopri_data *obj, const double *y,
   for (size_t i = 0; i < obj->n; ++i) {
     if (!R_FINITE(obj->k[0][i])) {
       Rf_error("non-finite derivative at initial time for element %d\n",
-               i + 1);
+               (int)i + 1);
     }
   }
 

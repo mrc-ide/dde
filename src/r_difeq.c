@@ -212,7 +212,7 @@ void difeq_r_harness(size_t n, size_t step,
   // Ensure that we get sensible output from the target function:
   if ((size_t)length(ans) != n) {
     Rf_error("Incorrect length variable output: expected %d, recieved %d",
-             n, length(ans));
+             (int)n, (int)length(ans));
   }
   memcpy(ynext, REAL(ans), n * sizeof(double));
   if (n_out > 0) {
@@ -221,7 +221,7 @@ void difeq_r_harness(size_t n, size_t step,
       Rf_error("Missing output");
     } else if ((size_t)length(r_output) != n_out) {
       Rf_error("Incorrect length output: expected %d, recieved %d",
-               n_out, length(r_output));
+               (int)n_out, (int)length(r_output));
     } else if (TYPEOF(r_output) != REALSXP) {
       Rf_error("Incorrect type output");
     }

@@ -266,7 +266,7 @@ const double* difeq_find_step(difeq_data *obj, int step) {
   }
   if (h == NULL) {
     Rf_error("difeq failure: did not find step in history (at step %d)",
-             obj->step);
+             (int)obj->step);
   }
   return ((double*) h) + obj->history_idx_y;
 }

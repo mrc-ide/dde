@@ -33,7 +33,7 @@ double scalar_double(SEXP x) {
 
 int check_index_bounds(int x, size_t len) {
   if (x < 1 || x > (int)len) {
-    Rf_error("Expected index on [1..%d] (%d out of bounds)", len, x);
+    Rf_error("Expected index on [1..%d] (%d out of bounds)", (int)len, x);
   }
   return x - 1;
 }
