@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">dde</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0.5</span>
       </span>
     </div>
 
@@ -73,7 +73,7 @@
                         <h4 data-toc-skip class="author">Rich
 FitzJohn</h4>
             
-            <h4 data-toc-skip class="date">2023-04-28</h4>
+            <h4 data-toc-skip class="date">2024-01-10</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/mrc-ide/dde/blob/HEAD/vignettes/dde.Rmd" class="external-link"><code>vignettes/dde.Rmd</code></a></small>
       <div class="hidden name"><code>dde.Rmd</code></div>
@@ -376,7 +376,7 @@ global)</li>
 <span id="cb19-26"><a href="#cb19-26" aria-hidden="true" tabindex="-1"></a>    lag_inf <span class="sc">-</span> (b <span class="sc">+</span> sigma) <span class="sc">*</span> I,</span>
 <span id="cb19-27"><a href="#cb19-27" aria-hidden="true" tabindex="-1"></a>    sigma <span class="sc">*</span> I <span class="sc">-</span> b <span class="sc">*</span> R <span class="sc">-</span> delta <span class="sc">*</span> R)</span>
 <span id="cb19-28"><a href="#cb19-28" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb19-29"><a href="#cb19-29" aria-hidden="true" tabindex="-1"></a><span class="sc">&lt;</span>bytecode<span class="sc">:</span> <span class="dv">0x5561d225b680</span><span class="sc">&gt;</span></span></code></pre></div>
+<span id="cb19-29"><a href="#cb19-29" aria-hidden="true" tabindex="-1"></a><span class="sc">&lt;</span>bytecode<span class="sc">:</span> <span class="dv">0x55f4961982f8</span><span class="sc">&gt;</span></span></code></pre></div>
 <p>The implementation using <code>deSolve</code> looks very similar:</p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">seir_deSolve</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">t</span>, <span class="va">y</span>, <span class="va">parms</span><span class="op">)</span> <span class="op">{</span></span>
@@ -454,9 +454,9 @@ of milliseconds to run on my machines</p>
 <span>                   return_history <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">tR</span></span></code></pre></div>
 <pre><code><span><span class="co">## Unit: milliseconds</span></span>
-<span><span class="co">##     expr     min      lq     mean  median      uq     max neval</span></span>
-<span><span class="co">##  deSolve 22.1316 22.5531 23.73065 22.9324 25.0139 26.9515    30</span></span>
-<span><span class="co">##      dde  9.2217  9.4811 10.02624  9.5681  9.8923 12.1973    30</span></span></code></pre>
+<span><span class="co">##     expr       min        lq      mean    median        uq       max neval</span></span>
+<span><span class="co">##  deSolve 17.560595 18.092647 18.848201 18.246444 19.747754 20.912697    30</span></span>
+<span><span class="co">##      dde  7.549883  7.665358  8.126739  7.721883  8.335137  9.725611    30</span></span></code></pre>
 </div>
 <div class="section level3">
 <h3 id="models-implemented-in-c">Models implemented in C<a class="anchor" aria-label="anchor" href="#models-implemented-in-c"></a>
@@ -581,9 +581,9 @@ from using compiled code.</p>
 <span>                   n_history <span class="op">=</span> <span class="fl">1000L</span>, return_history <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">tC</span></span></code></pre></div>
 <pre><code><span><span class="co">## Unit: microseconds</span></span>
-<span><span class="co">##     expr    min     lq     mean  median      uq    max neval</span></span>
-<span><span class="co">##  deSolve  627.8  676.2  728.097  721.10  774.35  880.6   100</span></span>
-<span><span class="co">##      dde 1256.2 1282.3 1352.533 1302.95 1337.65 3943.4   100</span></span></code></pre>
+<span><span class="co">##     expr      min        lq      mean    median        uq      max neval</span></span>
+<span><span class="co">##  deSolve  465.258  497.9335  538.7763  512.8065  537.8475 2461.601   100</span></span>
+<span><span class="co">##      dde 1110.000 1129.3265 1155.1630 1147.1445 1173.8600 1409.008   100</span></span></code></pre>
 <p>The difference in speed will tend to increase as the models become
 larger (in terms of numbers of equations and parameters). On the other
 hand, constructing large models in C can be a hassle (but see <a href="https://mrc-ide.github.io/odin/" class="external-link">odin</a> for a possible
@@ -609,10 +609,10 @@ through to <code>dopri</code> as the <code>func</code> argument.</p>
 <span>                    return_history <span class="op">=</span> <span class="cn">FALSE</span>, return_minimal <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">tC2</span></span></code></pre></div>
 <pre><code><span><span class="co">## Unit: microseconds</span></span>
-<span><span class="co">##     expr    min      lq     mean  median      uq    max neval</span></span>
-<span><span class="co">##  deSolve  651.6  682.40  787.768  761.95  817.45 3376.0   100</span></span>
-<span><span class="co">##      dde 1258.5 1278.55 1329.383 1303.25 1332.35 1596.1   100</span></span>
-<span><span class="co">##     dde2 1220.0 1235.80 1256.666 1248.50 1265.55 1429.0   100</span></span></code></pre>
+<span><span class="co">##     expr      min        lq      mean   median        uq      max neval</span></span>
+<span><span class="co">##  deSolve  463.855  508.3335  546.9876  519.434  551.6485 2680.039   100</span></span>
+<span><span class="co">##      dde 1110.572 1127.4730 1148.0247 1134.336 1161.8765 1440.496   100</span></span>
+<span><span class="co">##     dde2 1080.796 1087.4735 1103.4418 1094.412 1107.2905 1329.640   100</span></span></code></pre>
 </div>
 </div>
   </div>
