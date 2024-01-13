@@ -14,7 +14,7 @@ Description: Solves ordinary and delay differential equations, where
     <ISBN:3540604529>.  Support is also included for iterating
     difference equations.
 License: MIT + file LICENSE
-URL: https://github.com/mrc-ide/dde
+URL: https://github.com/mrc-ide/dde, https://mrc-ide.github.io/dde/
 BugReports: https://github.com/mrc-ide/dde/issues
 Depends: R (>= 3.1.0)
 LinkingTo: ring (>= 1.0.0)
