@@ -6,15 +6,15 @@ void logistic_finalize(SEXP extPtr) {
   if (TYPEOF(extPtr) == EXTPTRSXP) {
     p = (double*) R_ExternalPtrAddr(extPtr);
     if (p) {
-      Free(p);
+      R_Free(p);
     }
   }
 }
 
 SEXP logistic_init(SEXP pars) {
-  size_t np = length(pars);
+  size_t np = Rf_length(pars);
   double *rpars = REAL(pars);
-  double * p = (double*) Calloc(length(pars), double);
+  double * p = (double*) R_Calloc(Rf_length(pars), double);
   memcpy(p, rpars, np * sizeof(double));
 
   SEXP extPtr = PROTECT(R_MakeExternalPtr(p, R_NilValue, R_NilValue));
