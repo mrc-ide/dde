@@ -3,6 +3,7 @@
 #include "dopri_853.h"
 #include <R.h>
 #include <stdint.h>
+#include <float.h>
 
 dopri_data* dopri_data_alloc(deriv_func* target, size_t n,
                              output_func* output, size_t n_out,
@@ -860,12 +861,12 @@ void dopri_callback(dopri_data *obj, double t, double h, double *y) {
   SEXP callback = VECTOR_ELT(obj->callback, 0);
   SEXP env = VECTOR_ELT(obj->callback, 1);
 
-  SEXP r_t = PROTECT(ScalarReal(t));
-  SEXP r_h = PROTECT(ScalarReal(h));
-  SEXP r_y = PROTECT(allocVector(REALSXP, obj->n));
+  SEXP r_t = PROTECT(Rf_ScalarReal(t));
+  SEXP r_h = PROTECT(Rf_ScalarReal(h));
+  SEXP r_y = PROTECT(Rf_allocVector(REALSXP, obj->n));
   memcpy(REAL(r_y), y, obj->n * sizeof(double));
-  SEXP call = PROTECT(lang4(callback, r_t, r_h, r_y));
-  eval(call, env);
+  SEXP call = PROTECT(Rf_lang4(callback, r_t, r_h, r_y));
+  Rf_eval(call, env);
   UNPROTECT(4);
 }
 

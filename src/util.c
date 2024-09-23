@@ -3,7 +3,7 @@
 
 int scalar_int(SEXP x) {
   int ret;
-  if (length(x) != 1) {
+  if (Rf_length(x) != 1) {
     Rf_error("Expected a scalar");
   }
   if (TYPEOF(x) == INTSXP) {
@@ -18,7 +18,7 @@ int scalar_int(SEXP x) {
 
 double scalar_double(SEXP x) {
   double ret;
-  if (length(x) != 1) {
+  if (Rf_length(x) != 1) {
     Rf_error("Expected a scalar");
   }
   if (TYPEOF(x) == INTSXP) {
@@ -51,7 +51,7 @@ size_t r_index(SEXP x, size_t len) {
 }
 
 size_t * r_indices(SEXP x, size_t len) {
-  const size_t ni = length(x);
+  const size_t ni = Rf_length(x);
   size_t *idx = (size_t*) R_alloc(ni, sizeof(size_t));
   for (size_t i = 0; i < ni; ++i) {
     int tmp;

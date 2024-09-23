@@ -2,6 +2,7 @@
 #include "dopri.h"
 #include <R.h>
 #include <Rinternals.h>
+#include <float.h>
 #include "util.h"
 
 enum dopri_idx {
@@ -42,7 +43,7 @@ SEXP r_dopri(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
              SEXP r_return_initial, SEXP r_return_statistics,
              SEXP r_return_pointer) {
   double *y_initial = REAL(r_y_initial);
-  size_t n = length(r_y_initial);
+  size_t n = Rf_length(r_y_initial);
 
   size_t n_times = LENGTH(r_times);
   double *times = REAL(r_times);
@@ -164,13 +165,13 @@ SEXP r_dopri(SEXP r_y_initial, SEXP r_times, SEXP r_func, SEXP r_data,
 
   obj->stiff_check = INTEGER(r_stiff_check)[0];
 
-  SEXP r_y = PROTECT(allocMatrix(REALSXP, n, nt));
+  SEXP r_y = PROTECT(Rf_allocMatrix(REALSXP, n, nt));
   memset(REAL(r_y), 0, n * nt * sizeof(double));
 
   if (n_out > 0) {
-    r_out = PROTECT(allocMatrix(REALSXP, n_out, nt));
+    r_out = PROTECT(Rf_allocMatrix(REALSXP, n_out, nt));
     out = REAL(r_out);
-    setAttrib(r_y, install("output"), r_out);
+    Rf_setAttrib(r_y, Rf_install("output"), r_out);
     UNPROTECT(1);
   }
 
@@ -200,7 +201,7 @@ SEXP r_dopri_continue(SEXP r_ptr, SEXP r_y_initial, SEXP r_times,
   if (r_y_initial == R_NilValue) {
     y_initial = obj->y;
   } else {
-    if ((size_t) length(r_y_initial) != n) {
+    if ((size_t) Rf_length(r_y_initial) != n) {
       Rf_error("Incorrect size 'y' on integration restart");
     }
     y_initial = REAL(r_y_initial);
@@ -235,14 +236,14 @@ SEXP r_dopri_continue(SEXP r_ptr, SEXP r_y_initial, SEXP r_times,
     tcrit = REAL(r_tcrit);
   }
 
-  SEXP r_y = PROTECT(allocMatrix(REALSXP, n, nt));
+  SEXP r_y = PROTECT(Rf_allocMatrix(REALSXP, n, nt));
   double *y = REAL(r_y);
   SEXP r_out = R_NilValue;
   double *out = NULL;
   if (n_out > 0) {
-    r_out = PROTECT(allocMatrix(REALSXP, n_out, nt));
+    r_out = PROTECT(Rf_allocMatrix(REALSXP, n_out, nt));
     out = REAL(r_out);
-    setAttrib(r_y, install("output"), r_out);
+    Rf_setAttrib(r_y, Rf_install("output"), r_out);
     UNPROTECT(1);
   }
 
@@ -305,11 +306,11 @@ SEXP r_ylag(SEXP r_t, SEXP r_idx) {
   // TODO: bad things will happen if negative values of ylag are
   // given!
   if (r_idx == R_NilValue) {
-    r_y = PROTECT(allocVector(REALSXP, n));
+    r_y = PROTECT(Rf_allocVector(REALSXP, n));
     ylag_all(t, REAL(r_y));
   } else {
-    const size_t ni = length(r_idx);
-    r_y = PROTECT(allocVector(REALSXP, ni));
+    const size_t ni = Rf_length(r_idx);
+    r_y = PROTECT(Rf_allocVector(REALSXP, ni));
     if (ni == 1) {
       REAL(r_y)[0] = ylag_1(t, r_index(r_idx, n));
     } else {
@@ -327,11 +328,11 @@ void dde_r_harness(size_t n, double t, const double *y, double *dydt,
     target = VECTOR_ELT(d, DOPRI_IDX_TARGET),
     parms = VECTOR_ELT(d, DOPRI_IDX_PARMS),
     env = VECTOR_ELT(d, DOPRI_IDX_ENV);
-  SEXP r_t = PROTECT(ScalarReal(t));
-  SEXP r_y = PROTECT(allocVector(REALSXP, n));
+  SEXP r_t = PROTECT(Rf_ScalarReal(t));
+  SEXP r_y = PROTECT(Rf_allocVector(REALSXP, n));
   memcpy(REAL(r_y), y, n * sizeof(double));
-  SEXP call = PROTECT(lang4(target, r_t, r_y, parms));
-  SEXP ans = PROTECT(eval(call, env));
+  SEXP call = PROTECT(Rf_lang4(target, r_t, r_y, parms));
+  SEXP ans = PROTECT(Rf_eval(call, env));
   memcpy(dydt, REAL(ans), n * sizeof(double));
   UNPROTECT(4);
 }
@@ -343,11 +344,11 @@ void dde_r_output_harness(size_t n, double t, const double *y,
     parms = VECTOR_ELT(d, DOPRI_IDX_PARMS),
     env = VECTOR_ELT(d, DOPRI_IDX_ENV),
     output = VECTOR_ELT(d, DOPRI_IDX_OUTPUT);
-  SEXP r_t = PROTECT(ScalarReal(t));
-  SEXP r_y = PROTECT(allocVector(REALSXP, n));
+  SEXP r_t = PROTECT(Rf_ScalarReal(t));
+  SEXP r_y = PROTECT(Rf_allocVector(REALSXP, n));
   memcpy(REAL(r_y), y, n * sizeof(double));
-  SEXP call = PROTECT(lang4(output, r_t, r_y, parms));
-  SEXP ans = PROTECT(eval(call, env));
+  SEXP call = PROTECT(Rf_lang4(output, r_t, r_y, parms));
+  SEXP ans = PROTECT(Rf_eval(call, env));
   memcpy(out, REAL(ans), n_out * sizeof(double));
   UNPROTECT(4);
 }
@@ -358,13 +359,13 @@ void dde_r_event_harness(size_t n, double t, double *y, void *data) {
     event = VECTOR_ELT(d, DOPRI_IDX_EVENT),
     parms = VECTOR_ELT(d, DOPRI_IDX_PARMS),
     env = VECTOR_ELT(d, DOPRI_IDX_ENV);
-  SEXP r_t = PROTECT(ScalarReal(t));
-  SEXP r_y = PROTECT(allocVector(REALSXP, n));
+  SEXP r_t = PROTECT(Rf_ScalarReal(t));
+  SEXP r_y = PROTECT(Rf_allocVector(REALSXP, n));
   memcpy(REAL(r_y), y, n * sizeof(double));
-  SEXP call = PROTECT(lang4(event, r_t, r_y, parms));
-  SEXP ans = PROTECT(eval(call, env));
+  SEXP call = PROTECT(Rf_lang4(event, r_t, r_y, parms));
+  SEXP ans = PROTECT(Rf_eval(call, env));
   memcpy(y, REAL(ans), n * sizeof(double));
-  SEXP parms_new = getAttrib(ans, install("parms"));
+  SEXP parms_new = Rf_getAttrib(ans, Rf_install("parms"));
   if (parms_new != R_NilValue) {
     SET_VECTOR_ELT(d, DOPRI_IDX_PARMS, parms_new);
   }
@@ -399,30 +400,30 @@ void r_dopri_cleanup(dopri_data *obj, SEXP r_ptr, SEXP r_y,
 
   if (return_history) {
     size_t nh = ring_buffer_used(obj->history, 0);
-    SEXP history = PROTECT(allocMatrix(REALSXP, obj->history_len, nh));
+    SEXP history = PROTECT(Rf_allocMatrix(REALSXP, obj->history_len, nh));
     ring_buffer_read(obj->history, REAL(history), nh);
-    SEXP r_n = PROTECT(ScalarInteger(obj->n));
-    setAttrib(history, install("n"), r_n);
-    setAttrib(history, R_ClassSymbol, mkString("dopri_history"));
-    setAttrib(r_y, install("history"), history);
+    SEXP r_n = PROTECT(Rf_ScalarInteger(obj->n));
+    Rf_setAttrib(history, Rf_install("n"), r_n);
+    Rf_setAttrib(history, R_ClassSymbol, Rf_mkString("dopri_history"));
+    Rf_setAttrib(r_y, Rf_install("history"), history);
     UNPROTECT(2);
   }
 
   if (return_statistics) {
-    SEXP stats = PROTECT(allocVector(INTSXP, 4));
-    SEXP stats_nms = PROTECT(allocVector(STRSXP, 4));
+    SEXP stats = PROTECT(Rf_allocVector(INTSXP, 4));
+    SEXP stats_nms = PROTECT(Rf_allocVector(STRSXP, 4));
     INTEGER(stats)[0] = obj->n_eval;
-    SET_STRING_ELT(stats_nms, 0, mkChar("n_eval"));
+    SET_STRING_ELT(stats_nms, 0, Rf_mkChar("n_eval"));
     INTEGER(stats)[1] = obj->n_step;
-    SET_STRING_ELT(stats_nms, 1, mkChar("n_step"));
+    SET_STRING_ELT(stats_nms, 1, Rf_mkChar("n_step"));
     INTEGER(stats)[2] = obj->n_accept;
-    SET_STRING_ELT(stats_nms, 2, mkChar("n_accept"));
+    SET_STRING_ELT(stats_nms, 2, Rf_mkChar("n_accept"));
     INTEGER(stats)[3] = obj->n_reject;
-    SET_STRING_ELT(stats_nms, 3, mkChar("n_reject"));
-    setAttrib(stats, R_NamesSymbol, stats_nms);
-    setAttrib(r_y, install("statistics"), stats);
-    SEXP r_step_size_initial = PROTECT(ScalarReal(obj->step_size_initial));
-    setAttrib(r_y, install("step_size"), r_step_size_initial);
+    SET_STRING_ELT(stats_nms, 3, Rf_mkChar("n_reject"));
+    Rf_setAttrib(stats, R_NamesSymbol, stats_nms);
+    Rf_setAttrib(r_y, Rf_install("statistics"), stats);
+    SEXP r_step_size_initial = PROTECT(Rf_ScalarReal(obj->step_size_initial));
+    Rf_setAttrib(r_y, Rf_install("step_size"), r_step_size_initial);
     UNPROTECT(3);
   }
 
@@ -432,7 +433,7 @@ void r_dopri_cleanup(dopri_data *obj, SEXP r_ptr, SEXP r_y,
     // Need to reset this memory
     obj->times = NULL;
     obj->tcrit = NULL;
-    setAttrib(r_y, install("ptr"), r_ptr);
+    Rf_setAttrib(r_y, Rf_install("ptr"), r_ptr);
   } else {
     dopri_data_free(obj);
     R_ClearExternalPtr(r_ptr);

@@ -9,12 +9,12 @@ SEXP r_difeq(SEXP r_y_initial, SEXP r_steps, SEXP r_target, SEXP r_data,
              SEXP r_return_initial, SEXP r_return_pointer) {
   double *y_initial = REAL(r_y_initial);
   size_t n, n_replicates;
-  bool replicates = isMatrix(r_y_initial);
+  bool replicates = Rf_isMatrix(r_y_initial);
   if (replicates) {
-    n = nrows(r_y_initial);
-    n_replicates = ncols(r_y_initial);
+    n = Rf_nrows(r_y_initial);
+    n_replicates = Rf_ncols(r_y_initial);
   } else {
-    n = length(r_y_initial);
+    n = Rf_length(r_y_initial);
     n_replicates = 1;
   }
 
@@ -74,20 +74,20 @@ SEXP r_difeq(SEXP r_y_initial, SEXP r_steps, SEXP r_target, SEXP r_data,
 
   // Then solve things:
   if (replicates) {
-    r_y = PROTECT(alloc3DArray(REALSXP, n, nt, n_replicates));
+    r_y = PROTECT(Rf_alloc3DArray(REALSXP, n, nt, n_replicates));
   } else {
-    r_y = PROTECT(allocMatrix(REALSXP, n, nt));
+    r_y = PROTECT(Rf_allocMatrix(REALSXP, n, nt));
   }
   double *y = REAL(r_y);
 
   if (n_out > 0) {
     if (replicates) {
-      r_out = PROTECT(alloc3DArray(REALSXP, n_out, nt, n_replicates));
+      r_out = PROTECT(Rf_alloc3DArray(REALSXP, n_out, nt, n_replicates));
     } else {
-      r_out = PROTECT(allocMatrix(REALSXP, n_out, nt));
+      r_out = PROTECT(Rf_allocMatrix(REALSXP, n_out, nt));
     }
     out = REAL(r_out);
-    setAttrib(r_y, install("output"), r_out);
+    Rf_setAttrib(r_y, Rf_install("output"), r_out);
     UNPROTECT(1);
   }
 
@@ -124,7 +124,7 @@ SEXP r_difeq_continue(SEXP r_ptr, SEXP r_y_initial, SEXP r_steps,
   if (r_y_initial == R_NilValue) {
     y_initial = obj->y1;
   } else {
-    if ((size_t) length(r_y_initial) != n) {
+    if ((size_t) Rf_length(r_y_initial) != n) {
       Rf_error("Incorrect size 'y' on simulation restart");
     }
     y_initial = REAL(r_y_initial);
@@ -152,14 +152,14 @@ SEXP r_difeq_continue(SEXP r_ptr, SEXP r_y_initial, SEXP r_steps,
   bool return_pointer = INTEGER(r_return_pointer)[0];
   size_t ns = return_initial ? n_steps : n_steps - 1;
 
-  SEXP r_y = PROTECT(allocMatrix(REALSXP, n, ns));
+  SEXP r_y = PROTECT(Rf_allocMatrix(REALSXP, n, ns));
   double *y = REAL(r_y);
   SEXP r_out = R_NilValue;
   double *out = NULL;
   if (n_out > 0) {
-    r_out = PROTECT(allocMatrix(REALSXP, n_out, ns));
+    r_out = PROTECT(Rf_allocMatrix(REALSXP, n_out, ns));
     out = REAL(r_out);
-    setAttrib(r_y, install("output"), r_out);
+    Rf_setAttrib(r_y, Rf_install("output"), r_out);
     UNPROTECT(1);
   }
 
@@ -181,11 +181,11 @@ SEXP r_yprev(SEXP r_i, SEXP r_idx) {
   int step = scalar_int(r_i);
   SEXP r_y;
   if (r_idx == R_NilValue) {
-    r_y = PROTECT(allocVector(REALSXP, n));
+    r_y = PROTECT(Rf_allocVector(REALSXP, n));
     yprev_all(step, REAL(r_y));
   } else {
-    const size_t ni = length(r_idx);
-    r_y = PROTECT(allocVector(REALSXP, ni));
+    const size_t ni = Rf_length(r_idx);
+    r_y = PROTECT(Rf_allocVector(REALSXP, ni));
     if (ni == 1) {
       REAL(r_y)[0] = yprev_1(step, r_index(r_idx, n));
     } else {
@@ -204,24 +204,24 @@ void difeq_r_harness(size_t n, size_t step,
     target = VECTOR_ELT(d, 0),
     parms = VECTOR_ELT(d, 1),
     rho = VECTOR_ELT(d, 2);
-  SEXP r_step = PROTECT(ScalarInteger(step));
-  SEXP r_y = PROTECT(allocVector(REALSXP, n));
+  SEXP r_step = PROTECT(Rf_ScalarInteger(step));
+  SEXP r_y = PROTECT(Rf_allocVector(REALSXP, n));
   memcpy(REAL(r_y), y, n * sizeof(double));
-  SEXP call = PROTECT(lang4(target, r_step, r_y, parms));
-  SEXP ans = PROTECT(eval(call, rho));
+  SEXP call = PROTECT(Rf_lang4(target, r_step, r_y, parms));
+  SEXP ans = PROTECT(Rf_eval(call, rho));
   // Ensure that we get sensible output from the target function:
-  if ((size_t)length(ans) != n) {
+  if ((size_t)Rf_length(ans) != n) {
     Rf_error("Incorrect length variable output: expected %d, recieved %d",
-             (int)n, (int)length(ans));
+             (int)n, (int)Rf_length(ans));
   }
   memcpy(ynext, REAL(ans), n * sizeof(double));
   if (n_out > 0) {
-    SEXP r_output = getAttrib(ans, install("output"));
+    SEXP r_output = Rf_getAttrib(ans, Rf_install("output"));
     if (r_output == R_NilValue) {
       Rf_error("Missing output");
-    } else if ((size_t)length(r_output) != n_out) {
+    } else if ((size_t)Rf_length(r_output) != n_out) {
       Rf_error("Incorrect length output: expected %d, recieved %d",
-               (int)n_out, (int)length(r_output));
+               (int)n_out, (int)Rf_length(r_output));
     } else if (TYPEOF(r_output) != REALSXP) {
       Rf_error("Incorrect type output");
     }
@@ -253,11 +253,11 @@ void r_difeq_cleanup(difeq_data *obj, SEXP r_ptr, SEXP r_y,
                      bool return_history, bool return_pointer) {
   if (return_history) {
     size_t nh = ring_buffer_used(obj->history, 0);
-    SEXP history = PROTECT(allocMatrix(REALSXP, obj->history_len, nh));
+    SEXP history = PROTECT(Rf_allocMatrix(REALSXP, obj->history_len, nh));
     ring_buffer_read(obj->history, REAL(history), nh);
-    SEXP r_n = PROTECT(ScalarInteger(obj->n));
-    setAttrib(history, install("n"), r_n);
-    setAttrib(r_y, install("history"), history);
+    SEXP r_n = PROTECT(Rf_ScalarInteger(obj->n));
+    Rf_setAttrib(history, Rf_install("n"), r_n);
+    Rf_setAttrib(r_y, Rf_install("history"), history);
     UNPROTECT(2);
   }
 
@@ -265,7 +265,7 @@ void r_difeq_cleanup(difeq_data *obj, SEXP r_ptr, SEXP r_y,
   // running the finaliser for us when it garbage collects ptr above.
   if (return_pointer) {
     obj->steps = NULL;
-    setAttrib(r_y, install("ptr"), r_ptr);
+    Rf_setAttrib(r_y, Rf_install("ptr"), r_ptr);
   } else {
     difeq_data_free(obj);
     R_ClearExternalPtr(r_ptr);
